@@ -10,7 +10,7 @@ AC_PROG_RANLIB
 
 AC_PROG_CC
 
-AX_COMPILER_FLAGS([], [], [], [-std=c99 -pedantic -Werror -Wall -Wextra -Wvla])
+CFLAGS="$CFLAGS -std=c99 -pedantic -Werror -Wall -Wextra -Wvla"
 
 AC_CONFIG_FILES([
 				 Makefile
