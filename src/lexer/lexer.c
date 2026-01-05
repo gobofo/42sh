@@ -1,8 +1,14 @@
 #include "lexer.h"
 
-#include <stdio.h>
-
-void print_lexer(void)
+struct token create_token(char *str)
 {
-    puts("Vive les lexer");
+    // Cannot be NULL
+    // Already checked before
+
+    struct token token;
+    token.content = strdup(str);
+
+    if (strcmp(str, "if") == 0)
+
+        return token;
 }
