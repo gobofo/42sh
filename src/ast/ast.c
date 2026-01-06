@@ -1,8 +1,7 @@
 #include "ast.h"
 
 #include <stdio.h>
-
-#include "parser/parser.h"
+#include <stdlib.h>
 
 struct AST *create_ast(enum types type, char *content){ //renvoi un arbre avec uniquement la racine "type"
 
@@ -16,7 +15,7 @@ struct AST *create_ast(enum types type, char *content){ //renvoi un arbre avec u
 
     return start;
 
-};
+}
 
 struct AST *add_children(struct AST *root, enum types type, char *content){ //ajoute un enfant en s'occupant des realloc
 
@@ -54,8 +53,3 @@ void destroy_AST(struct AST *root){ //detruit l'AST (free)
 
 }
 
-void print_ast(void)
-{
-    printf("ast !!!\n");
-    print_parser();
-}
