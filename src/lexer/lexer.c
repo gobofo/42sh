@@ -50,7 +50,7 @@ struct token create_token(char *str)
  * @param size	 The size (in bytes) of the buffer
  */
 
-void flush_token(struct node **head, struct node **tail, FILE **stream,
+void flush_token(struct node **tail, FILE **stream,
                  char **buff, size_t *size)
 {
     fclose(*stream);
@@ -66,10 +66,7 @@ void flush_token(struct node **head, struct node **tail, FILE **stream,
     struct node *new_node = calloc(1, sizeof(struct node));
     new_node->token = create_token(*buff);
 
-    if (*head == NULL)
-        *head = new_node;
-    else
-        (*tail)->next = new_node;
+	(*tail)->next = new_node;
     *tail = new_node;
 
 	*buff = NULL;
@@ -79,8 +76,8 @@ void flush_token(struct node **head, struct node **tail, FILE **stream,
 
 struct node *lexer(FILE *file)
 {
-    struct node *head = NULL;
-    struct node *tail = NULL;
+    struct node *head = calloc(sizeof(struct node), 1);
+    struct node *tail = head;
 
 	// TODO pour eviter le clang-tidy (5 parametre a flush_token) on peut definir la head comme un token vide (mais alloue)
 	// et on commence a ajouter a partir de lui
@@ -119,18 +116,18 @@ struct node *lexer(FILE *file)
 
         if (c == '\'')
         {
-            flush_token(&head, &tail, &stream, &buff, &size);
+            flush_token(&tail, &stream, &buff, &size);
 
 			fputc(c, stream);
             
-			flush_token(&head, &tail, &stream, &buff, &size);
+			flush_token(&tail, &stream, &buff, &size);
             
 			while ((c = fgetc(file)) != EOF && c != '\'')
             {
                 fputc(c, stream);
             }
             
-			flush_token(&head, &tail, &stream, &buff, &size);
+			flush_token(&tail, &stream, &buff, &size);
             
 			if (c == EOF)
                 break; // TODO erreur a declancher ici si la quote n'est pas
@@ -138,36 +135,39 @@ struct node *lexer(FILE *file)
             
 			fputc(c, stream);
             
-			flush_token(&head, &tail, &stream, &buff, &size);
+			flush_token(&tail, &stream, &buff, &size);
             
 			continue;
         }
 
         if (c == ' ' || c == '\t')
         {
-            flush_token(&head, &tail, &stream, &buff, &size);
+            flush_token(&tail, &stream, &buff, &size);
             continue;
         }
 
         if (c == ';' || c == '\n')
         {
-            flush_token(&head, &tail, &stream, &buff, &size);
+            flush_token(&tail, &stream, &buff, &size);
             
 			fputc(c, stream);
             
-			flush_token(&head, &tail, &stream, &buff, &size);
+			flush_token(&tail, &stream, &buff, &size);
             continue;
         }
 
         fputc(c, stream);
     }
 
-    flush_token(&head, &tail, &stream, &buff, &size);
+    flush_token(&tail, &stream, &buff, &size);
 
     fclose(stream);
     free(buff);
 
-    return head;
+	struct node *ret = head->next;
+	free(head);
+
+    return ret;
 }
 
 
