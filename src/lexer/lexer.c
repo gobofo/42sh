@@ -48,11 +48,8 @@ struct token create_token(char *str)
  * @param stream The stream where the value of the token is stored
  * @param buff	 The buffer holding the value of the token
  * @param size	 The size (in bytes) of the buffer
- *
- * @return Nothing
  */
 
-// ajoute le token a la liste et reset le stream
 void flush_token(struct node **head, struct node **tail, FILE **stream,
                  char **buff, size_t *size)
 {
@@ -75,7 +72,7 @@ void flush_token(struct node **head, struct node **tail, FILE **stream,
         (*tail)->next = new_node;
     *tail = new_node;
 
-    *buff = NULL;
+	free(*buff);
     *size = 0;
     *stream = open_memstream(buff, size);
 }
@@ -101,11 +98,13 @@ struct node *lexer(FILE *file)
 	//
 	// comme ca dans le code on utilise que tail
 
-    char *buff = NULL;
-    size_t size = 0;
-    FILE *stream = open_memstream(&buff, &size);
-
-    int c;
+	int c;
+    
+	char *buff = NULL;
+    
+	size_t size = 0;
+    
+	FILE *stream = open_memstream(&buff, &size);
 
     while ((c = fgetc(file)) != EOF)
     {
