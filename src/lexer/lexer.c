@@ -13,7 +13,6 @@
  *
  * @return Token
  */
-
 struct token create_token(char *str)
 {
     struct token token;
@@ -42,14 +41,18 @@ struct token create_token(char *str)
 }
 
 /**
- * @brief Adds the token to the list and creates a new empty stream
+ * @brief  		 Empties the current stream and creates a node
  *
- * @param tail 	 The tail of the linked list
+ * The stream holds the current of the token we are gonna create
+ * We need to save what is inside the stream
+ * Then we empty the stream so it can be used for the next token
+ *
  * @param stream The stream where the value of the token is stored
  * @param buff	 The buffer holding the value of the token
  * @param size	 The size (in bytes) of the buffer
+ *
+ * @return A new node
  */
-
 struct node *flush_stream(FILE **stream, char **buff, size_t *size)
 {
 	fclose(*stream);
@@ -71,18 +74,44 @@ struct node *flush_stream(FILE **stream, char **buff, size_t *size)
 	return new_node;
 }
 
+/**
+ * @brief 		 	Adds a node to the end of the linked list
+ *
+ * @param tail 	 	The tail of the linked list
+ * @param new_node  The new ndoe to add at the end
+ */
 void add_node(struct node **tail, struct node *new_node)
 {
 	(*tail)->next = new_node;
     *tail = new_node;
 }
 
+/**
+ * @brief			Flush the stream and adds the new node to the end of the
+ * 					list
+ *
+ * @param tail 		The end of the list
+ * @param stream	The stream to read from
+ * @param buff		The buff where the content for the node is stored
+ * @param size		The size of the buffer (in bytes)
+ */ 
 void flush_token(struct node **tail, FILE **stream, char **buff, size_t *size)
 {
 	struct node *new_node = flush_stream(stream, buff, size);
 	add_node(tail, new_node);
 }
 
+/**
+ * @brief 		Creates a list of tokens from an input
+ *
+ * Takes a stream as an argument and read the content
+ * Creates a unique token for each element in the stream and makes a linked list
+ * with all the tokens processed
+ *
+ * @param file	The stream to read from
+ *
+ * @return Linked List of tokens
+ */
 struct node *lexer(FILE *file)
 {
     struct node *head = calloc(sizeof(struct node), 1);
