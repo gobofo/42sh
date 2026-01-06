@@ -8,13 +8,10 @@
 
 struct node
 {
-    struct token;
-
+    struct token token;
     struct node *next;
-}
+};
 
-struct token
-create_token(char *str);
 struct node *lexer(FILE *file);
 
 // Handle IO Entries
