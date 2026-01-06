@@ -1,6 +1,20 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-void print_lexer(void);
+#include <stdio.h>
+#include <string.h>
+
+#include "../token.h"
+
+struct node
+{
+    struct token token;
+    struct node *next;
+};
+
+struct node *lexer(FILE *file);
+
+// Handle IO Entries
+// All must be a FILE
 
 #endif /* ! LEXER_H */
