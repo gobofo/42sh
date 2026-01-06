@@ -3,14 +3,17 @@
 
 enum types{
 
-    PROGRAM,
-    LIST_STATEMENT,
-    STATEMENT,
-    IF_STATEMENT,
-    CONDITION,
-    BUILTIN,
-    ECHO_STATEMENT,
-    VALUES
+    INPUT,
+    LIST,
+    AND_OR,
+    PIPELINE,
+    COMMAND,
+    SHELL_COMMAND,
+    RULE_IF,
+    ELSE_CLAUSE,
+    COMPOUND_LIST,
+    SIMPLE_COMMAND,
+    ELEMENT
 
 };
 

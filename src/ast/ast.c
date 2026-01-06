@@ -17,7 +17,7 @@ struct AST *create_ast(enum types type, char *content){ //renvoi un arbre avec u
 
 }
 
-struct AST *add_children(struct AST *root, enum types type, char *content){ //ajoute un enfant en s'occupant des realloc
+struct AST *add_children(struct AST *root, struct AST *child){ //ajoute un enfant en s'occupant des realloc
 
     if (root->count_children >= root->max_children){ //pour les realloc
         
@@ -32,8 +32,7 @@ struct AST *add_children(struct AST *root, enum types type, char *content){ //aj
         root->children = realloc(root->children, root->max_children);
     }
 
-    struct AST *new_child = create_ast(type, content);
-    root->children[root->count_children] = new_child;
+    root->children[root->count_children] = child;
     root->count_children += 1;
 
     return root;
