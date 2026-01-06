@@ -1,4 +1,4 @@
-#include "lexer/lexer.h"
+#include "lexer.h"
 
 const char *get_type_name(enum types type)
 {
@@ -69,6 +69,6 @@ int main(int argc, char **argv)
     printf("--- FIN DU LEXING ---\n");
 
 
-	freeNodes(head);
+	free_nodes(head);
 	return 0;
 }
