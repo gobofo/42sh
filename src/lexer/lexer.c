@@ -17,7 +17,7 @@
 struct token create_token(char *str)
 {
     struct token token;
-    token.content = strdup(str);
+    token.content = str;
 
     if (strcmp(str, "if") == 0)
         token.type = IF;
@@ -72,7 +72,7 @@ void flush_token(struct node **head, struct node **tail, FILE **stream,
         (*tail)->next = new_node;
     *tail = new_node;
 
-	free(*buff);
+	*buff = NULL;
     *size = 0;
     *stream = open_memstream(buff, size);
 }
