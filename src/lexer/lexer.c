@@ -17,7 +17,7 @@
 struct token create_token(char *str)
 {
     struct token token;
-    token.content = str;
+    token.content = strdup(str);
 
     if (strcmp(str, "if") == 0)
         token.type = IF;
