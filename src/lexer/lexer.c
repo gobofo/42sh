@@ -2,11 +2,20 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+/**
+ * @brief Creates a token.
+ *
+ * The function creates a token from a specific string, that will be the 
+ * content, and associates the corresponding type.
+ *
+ * @param str The content of the token.
+ * 			  Must not be NULL
+ *
+ * @return Token
+ */
+
 struct token create_token(char *str)
 {
-    // Cannot be NULL
-    // Already checked before
-
     struct token token;
     token.content = str;
 
@@ -32,8 +41,15 @@ struct token create_token(char *str)
     return token;
 }
 
+/**
+ * @brief Adds the token to the list and creates a new empty stream
+ *
+ * @param tail 	 The tail of the linked list
+ * @param stream The stream where the value of the token is stored
+ * @param buff	 The buffer holding the value of the token
+ * @param size	 The size (in bytes) of the buffer
+ */
 
-// ajoute le token a la liste et reset le stream
 void flush_token(struct node **head, struct node **tail, FILE **stream,
                  char **buff, size_t *size)
 {
@@ -56,7 +72,7 @@ void flush_token(struct node **head, struct node **tail, FILE **stream,
         (*tail)->next = new_node;
     *tail = new_node;
 
-    *buff = NULL;
+	*buff = NULL;
     *size = 0;
     *stream = open_memstream(buff, size);
 }
@@ -82,11 +98,13 @@ struct node *lexer(FILE *file)
 	//
 	// comme ca dans le code on utilise que tail
 
-    char *buff = NULL;
-    size_t size = 0;
-    FILE *stream = open_memstream(&buff, &size);
-
-    int c;
+	int c;
+    
+	char *buff = NULL;
+    
+	size_t size = 0;
+    
+	FILE *stream = open_memstream(&buff, &size);
 
     while ((c = fgetc(file)) != EOF)
     {
@@ -102,32 +120,42 @@ struct node *lexer(FILE *file)
         if (c == '\'')
         {
             flush_token(&head, &tail, &stream, &buff, &size);
-            fputc(c, stream);
-            flush_token(&head, &tail, &stream, &buff, &size);
-            while ((c = fgetc(file)) != EOF && c != '\'')
+
+			fputc(c, stream);
+            
+			flush_token(&head, &tail, &stream, &buff, &size);
+            
+			while ((c = fgetc(file)) != EOF && c != '\'')
             {
                 fputc(c, stream);
             }
-            flush_token(&head, &tail, &stream, &buff, &size);
-            if (c == EOF)
+            
+			flush_token(&head, &tail, &stream, &buff, &size);
+            
+			if (c == EOF)
                 break; // TODO erreur a declancher ici si la quote n'est pas
                        // fermee
-            fputc(c, stream);
-            flush_token(&head, &tail, &stream, &buff, &size);
-            continue;
+            
+			fputc(c, stream);
+            
+			flush_token(&head, &tail, &stream, &buff, &size);
+            
+			continue;
         }
 
-        if (c==' ' || c=='\t')
+        if (c == ' ' || c == '\t')
         {
             flush_token(&head, &tail, &stream, &buff, &size);
             continue;
         }
 
-        if (c == ';' || c=='\n')
+        if (c == ';' || c == '\n')
         {
             flush_token(&head, &tail, &stream, &buff, &size);
-            fputc(c, stream);
-            flush_token(&head, &tail, &stream, &buff, &size);
+            
+			fputc(c, stream);
+            
+			flush_token(&head, &tail, &stream, &buff, &size);
             continue;
         }
 
