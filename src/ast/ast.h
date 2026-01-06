@@ -9,7 +9,7 @@ enum types{
     IF_STATEMENT,
     CONDITION,
     BUILTIN,
-    ECHO_STATEMENT
+    ECHO_STATEMENT,
     VALUES
 
 };
@@ -27,6 +27,5 @@ struct AST{
 struct AST *create_ast(enum types type, char *content);
 struct AST *add_children(struct AST *root, enum types type, char *content);
 void destroy_AST(struct AST *root);
-void print_ast(void);
 
 #endif /* ! AST_H */
