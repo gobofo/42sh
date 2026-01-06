@@ -41,34 +41,15 @@ int main(int argc, char **argv)
         perror("fmemopen failed");
         return 1;
     }
+	
+	struct token *tok = get_token(stream);
 
-    struct node *head = lexer(stream);
+	while (tok != NULL)
+	{
+		printf("Token: [%s]\n", tok->content);
+		
+		tok = get_token(NULL);
+	}
 
-    fclose(stream);
-
-    struct node *current = head;
-    int i = 0;
-
-    printf("--- DÉBUT DU LEXING ---\n");
-    printf("Input: \"%s\"\n\n", argv[1]);
-
-    while (current != NULL)
-    {
-        printf("Token [%d]:\n", i);
-        printf("  Type    : %s (%d)\n", get_type_name(current->token.type),
-               current->token.type);
-
-        printf("  Content : [%s]\n",
-               current->token.content ? current->token.content : "NULL");
-        printf("-----------------------\n");
-
-        current = current->next;
-        i++;
-    }
-
-    printf("--- FIN DU LEXING ---\n");
-
-
-	free_nodes(head);
 	return 0;
 }

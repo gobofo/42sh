@@ -1,6 +1,8 @@
 #ifndef LEXER_H
 #define LEXER_H
 
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdio.h>
 #include <string.h>
 
@@ -14,7 +16,9 @@ struct node
 
 struct node *lexer(FILE *file);
 
-void free_nodes(struct node *node);
+struct token *get_token(FILE *input);
+struct token *read_input(FILE *file);
+
 
 // Handle IO Entries
 // All must be a FILE
