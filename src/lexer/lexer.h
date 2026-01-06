@@ -14,6 +14,8 @@ struct node
 
 struct node *lexer(FILE *file);
 
+void free_nodes(struct node *node);
+
 // Handle IO Entries
 // All must be a FILE
 

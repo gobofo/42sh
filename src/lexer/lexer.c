@@ -50,50 +50,43 @@ struct token create_token(char *str)
  * @param size	 The size (in bytes) of the buffer
  */
 
-void flush_token(struct node **tail, FILE **stream,
-                 char **buff, size_t *size)
+struct node *flush_stream(FILE **stream, char **buff, size_t *size)
 {
-    fclose(*stream);
+	fclose(*stream);
 
-    // ici on gere les espaces qui s'enchaine ou si on arrive a la fin
     if (*size == 0)
     {
         free(*buff);
         *stream = open_memstream(buff, size);
-        return;
+        return NULL;
     }
 
     struct node *new_node = calloc(1, sizeof(struct node));
     new_node->token = create_token(*buff);
 
-	(*tail)->next = new_node;
-    *tail = new_node;
-
 	*buff = NULL;
     *size = 0;
     *stream = open_memstream(buff, size);
+
+	return new_node;
+}
+
+void add_node(struct node **tail, struct node *new_node)
+{
+	(*tail)->next = new_node;
+    *tail = new_node;
+}
+
+void flush_token(struct node **tail, FILE **stream, char **buff, size_t *size)
+{
+	struct node *new_node = flush_stream(stream, buff, size);
+	add_node(tail, new_node);
 }
 
 struct node *lexer(FILE *file)
 {
     struct node *head = calloc(sizeof(struct node), 1);
     struct node *tail = head;
-
-	// TODO pour eviter le clang-tidy (5 parametre a flush_token) on peut definir la head comme un token vide (mais alloue)
-	// et on commence a ajouter a partir de lui
-	// puis au moment du return on free head et return l'element suivant (qui est le premier)
-	// donc si il n'y a rien on return bien NULL
-	// exemple :
-	// a l'initialisation : 
-	//     (head/tail)->NULL
-	// a l'ajout :
-	//     (head)->(tail)->NULL
-	// encore un ajout :
-	//     (head)->(---)->(tail)->NULL
-	// et au return on renvoie ce qu'il y a apres le head :
-	//     (---)->(tail)->NULL
-	//
-	// comme ca dans le code on utilise que tail
 
 	int c;
     
@@ -128,10 +121,6 @@ struct node *lexer(FILE *file)
             }
             
 			flush_token(&tail, &stream, &buff, &size);
-            
-			if (c == EOF)
-                break; // TODO erreur a declancher ici si la quote n'est pas
-                       // fermee
             
 			fputc(c, stream);
             
@@ -171,16 +160,16 @@ struct node *lexer(FILE *file)
 }
 
 
-void freeNodes(struct node *node){
+void free_nodes(struct node *node)
+{
 	if(!node)
 		return;
-	freeNodes(node->next);
+
+	free_nodes(node->next);
 
 	free(node->token.content);
 	free(node);
-
 }
-
 
 // TODO fonction pour free
 // reste a savoir si on free le champ content de token ou si le parseur l'utilise
