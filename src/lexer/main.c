@@ -1,4 +1,4 @@
-#include "lexer/lexer.h"
+#include "lexer.h"
 
 const char *get_type_name(enum types type)
 {
