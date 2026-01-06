@@ -4,16 +4,26 @@ const char *get_type_name(enum types type)
 {
     switch (type)
     {
-        case IF:        return "IF";
-        case THEN:      return "THEN";
-        case ELIF:      return "ELIF";
-        case ELSE:      return "ELSE";
-        case FI:        return "FI";
-        case SEMICOLON: return "SEMICOLON";
-        case NEWLINE:   return "NEWLINE";
-        case S_QUOTE:   return "S_QUOTE";
-        case WORDS:     return "WORDS";
-        default:        return "UNKNOWN";
+    case IF:
+        return "IF";
+    case THEN:
+        return "THEN";
+    case ELIF:
+        return "ELIF";
+    case ELSE:
+        return "ELSE";
+    case FI:
+        return "FI";
+    case SEMICOLON:
+        return "SEMICOLON";
+    case NEWLINE:
+        return "NEWLINE";
+    case S_QUOTE:
+        return "S_QUOTE";
+    case WORDS:
+        return "WORDS";
+    default:
+        return "UNKNOWN";
     }
 }
 
@@ -33,7 +43,7 @@ int main(int argc, char **argv)
     }
 
     struct node *head = lexer(stream);
-    
+
     fclose(stream);
 
     struct node *current = head;
@@ -43,24 +53,22 @@ int main(int argc, char **argv)
     printf("Input: \"%s\"\n\n", argv[1]);
 
     while (current != NULL)
-	{
-		printf("Token [%d]:\n", i);
-		printf("  Type    : %s (%d)\n", 
-				get_type_name(current->token.type), 
-				current->token.type);
+    {
+        printf("Token [%d]:\n", i);
+        printf("  Type    : %s (%d)\n", get_type_name(current->token.type),
+               current->token.type);
 
-		printf("  Content : [%s]\n", 
-				current->token.content ? current->token.content : "NULL");
-		printf("-----------------------\n");
+        printf("  Content : [%s]\n",
+               current->token.content ? current->token.content : "NULL");
+        printf("-----------------------\n");
 
+        current = current->next;
+        i++;
+    }
 
-		current = current->next;
-		i++;
-	}
+    printf("--- FIN DU LEXING ---\n");
 
-	printf("--- FIN DU LEXING ---\n");
 
 	freeNodes(head);
 	return 0;
 }
-
