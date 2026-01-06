@@ -5,50 +5,71 @@
 #include "../ast/ast.h"
 //#include "../lexer/lexer.h"
 
+/* === GRAMMAR === */
+
 /*
 
-program: list_statement EOF
+    input = 
+(1)     list '\n'
+(2)    | '\n'
 
-list_statement: { statement }
+(3) list = and_or { ';' and_or } [ ';' ] 
 
-statement: if_satement [ ( SEMICOLON | NEWLINE ) ]
-	| true_false_statement [ ( SEMICOLON | NEWLINE ) ]
-	| echo_statement [ ( SEMICOLON | NEWLINE ) ]
+(4) and_or = pipeline
 
-if_satement: IF condition ( SEMICOLON | NEWLINE ) THEN statement ( SEMICOLON | NEWLINE ) 
-\		{ ELIF condition ( SEMICOLON | NEWLINE ) THEN statement ( SEMICOLON | NEWLINE ) } 
-\		[ ELSE statement ( SEMICOLON | NEWLINE ) ] FI
+(5) pipeline = command
 
-condition: 'true'
-			| 'false'
-			| echo_statement
+    command = 
+(6)    simple_command
+(7)    | shell_command
 
-builtin: echo_statement
+(8) shell_command = rule_if
 
-echo_statement: 'echo' { value }
+(9) rule_if = 'if' compound_list 'then' compound_list [else_clause] 'fi'
 
-value: WORD
+    else_clause = 
+(10)    'else' compound_list
+(11)    | 'elif' compound_list 'then' compound_list [else_clause]
+
+(12) compound_list = {'\n'} and_or { ( ';' | '\n' ) {'\n'} and_or } [';'] {'\n'} 
+
+(13) simple_command = WORD { element }
+
+(14) element = WORD
 
 */
 
-struct AST *program(struct node *node);
-struct AST *list_statement(struct node *node);
-struct AST *statement(struct node *node);
-struct AST *if_statement(struct node *node);
-struct AST *condition(struct node *node);
-struct AST *builtin(struct node *node);
-struct AST *echo_statement(struct node *node);
-struct AST *value(struct node *node);
+struct AST *input(struct node *node);
+struct AST *list(struct node *node);
+struct AST *and_or(struct node *node);
+struct AST *pipeline(struct node *node);
+struct AST *command(struct node *node);
+struct AST *shell_command(struct node *node);
+struct AST *rule_if(struct node *node);
+struct AST *else_clause(struct node *node);
+struct AST *compound_list(struct node *node);
+struct AST *simple_command(struct node *node);
+struct AST *element(struct node *node);
 
+struct AST *input(struct node *node){
 
+    struct AST *input = create_ast(INPUT, NULL);
 
+    if (node != NULL && node->token->type != NEWLINE ) { //cas avec une list
 
+        struct AST *list = list(node);
+        input = add_children(input, list);
 
+    }
 
+    return input;
 
+}
 
-void print_parser(void)
-{
-    print_lexer();
-    printf("parser !!!\n");
+struct AST *list(struct node *node){
+
+    struct AST *list = create_ast(LIST, NULL);
+
+    
+
 }
