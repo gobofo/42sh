@@ -134,14 +134,25 @@ struct node *lexer(FILE *file)
 	// Store it in our list of tokens
     while ((c = fgetc(file)) != EOF)
     {
-        if (c == '#') // TODO gerer le cas ou # est dans un mot
+		// If we find comments we dont take them in consideration
+		// Expect teh # is in the middle of a word then it makes part of the
+		// word
+        if (c == '#')
         {
-            while ((c = fgetc(file)) != EOF && c != '\n')
-            {
-            }
-            if (c == EOF)
-                break;
-        }
+			// We sync the data from the stream to the buffer and size
+			fflush(stream);
+
+			// We are currently outisde a word so we are in a comment
+			if (size == 0)
+			{
+				// Iterate over all characters in the comment until we find a \n
+				// Marking the beginning of a new line, so no comment
+				while ((c = fgetc(file)) != EOF && c != '\n');
+
+				if (c == EOF)
+					break;
+			}
+		}
 
 		// A single quote is found
 		// In that case, everythin between the 2 single quotes are considered
@@ -155,7 +166,8 @@ struct node *lexer(FILE *file)
 			fputc(c, stream);
             
 			flush_token(&tail, &stream, &buff, &size);
-            
+           
+			// Search the closing quote
 			while ((c = fgetc(file)) != EOF && c != '\'')
             {
                 fputc(c, stream);
@@ -177,6 +189,7 @@ struct node *lexer(FILE *file)
             continue;
         }
 
+		// Same as before but those charcacters need to be safe as tokens
         if (c == ';' || c == '\n')
         {
             flush_token(&tail, &stream, &buff, &size);
@@ -190,18 +203,27 @@ struct node *lexer(FILE *file)
         fputc(c, stream);
     }
 
+	// Create the last token
     flush_token(&tail, &stream, &buff, &size);
 
+	// Free everything
     fclose(stream);
     free(buff);
 
-	struct node *ret = head->next;
+	struct node *new_head = head->next;
 	free(head);
 
-    return ret;
+    return new_head;
 }
 
-
+/**
+ * @brief		Frees the linked list of nodes
+ *
+ * Frees the linked list of nodes holding all the tokens
+ * Will be use during the parsing
+ *
+ * @param node	The list to free
+ */
 void free_nodes(struct node *node)
 {
 	if(!node)
