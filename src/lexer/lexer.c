@@ -13,7 +13,7 @@
  *
  * @return Token
  */
-struct token create_token(char *str)
+static struct token create_token(char *str)
 {
     struct token token;
     token.content = str;
@@ -53,7 +53,7 @@ struct token create_token(char *str)
  *
  * @return A new node
  */
-struct node *flush_stream(FILE **stream, char **buff, size_t *size)
+static struct node *flush_stream(FILE **stream, char **buff, size_t *size)
 {
 	fclose(*stream);
 
@@ -80,7 +80,7 @@ struct node *flush_stream(FILE **stream, char **buff, size_t *size)
  * @param tail 	 	The tail of the linked list
  * @param new_node  The new ndoe to add at the end
  */
-void add_node(struct node **tail, struct node *new_node)
+static void add_node(struct node **tail, struct node *new_node)
 {
 	(*tail)->next = new_node;
     *tail = new_node;
@@ -95,7 +95,7 @@ void add_node(struct node **tail, struct node *new_node)
  * @param buff		The buff where the content for the node is stored
  * @param size		The size of the buffer (in bytes)
  */ 
-void flush_token(struct node **tail, FILE **stream, char **buff, size_t *size)
+static void flush_token(struct node **tail, FILE **stream, char **buff, size_t *size)
 {
 	struct node *new_node = flush_stream(stream, buff, size);
 	add_node(tail, new_node);
@@ -114,6 +114,10 @@ void flush_token(struct node **tail, FILE **stream, char **buff, size_t *size)
  */
 struct node *lexer(FILE *file)
 {
+	// TODO - Add modularity
+	// Create auxiliary functions for each case
+	// Could reduce number of lines and add clarity
+
     struct node *head = calloc(sizeof(struct node), 1);
     struct node *tail = head;
 
@@ -125,6 +129,9 @@ struct node *lexer(FILE *file)
     
 	FILE *stream = open_memstream(&buff, &size);
 
+	// We read each character in the input one by one
+	// Each time we encounter a token delimiter we create a new token
+	// Store it in our list of tokens
     while ((c = fgetc(file)) != EOF)
     {
         if (c == '#') // TODO gerer le cas ou # est dans un mot
@@ -136,6 +143,11 @@ struct node *lexer(FILE *file)
                 break;
         }
 
+		// A single quote is found
+		// In that case, everythin between the 2 single quotes are considered
+		// as a single word
+		// Iterate until the next single quote marking the closure of the
+		// quoting
         if (c == '\'')
         {
             flush_token(&tail, &stream, &buff, &size);
@@ -158,6 +170,7 @@ struct node *lexer(FILE *file)
 			continue;
         }
 
+		// A whitespace marks the end of the token
         if (c == ' ' || c == '\t')
         {
             flush_token(&tail, &stream, &buff, &size);
@@ -199,6 +212,3 @@ void free_nodes(struct node *node)
 	free(node->token.content);
 	free(node);
 }
-
-// TODO fonction pour free
-// reste a savoir si on free le champ content de token ou si le parseur l'utilise
