@@ -19,7 +19,6 @@ struct node *lexer(FILE *file);
 struct token *get_token(FILE *input);
 struct token *read_input(FILE *file);
 
-
 // Handle IO Entries
 // All must be a FILE
 
