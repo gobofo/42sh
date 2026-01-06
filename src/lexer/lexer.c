@@ -143,5 +143,16 @@ struct node *lexer(FILE *file)
 }
 
 
+void freeNodes(struct node *node){
+	if(!node)
+		return;
+	freeNodes(node->next);
+
+	free(node->token.content);
+	free(node);
+
+}
+
+
 // TODO fonction pour free
 // reste a savoir si on free le champ content de token ou si le parseur l'utilise

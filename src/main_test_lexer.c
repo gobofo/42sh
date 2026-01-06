@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 
 	printf("--- FIN DU LEXING ---\n");
 
-
+	freeNodes(head);
 	return 0;
 }
 
