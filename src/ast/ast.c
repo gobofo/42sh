@@ -32,7 +32,7 @@ struct AST *add_children(struct AST *root, struct AST *child)
             root->max_children *= 2;
         }
 
-        root->children = realloc(root->children, root->max_children);
+        root->children = realloc(root->children, root->max_children * sizeof(struct AST *));
     }
 
     root->children[root->count_children] = child;
@@ -49,6 +49,7 @@ void destroy_AST(struct AST *root)
         destroy_AST(root->children[i]);
     }
 
+	free(root->content);
     free(root->children);
     free(root);
 }
