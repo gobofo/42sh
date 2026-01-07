@@ -1,5 +1,8 @@
 #include "parser.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include "../ast/ast.h"
 #include "../lexer/lexer.h"
 #include "../token.h"
@@ -63,38 +66,56 @@ struct token *eat(struct token *token)
 //(2)    | '\n'
 struct AST *input(struct token **token)
 {
-    if ((*token)->type == NEWLINE){
-
+    if ((*token)->type == NEWLINE)
+    {
         *token = eat(*token);
 
-        if (*token != NULL){
-
+        if (*token != NULL)
+        {
             free_token(*token);
             return NULL;
-
         }
-
-        
-
+        return create_ast(AST_LIST, NULL);
     }
 
-    else if ((*token)->type == WORD || (*token)->type == IF ){
-
+    else if ((*token)->type == WORDS || (*token)->type == IF)
+    {
         struct AST *ast = list(token);
-
-        if ((*token) != NULL && (*token)->type != NEWLINE){
-
-            free_token()
-
+        if (ast == NULL)
+        {
+            free_token(*token);
+            return NULL;
         }
 
+        if ((*token) != NULL && (*token)->type != NEWLINE)
+        {
+            free_token(*token);
+            destroy_AST(ast);
+            return NULL;
+        }
+        else if ((*token) != NULL && (*token)->type == NEWLINE)
+        {
+            *token = eat(*token);
+            if (*token != NULL)
+            {
+                free_token(*token);
+                destroy_AST(ast);
+                return NULL;
+            }
+        }
+        return ast;
+    }
+    else
+    {
+        free_token(*token);
+        return NULL;
     }
 }
 
 //(3) list = and_or { ';' and_or } [ ';' ]
 struct AST *list(struct token **token)
 {
-    struct AST *ast = create_ast(LIST, NULL);
+    struct AST *ast = create_ast(AST_LIST, NULL);
 
     if ((*token)->type == WORDS || (*token)->type == IF)
     {
@@ -144,50 +165,32 @@ struct AST *list(struct token **token)
 
 struct AST *and_or(struct token **token)
 {
-    struct AST *ast = create_ast(AND_OR, NULL);
-
     if ((*token)->type == WORDS || (*token)->type == IF)
     {
-        struct AST *child = pipeline(token);
-        if (child == NULL)
-        {
-            destroy_AST(ast);
-            return NULL;
-        }
-        ast = add_children(ast, child);
+        struct AST *ast = pipeline(token);
+        return ast;
     }
     else
     {
         free_token(*token);
-        destroy_AST(ast);
         return NULL;
     }
-    return ast;
 }
 
 //(5) pipeline = command
 
 struct AST *pipeline(struct token **token)
 {
-    struct AST *ast = create_ast(PIPELINE, NULL);
-
     if ((*token)->type == WORDS || (*token)->type == IF)
     {
-        struct AST *child = command(token);
-        if (child == NULL)
-        {
-            destroy_AST(ast);
-            return NULL;
-        }
-        ast = add_children(ast, child);
+        struct AST *ast = command(token);
+        return ast;
     }
     else
     {
         free_token(*token);
-        destroy_AST(ast);
         return NULL;
     }
-    return ast;
 }
 
 // command =
@@ -198,65 +201,43 @@ struct AST *pipeline(struct token **token)
 
 struct AST *command(struct token **token)
 {
-    struct AST *ast = create_ast(COMMAND, NULL);
-
     if ((*token)->type == WORDS)
     {
-        struct AST *child = simple_command(token);
-        if (child == NULL)
-        {
-            destroy_AST(ast);
-            return NULL;
-        }
-        ast = add_children(ast, child);
+        struct AST *ast = simple_command(token);
+        return ast;
     }
     else if ((*token)->type == IF)
     {
-        struct AST *child = shell_command(token);
-        if (child == NULL)
-        {
-            destroy_AST(ast);
-            return NULL;
-        }
-        ast = add_children(ast, child);
+        struct AST *ast = shell_command(token);
+        return ast;
     }
     else
     {
         free_token(*token);
-        destroy_AST(ast);
         return NULL;
     }
-    return ast;
 }
 
 //(8) shell_command = rule_if
 
 struct AST *shell_command(struct token **token)
 {
-    struct AST *ast = create_ast(SHELL_COMMAND, NULL);
     if ((*token)->type == IF)
     {
-        struct AST *child = rule_if(token);
-        if (child == NULL)
-        {
-            destroy_AST(ast);
-            return NULL;
-        }
-        ast = add_children(ast, child);
+        struct AST *ast = rule_if(token);
+        return ast;
     }
     else
     {
         free_token(*token);
-        destroy_AST(ast);
         return NULL;
     }
-    return ast;
 }
 //(9) rule_if = 'if' compound_list 'then' compound_list [else_clause] 'fi'
 
 struct AST *rule_if(struct token **token)
 {
-    struct AST *ast = create_ast(RULE_IF, NULL);
+    struct AST *ast = create_ast(AST_IF, NULL);
     if ((*token)->type == IF)
     { // regle 9
         *token = eat(*token);
@@ -337,32 +318,19 @@ err:
 
 struct AST *else_clause(struct token **token)
 {
-    struct AST *ast = create_ast(ELSE_CLAUSE, NULL);
     if ((*token)->type == ELSE)
     {
         *token = eat(*token);
-
-        if ((*token)->type == NEWLINE || (*token)->type == IF
-            || (*token)->type == WORDS)
-        { // first de compound_list
-
-            struct AST *child = compound_list(token);
-            if (child == NULL)
-            {
-                destroy_AST(ast);
-                return NULL;
-            }
-            ast = add_children(ast, child);
-        }
+        struct AST *ast = compound_list(token);
+        return ast;
     }
-    else if ((*token)->type == ELIF) // UN COPIER COLLER DE IF
-    { // regle 9
+    else if ((*token)->type == ELIF)
+    {
+        struct AST *ast = create_ast(AST_IF, NULL);
         *token = eat(*token);
-
         if ((*token)->type == NEWLINE || (*token)->type == IF
             || (*token)->type == WORDS)
         { // first de compound_list
-
             struct AST *child = compound_list(token);
             if (child == NULL)
             {
@@ -370,17 +338,14 @@ struct AST *else_clause(struct token **token)
                 return NULL;
             }
             ast = add_children(ast, child);
-
             if ((*token)->type != THEN)
             { // verifie la GRAMMAR
                 goto err;
             }
             *token = eat(*token);
-
             if ((*token)->type == NEWLINE || (*token)->type == IF
                 || (*token)->type == WORDS)
             { // first de compound_list
-
                 struct AST *child = compound_list(token);
                 if (child == NULL)
                 {
@@ -393,7 +358,6 @@ struct AST *else_clause(struct token **token)
             {
                 goto err;
             }
-
             if ((*token)->type == ELIF || (*token)->type == ELSE)
             { // esle clause existe
                 struct AST *child = else_clause(token);
@@ -404,11 +368,7 @@ struct AST *else_clause(struct token **token)
                 }
                 ast = add_children(ast, child);
             }
-            if ((*token)->type != FI)
-            { // verifie la GRAMMAR FIN
-                goto err;
-            }
-            *token = eat(*token);
+            return ast;
         }
         else
         { // pas de premier counpound list
@@ -417,15 +377,12 @@ struct AST *else_clause(struct token **token)
     }
 
     else
-    { // pas de regle TROUVEE
+    { // pas de premier IF donc pas de regle trouvee
         goto err;
     }
 
-    return ast;
-
 err:
     free_token(*token);
-    destroy_AST(ast);
     return NULL;
 }
 
@@ -434,7 +391,7 @@ err:
 
 struct AST *compound_list(struct token **token)
 {
-    struct AST *ast = create_ast(COMPOUND_LIST, NULL);
+    struct AST *ast = create_ast(AST_LIST, NULL);
 
     while ((*token)->type == NEWLINE)
     {
@@ -492,10 +449,13 @@ err:
 
 struct AST *simple_command(struct token **token)
 {
-    struct AST *ast = create_ast(ELEMENT, strdup((*token)->content));
+    struct AST *ast = create_ast(AST_CMD, NULL);
 
     if ((*token)->type == WORDS)
     {
+        struct AST *ast_c = create_ast(AST_VALUE, strdup((*token)->content));
+        ast = add_children(ast, ast_c);
+
         *token = eat(*token);
         while ((*token)->type == WORDS)
         {
@@ -522,7 +482,7 @@ struct AST *simple_command(struct token **token)
 
 struct AST *element(struct token **token)
 {
-    struct AST *ast = create_ast(ELEMENT, strdup((*token)->content));
+    struct AST *ast = create_ast(AST_VALUE, strdup((*token)->content));
     if ((*token)->type == WORDS)
     {
         eat(*token);
@@ -534,6 +494,4 @@ struct AST *element(struct token **token)
         destroy_AST(ast);
         return NULL;
     }
-
-    
 }

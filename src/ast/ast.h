@@ -1,20 +1,13 @@
-#ifndef AST_H
+#ifndef AST_H 
 #define AST_H
 
 enum rule
 {
 
-    INPUT,
-    LIST,
-    AND_OR,
-    PIPELINE,
-    COMMAND,
-    SHELL_COMMAND,
-    RULE_IF,
-    ELSE_CLAUSE,
-    COMPOUND_LIST,
-    SIMPLE_COMMAND,
-    ELEMENT
+    AST_LIST,
+    AST_CMD,
+    AST_IF,
+    AST_VALUE
 
 };
 
