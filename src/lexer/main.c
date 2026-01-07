@@ -47,9 +47,13 @@ int main(int argc, char **argv)
 	while (tok != NULL)
 	{
 		printf("Token: [%s]\n", tok->content);
-		
+	
+		free_token(tok);
+
 		tok = get_token(NULL);
 	}
 
+	free_token(tok);
+	fclose(stream);
 	return 0;
 }
