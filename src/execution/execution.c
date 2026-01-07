@@ -29,6 +29,8 @@ char **create_command(struct AST *root)
 	// Is free by caller
 	char **command = calloc(root->count_children + 1, sizeof(char *));
 
+	// Expand value
+
 	for (int i = 0; i < root->count_children; i++)
 		command[i] = root->children[i]->content;
 	
