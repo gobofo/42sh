@@ -205,6 +205,7 @@ struct AST *pipeline(struct token **token)
     }
     return ast;
 }
+
 // command =
 //(6)    simple_command
 //(7)    | shell_command
@@ -329,9 +330,7 @@ struct AST *rule_if(struct token **token)
         }
         else
         { // pas de premier counpound list
-            free_token(*token);
-            destroy_AST(ast);
-            return NULL;
+            goto err;
         }
     }
 
@@ -372,7 +371,7 @@ struct AST *else_clause(struct token **token)
             ast = add_children(ast, child);
         }
     }
-    if ((*token)->type == ELIF) // UN COPIER COLLER DE IF
+    else if ((*token)->type == ELIF) // UN COPIER COLLER DE IF
     { // regle 9
         *token = eat(*token);
 
@@ -429,9 +428,7 @@ struct AST *else_clause(struct token **token)
         }
         else
         { // pas de premier counpound list
-            free_token(*token);
-            destroy_AST(ast);
-            return NULL;
+            goto err;
         }
     }
 
@@ -511,7 +508,7 @@ err:
 
 struct AST *simple_command(struct token **token)
 {
-    struct AST *ast = create_ast(SIMPLE_COMMAND, strdup((*token)->content));
+    struct AST *ast = create_ast(ELEMENT, strdup((*token)->content));
 
     if ((*token)->type == WORDS)
     {
@@ -541,9 +538,10 @@ struct AST *simple_command(struct token **token)
 
 struct AST *element(struct token **token)
 {
-    struct AST *ast = create_ast(SIMPLE_COMMAND, strdup((*token)->content));
+    struct AST *ast = create_ast(ELEMENT, strdup((*token)->content));
     if ((*token)->type == WORDS)
     {
+        eat(*token);
         return ast;
     }
     else
@@ -552,4 +550,6 @@ struct AST *element(struct token **token)
         destroy_AST(ast);
         return NULL;
     }
+
+    
 }
