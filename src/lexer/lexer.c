@@ -56,15 +56,15 @@ static struct token *create_token(char *str)
  *
  * @return A new node
  */
-static struct token *flush_stream(FILE **stream, char **buffer, size_t *size)
+static struct token *flush_stream(FILE *stream, char **buffer)
 {
-	fclose(*stream);
+	fclose(stream);
 
     struct token *new_token = create_token(*buffer);
 
-	*buffer = NULL;
-    *size = 0;
-    *stream = open_memstream(buffer, size);
+	if(!new_token){
+		free(*buffer);
+	}
 
 	return new_token;
 }
@@ -97,9 +97,12 @@ struct token *read_input(FILE *file)
     while ((c = fgetc(file)) != EOF)
     {
 		// A whitespace marks the end of the token
-        if (c == ' ' || c == '\t')
-			return flush_stream(&stream, &buffer, &size);
-
+        if (c == ' ' || c == '\t'){
+			fflush(stream);
+			if(size==0)
+				continue;
+			return flush_stream(stream, &buffer);
+		}
 		// Same as before but those charcacters need to be safe as tokens
         if (c == ';' || c == '\n')
         {
@@ -109,7 +112,7 @@ struct token *read_input(FILE *file)
 			if (size > 0)
 			{
 				ungetc(c, file);
-				return flush_stream(&stream, &buffer, &size);
+				return flush_stream(stream, &buffer);
 			}
 			else
 			{
@@ -118,7 +121,7 @@ struct token *read_input(FILE *file)
 			// So once the token is processed we put back the delim in the
 			// file stream. This way it can be read again
 				fputc(c, stream);
-				return flush_stream(&stream, &buffer, &size);
+				return flush_stream(stream, &buffer);
 			}
 		}
 
@@ -128,42 +131,26 @@ struct token *read_input(FILE *file)
 		// Iterate until the next single quote marking the closure of the
 		// quoting
         if (c == '\'')
-        {
-			// TODO Manage the quoting
-
-			fflush(stream);
-
-			// We were already in a token 
-			if (size > 0)
-			{
-				ungetc(c, file);
-				return flush_stream(&stream, &buffer, &size);
-			}
-			
-			// The buffer is a new one, meaning we have a new token to
-			// process
-			// So we search for the closing single quote marking the end of
-			// the new token
+        {	
+			fputc(c, stream);
 			while ((c = fgetc(file)) != EOF && c != '\'')
 			{
 				fputc(c, stream);
 			}
 
-			return flush_stream(&stream, &buffer, &size);
         }
 
-		fputc(c, stream);
 
 		// If we find comments we dont take them in consideration
 		// If the # is in the middle of a word then it makes part of the
 		// word
         if (c == '#')
         {
-			while ((c = fgetc(file)) != EOF && c != '\n');
+			fflush(stream);
+			if(size==0){
+				while ((c = fgetc(file)) != EOF && c != '\n');
 
-			if (c == EOF)
-				return NULL;
-		
+			}
 			/* TODO - Handle comment in the middle of a WORD
 			// We sync the data from the stream to the bufferer and size
 			fflush(stream);
@@ -171,24 +158,30 @@ struct token *read_input(FILE *file)
 			// We are currently outisde a word so we are in a comment
 			if (size == 0)
 			{
-				// Iterate over all characters in the comment until we find a \n
-				// Marking the beginning of a new line, so no comment
-				while ((c = fgetc(file)) != EOF && c != '\n');
+			// Iterate over all characters in the comment until we find a \n
+			// Marking the beginning of a new line, so no comment
+			while ((c = fgetc(file)) != EOF && c != '\n');
 
-				if (c == EOF)
-					break;
+			if (c == EOF)
+			break;
 			}
 			*/
-		}		
-    }	
+		}
+		if(c!=EOF)
+			fputc(c, stream);
+				
+	}	
+	
+	return flush_stream(stream, &buffer);
+}
 
-	// Get the last remaining token
-	fflush(stream);
 
-	struct token *token = flush_stream(&stream, &buffer, &size);
+void free_token(struct token* token){
 
-	fclose(stream);
-	free(buffer);
+	if(!token)
+		return;
 
-	return token;
+	free(token->content);
+	free(token);
+
 }
