@@ -6,7 +6,7 @@
 #include "../ast/ast.h"
 #include "../execution/execution.h"
 
-#include "pretty_print.c"
+//#include "pretty_print.c"
 
 struct AST *create_arg(char *str) {
     return create_ast(AST_VALUE, strdup(str)); 
@@ -25,7 +25,7 @@ int main(void) {
     add_children(cmd_echo, create_arg("Hello"));
     add_children(cmd_echo, create_arg("World"));
 
-	parser_print(cmd_echo);
+//	parser_print(cmd_echo);
 
     execute_ast(cmd_echo); 
     printf("\n");
