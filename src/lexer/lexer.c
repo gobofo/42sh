@@ -13,163 +13,175 @@
  *
  * @return Token
  */
-
-struct token create_token(char *str)
+static struct token *create_token(char *str)
 {
-    struct token token;
-    token.content = str;
+	if (!str || strcmp(str, "") == 0)
+		return NULL;
+
+	struct token *token = malloc(sizeof(struct token));
+    token->content = str;
 
     if (strcmp(str, "if") == 0)
-        token.type = IF;
+        token->type = IF;
     else if (strcmp(str, "then") == 0)
-        token.type = THEN;
+        token->type = THEN;
     else if (strcmp(str, "elif") == 0)
-        token.type = ELIF;
+        token->type = ELIF;
     else if (strcmp(str, "else") == 0)
-        token.type = ELSE;
+        token->type = ELSE;
     else if (strcmp(str, "fi") == 0)
-        token.type = FI;
+        token->type = FI;
     else if (strcmp(str, ";") == 0)
-        token.type = SEMICOLON;
+        token->type = SEMICOLON;
     else if (strcmp(str, "\n") == 0)
-        token.type = NEWLINE;
+        token->type = NEWLINE;
     else if (strcmp(str, "'") == 0)
-        token.type = S_QUOTE;
+        token->type = S_QUOTE;
     else
-        token.type = WORDS;
+        token->type = WORDS;
 
     return token;
 }
 
 /**
- * @brief Adds the token to the list and creates a new empty stream
+ * @brief  		 Empties the current stream and creates a node
  *
- * @param tail 	 The tail of the linked list
+ * The stream holds the current of the token we are gonna create
+ * We need to save what is inside the stream
+ * Then we empty the stream so it can be used for the next token
+ *
  * @param stream The stream where the value of the token is stored
- * @param buff	 The buffer holding the value of the token
- * @param size	 The size (in bytes) of the buffer
+ * @param buffer	 The buffer holding the value of the token
+ * @param size	 The size (in bytes) of the bufferer
+ *
+ * @return A new node
  */
-
-void flush_token(struct node **head, struct node **tail, FILE **stream,
-                 char **buff, size_t *size)
+static struct token *flush_stream(FILE *stream, char **buffer)
 {
-    fclose(*stream);
+	fclose(stream);
 
-    // ici on gere les espaces qui s'enchaine ou si on arrive a la fin
-    if (*size == 0)
-    {
-        free(*buff);
-        *stream = open_memstream(buff, size);
-        return;
-    }
+    struct token *new_token = create_token(*buffer);
 
-    struct node *new_node = calloc(1, sizeof(struct node));
-    new_node->token = create_token(*buff);
+	if(!new_token){
+		free(*buffer);
+	}
 
-    if (*head == NULL)
-        *head = new_node;
-    else
-        (*tail)->next = new_node;
-    *tail = new_node;
-
-	free(*buff);
-    *size = 0;
-    *stream = open_memstream(buff, size);
+	return new_token;
 }
 
-struct node *lexer(FILE *file)
+struct token *get_token(FILE *input)
+{	
+	static FILE *stream = NULL;
+	
+	if (!stream)
+		stream = input;
+
+	struct token *token = read_input(stream);
+
+	return token;
+}
+
+struct token *read_input(FILE *file)
 {
-    struct node *head = NULL;
-    struct node *tail = NULL;
-
-	// TODO pour eviter le clang-tidy (5 parametre a flush_token) on peut definir la head comme un token vide (mais alloue)
-	// et on commence a ajouter a partir de lui
-	// puis au moment du return on free head et return l'element suivant (qui est le premier)
-	// donc si il n'y a rien on return bien NULL
-	// exemple :
-	// a l'initialisation : 
-	//     (head/tail)->NULL
-	// a l'ajout :
-	//     (head)->(tail)->NULL
-	// encore un ajout :
-	//     (head)->(---)->(tail)->NULL
-	// et au return on renvoie ce qu'il y a apres le head :
-	//     (---)->(tail)->NULL
-	//
-	// comme ca dans le code on utilise que tail
-
 	int c;
     
-	char *buff = NULL;
+	char *buffer = NULL;
     
 	size_t size = 0;
     
-	FILE *stream = open_memstream(&buff, &size);
+	FILE *stream = open_memstream(&buffer, &size);
 
+	// We read each character in the input one by one
+	// Each time we encounter a token delimiter we create a new token
+	// Store it in our list of tokens
     while ((c = fgetc(file)) != EOF)
     {
-        if (c == '#') // TODO gerer le cas ou # est dans un mot
-        {
-            while ((c = fgetc(file)) != EOF && c != '\n')
-            {
-            }
-            if (c == EOF)
-                break;
-        }
-
-        if (c == '\'')
-        {
-            flush_token(&head, &tail, &stream, &buff, &size);
-
-			fputc(c, stream);
-            
-			flush_token(&head, &tail, &stream, &buff, &size);
-            
-			while ((c = fgetc(file)) != EOF && c != '\'')
-            {
-                fputc(c, stream);
-            }
-            
-			flush_token(&head, &tail, &stream, &buff, &size);
-            
-			if (c == EOF)
-                break; // TODO erreur a declancher ici si la quote n'est pas
-                       // fermee
-            
-			fputc(c, stream);
-            
-			flush_token(&head, &tail, &stream, &buff, &size);
-            
-			continue;
-        }
-
-        if (c == ' ' || c == '\t')
-        {
-            flush_token(&head, &tail, &stream, &buff, &size);
-            continue;
-        }
-
+		// A whitespace marks the end of the token
+        if (c == ' ' || c == '\t'){
+			fflush(stream);
+			if(size==0)
+				continue;
+			return flush_stream(stream, &buffer);
+		}
+		// Same as before but those charcacters need to be safe as tokens
         if (c == ';' || c == '\n')
         {
-            flush_token(&head, &tail, &stream, &buff, &size);
-            
+			// Sync the stream
+			fflush(stream);
+
+			if (size > 0)
+			{
+				ungetc(c, file);
+				return flush_stream(stream, &buffer);
+			}
+			else
+			{
+			// If we were already reading a token, then we need to save
+			// the delim, return the current token, then read again the delim
+			// So once the token is processed we put back the delim in the
+			// file stream. This way it can be read again
+				fputc(c, stream);
+				return flush_stream(stream, &buffer);
+			}
+		}
+
+		// A single quote is found
+		// In that case, everythin between the 2 single quotes are considered
+		// as a single word
+		// Iterate until the next single quote marking the closure of the
+		// quoting
+        if (c == '\'')
+        {	
 			fputc(c, stream);
-            
-			flush_token(&head, &tail, &stream, &buff, &size);
-            continue;
+			while ((c = fgetc(file)) != EOF && c != '\'')
+			{
+				fputc(c, stream);
+			}
+
         }
 
-        fputc(c, stream);
-    }
 
-    flush_token(&head, &tail, &stream, &buff, &size);
+		// If we find comments we dont take them in consideration
+		// If the # is in the middle of a word then it makes part of the
+		// word
+        if (c == '#')
+        {
+			fflush(stream);
+			if(size==0){
+				while ((c = fgetc(file)) != EOF && c != '\n');
 
-    fclose(stream);
-    free(buff);
+			}
+			/* TODO - Handle comment in the middle of a WORD
+			// We sync the data from the stream to the bufferer and size
+			fflush(stream);
 
-    return head;
+			// We are currently outisde a word so we are in a comment
+			if (size == 0)
+			{
+			// Iterate over all characters in the comment until we find a \n
+			// Marking the beginning of a new line, so no comment
+			while ((c = fgetc(file)) != EOF && c != '\n');
+
+			if (c == EOF)
+			break;
+			}
+			*/
+		}
+		if(c!=EOF)
+			fputc(c, stream);
+				
+	}	
+	
+	return flush_stream(stream, &buffer);
 }
 
 
-// TODO fonction pour free
-// reste a savoir si on free le champ content de token ou si le parseur l'utilise
+void free_token(struct token* token){
+
+	if(!token)
+		return;
+
+	free(token->content);
+	free(token);
+
+}
