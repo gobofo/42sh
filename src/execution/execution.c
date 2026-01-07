@@ -1,4 +1,5 @@
 #include "execution.h"
+#include "../expansion/expansion.h"
 
 int execute_node(struct AST *root);
 
@@ -31,8 +32,10 @@ char **create_command(struct AST *root)
 
 	// Expand value
 
-	for (int i = 0; i < root->count_children; i++)
+	for (int i = 0; i < root->count_children; i++){
+		expand(&root->children[i]->content);
 		command[i] = root->children[i]->content;
+	}
 	
 	return command;
 }
