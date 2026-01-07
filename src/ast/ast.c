@@ -50,6 +50,7 @@ void destroy_AST(struct AST *root)
         destroy_AST(root->children[i]);
     }
 
+    free(root->content);
     free(root->children);
     free(root);
 }

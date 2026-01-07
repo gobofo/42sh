@@ -42,5 +42,7 @@ int main(int argc, char *argv[])
 
     //execution_ast(ast);
 
+    destroy_AST(ast);
+
     return 0;
 }
