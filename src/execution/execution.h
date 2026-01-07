@@ -4,6 +4,8 @@
 #include "../parser/parser.h"
 #include "../ast/ast.h"
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 void execute_ast(struct AST *root);

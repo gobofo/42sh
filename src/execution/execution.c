@@ -1,5 +1,7 @@
 #include "execution.h"
 
+int execute_node(struct AST *root);
+
 int my_echo(char **command)
 {
 	while (*command != NULL)
@@ -27,8 +29,8 @@ char **create_command(struct AST *root)
 	// Is free by caller
 	char **command = calloc(root->count_children + 1, sizeof(char *));
 
-	for (int i = 0; i < count_children; i++)
-		command[i] = root->children[i];
+	for (int i = 0; i < root->count_children; i++)
+		command[i] = root->children[i]->content;
 	
 	return command;
 }
@@ -68,10 +70,12 @@ int execute_if(struct AST *root)
 
 int execute_list(struct AST *root)
 {
-	for (int i = 0; i < count_children; i++)
-	{
-		execute_node(root->children[i]);
-	}
+	int status = 0;
+
+	for (int i = 0; i < root->count_children; i++)
+		status = execute_node(root->children[i]);
+
+	return status;
 }
 
 int execute_node(struct AST *root)
