@@ -6,7 +6,7 @@
 
 void print_ast_rec(struct AST *ast, FILE *stream)
 {
-    switch (ast->type)
+    switch (ast->rule)
     {
     case INPUT:
         print_ast_rec(ast->children[0], stream);
@@ -21,34 +21,34 @@ void print_ast_rec(struct AST *ast, FILE *stream)
         break;
 
     case AND_OR:
-        if (ast->children[0]->type == PIPELINE)
+        if (ast->children[0]->rule == PIPELINE)
         {
             print_ast_rec(ast->children[0], stream);
         }
         break;
 
     case PIPELINE:
-        if (ast->children[0]->type == COMMAND)
+        if (ast->children[0]->rule == COMMAND)
         {
             print_ast_rec(ast->children[0], stream);
         }
         break;
 
     case COMMAND:
-        if (ast->children[0]->type == SIMPLE_COMMAND)
+        if (ast->children[0]->rule == SIMPLE_COMMAND)
         {
             fprintf(stream, "command : ");
             print_ast_rec(ast->children[0], stream);
             break;
         }
-        if (ast->children[0]->type == SHELL_COMMAND)
+        if (ast->children[0]->rule == SHELL_COMMAND)
         {
             print_ast_rec(ast->children[0], stream);
         }
         break;
 
     case SHELL_COMMAND:
-        if (ast->children[0]->type == RULE_IF)
+        if (ast->children[0]->rule == RULE_IF)
         {
             print_ast_rec(ast->children[0], stream);
         }
