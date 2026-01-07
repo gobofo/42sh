@@ -105,5 +105,7 @@ void execute_ast(struct AST *root)
 		return;
 
 	execute_node(root);
+
+	// Sould maybe move it somewhere else
 	destroy_AST(root);
 }
