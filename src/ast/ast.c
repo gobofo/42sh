@@ -2,7 +2,6 @@
 
 #include <stdlib.h>
 
-
 struct AST *create_ast(enum rule rule, char *content)
 { // renvoi un arbre avec uniquement la racine "type"
 
