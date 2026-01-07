@@ -63,48 +63,32 @@ struct token *eat(struct token *token)
 //(2)    | '\n'
 struct AST *input(struct token **token)
 {
-    struct AST *ast = create_ast(INPUT, NULL);
+    if ((*token)->type == NEWLINE){
 
-    if ((*token)->type == NEWLINE) // \n uniquement
-    {
-        *token = eat((*token));
-        if ((*token) != NULL) // verifie que c est fini
-        {
-            goto err;
-        }
-        return ast;
-    }
+        *token = eat(*token);
 
-    else if ((*token)->type == WORDS
-             || (*token)->type == IF) // verifie : list \n ou list EOF
-    {
-        struct AST *child = list(token);
-        if (child == NULL)
-        {
-            destroy_AST(ast);
+        if (*token != NULL){
+
+            free_token(*token);
             return NULL;
-        }
-        ast = add_children(ast, child);
 
-        if ((*token) != NULL && (*token)->type != NEWLINE)
-        {
-            goto err;
         }
-        if ((*token)->type == NEWLINE)
-        {
-            *token = eat(*token);
-            if (*token != NULL)
-            {
-                goto err;
-            }
-        }
+
+        
+
     }
-    return ast;
 
-err:
-    free_token(*token);
-    destroy_AST(ast);
-    return NULL;
+    else if ((*token)->type == WORD || (*token)->type == IF ){
+
+        struct AST *ast = list(token);
+
+        if ((*token) != NULL && (*token)->type != NEWLINE){
+
+            free_token()
+
+        }
+
+    }
 }
 
 //(3) list = and_or { ';' and_or } [ ';' ]
