@@ -1,6 +1,10 @@
-SUBDIRS = ast \
-      parser \
-	  lexer
+SUBDIRS = \
+		  execution \
+		  expansion \
+		  ast \
+		  parser \
+		  lexer \
+		  io_backend
 
 bin_PROGRAMS = 42sh
 
@@ -12,6 +16,9 @@ bin_PROGRAMS = 42sh
 42sh_CFLAGS = -std=c99 -pedantic -Werror -Wall -Wextra -Wvla
 
 42sh_LDADD =  \
-       ast/libast.a \
+	   execution/libexecution.a \
+	   expansion/libexpansion.a \
+	   ast/libast.a \
        parser/libparser.a \
-	   lexer/liblexer.a
+	   lexer/liblexer.a \
+	   io_backend/libio_backend.a

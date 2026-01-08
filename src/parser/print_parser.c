@@ -30,7 +30,7 @@ char *next(int suivant)
         c++;
     }
     char *buffer = malloc(10);
-    sprintf(buffer, "%d", c);
+    sprintf(buffer, "%c", c);
     return buffer;
 }
 

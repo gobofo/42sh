@@ -357,7 +357,7 @@ err:
 
 struct AST *else_clause(struct token **token)
 {
-    struct AST *ast;
+    struct AST *ast = NULL;
     
     if ((*token)->type == ELSE)
     {

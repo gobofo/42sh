@@ -1,4 +1,4 @@
-AC_INIT([deuteragonist], [1.0], [yann.fernandez-puig@epita.fr])
+AC_INIT([42sh], [1.0], [yann.fernandez-puig@epita.fr])
 
 AM_INIT_AUTOMAKE([subdir-objects] [foreign])
 
@@ -18,6 +18,9 @@ AC_CONFIG_FILES([
 				 src/ast/Makefile
 				 src/lexer/Makefile
 				 src/parser/Makefile
+				 src/expansion/Makefile
+				 src/execution/Makefile
+				 src/io_backend/Makefile
 				])
 
 AC_OUTPUT
