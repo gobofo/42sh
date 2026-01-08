@@ -14,6 +14,8 @@ int expand(char **value){
 		if(*p != '\''){
 			fputc(*p, stream);
 		}
+		if(*p == 0)
+			goto error;
 		p++;
 	}
 	
