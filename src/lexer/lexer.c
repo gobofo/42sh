@@ -170,7 +170,7 @@ struct token *read_input(FILE *file)
             }
         }
 
-        if (c != EOF)
+        if (c != EOF && c != '\n')
             fputc(c, stream);
     }
 
