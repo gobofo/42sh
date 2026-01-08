@@ -2,7 +2,6 @@
 
 #include <stdlib.h>
 
-
 struct AST *create_ast(enum rule rule, char *content)
 { // renvoi un arbre avec uniquement la racine "type"
 
@@ -50,7 +49,7 @@ void destroy_AST(struct AST *root)
         destroy_AST(root->children[i]);
     }
 
-    free(root->content);
+	free(root->content);
     free(root->children);
     free(root);
 }
