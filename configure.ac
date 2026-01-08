@@ -18,6 +18,9 @@ AC_CONFIG_FILES([
 				 src/ast/Makefile
 				 src/lexer/Makefile
 				 src/parser/Makefile
+				 src/expansion/Makefile
+				 src/execution/Makefile
+				 src/IO/Makefile
 				])
 
 AC_OUTPUT
