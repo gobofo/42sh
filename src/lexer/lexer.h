@@ -12,7 +12,7 @@ struct node *lexer(FILE *file);
 
 struct token *get_token(FILE *input);
 struct token *read_input(FILE *file);
-void free_token(struct token* token);
+void free_token(struct token *token);
 
 // Handle IO Entries
 // All must be a FILE

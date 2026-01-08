@@ -41,19 +41,19 @@ int main(int argc, char **argv)
         perror("fmemopen failed");
         return 1;
     }
-	
-	struct token *tok = get_token(stream);
 
-	while (tok != NULL)
-	{
-		printf("Token: [%s]\n", tok->content);
-	
-		free_token(tok);
+    struct token *tok = get_token(stream);
 
-		tok = get_token(NULL);
-	}
+    while (tok != NULL)
+    {
+        printf("Token: [%s]\n", tok->content);
 
-	free_token(tok);
-	fclose(stream);
-	return 0;
+        free_token(tok);
+
+        tok = get_token(NULL);
+    }
+
+    free_token(tok);
+    fclose(stream);
+    return 0;
 }
