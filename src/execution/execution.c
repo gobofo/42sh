@@ -53,7 +53,8 @@ int execute_cmd(struct AST *root)
 		status = 1;
 	else if (strcmp(command[0], "echo") == 0)
 		status = my_echo(command + 1);
-
+	else
+		fprintf(stderr, "Error: undefined command: \"%s\"\n", command[0]);
 	free(command);
 
 	return status;
