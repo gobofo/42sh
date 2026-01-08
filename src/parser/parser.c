@@ -82,7 +82,10 @@ struct AST *input(struct token **token)
         struct AST *ast = list(token);
         if (ast == NULL)
         {
-            free_token(*token);
+            if (*token != NULL){
+                free_token(*token);
+            }
+            
             return NULL;
         }
 
@@ -181,7 +184,6 @@ struct AST *list(struct token **token)
     }
     else
     {
-        free_token(*token);
         destroy_AST(ast);
         return NULL;
     }
@@ -199,7 +201,6 @@ struct AST *and_or(struct token **token)
     }
     else
     {
-        free_token(*token);
         return NULL;
     }
 }
@@ -215,7 +216,6 @@ struct AST *pipeline(struct token **token)
     }
     else
     {
-        free_token(*token);
         return NULL;
     }
 }
@@ -240,7 +240,6 @@ struct AST *command(struct token **token)
     }
     else
     {
-        free_token(*token);
         return NULL;
     }
 }
@@ -256,7 +255,6 @@ struct AST *shell_command(struct token **token)
     }
     else
     {
-        free_token(*token);
         return NULL;
     }
 }
@@ -352,7 +350,6 @@ struct AST *rule_if(struct token **token)
     return ast;
 
 err:
-    free_token(*token);
     destroy_AST(ast);
     return NULL;
 }
@@ -453,7 +450,6 @@ struct AST *else_clause(struct token **token)
     }
 
 err:
-    free_token(*token);
     destroy_AST(ast);
     return NULL;
 }
@@ -537,7 +533,6 @@ struct AST *compound_list(struct token **token)
     return ast;
 
 err:
-    free_token(*token);
     destroy_AST(ast);
     return NULL;
 }
@@ -580,7 +575,6 @@ struct AST *simple_command(struct token **token)
     }
     else
     {
-        free_token(*token);
         destroy_AST(ast);
         return NULL;
     }
@@ -600,7 +594,6 @@ struct AST *element(struct token **token)
     }
     else
     {
-        free_token(*token);
         destroy_AST(ast);
         return NULL;
     }
