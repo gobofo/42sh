@@ -21,6 +21,22 @@ char *get_string_of_node(struct AST *ast)
         return "";
     }
 }
+char *get_color_of_node(struct AST *ast)
+{
+    switch (ast->rule)
+    {
+    case AST_IF:
+        return "#E67E22";
+    case AST_CMD:
+        return "#2ECC71";
+    case AST_LIST:
+        return "#3498DB";
+    case AST_VALUE:
+        return "#ECF0F1";
+    default:
+        return "";
+    }
+}
 
 char *next(int suivant)
 {
@@ -42,8 +58,8 @@ void parser_print_rec(struct AST *ast, FILE *file_node, FILE *file_def_node)
 {
     char *node = next(0);
 
-    fprintf(file_def_node, "%s [label=\"%s\"];\n", node,
-            get_string_of_node(ast));
+    fprintf(file_def_node, "%s [label=\"%s\" , fillcolor=\"%s\"];\n", node,
+            get_string_of_node(ast), get_color_of_node(ast));
 
     for (int i = 0; i < ast->count_children; i++)
     {
