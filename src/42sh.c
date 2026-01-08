@@ -17,37 +17,37 @@ int main(int argc, char *argv[])
         return 2;
     }
 
-	struct token *tok = get_token(file);
+    struct token *tok = get_token(file);
 
-	while (tok)
-	{
-		struct AST *ast;
+    while (tok)
+    {
+        struct AST *ast;
 
-		if (tok == NULL)
-		{
-			ast = create_ast(AST_LIST, NULL);
-		}
+        if (tok == NULL)
+        {
+            ast = create_ast(AST_LIST, NULL);
+        }
 
-		else
-		{
-			ast = input(&tok);
+        else
+        {
+            ast = input(&tok);
 
-			if (ast == NULL)
-			{
-				fprintf(stderr, "Error: Parsing\n");
-				return 2;
-			}
-		}
-		parser_print(ast);
-		execute_ast(ast);
+            if (ast == NULL)
+            {
+                fprintf(stderr, "Error: Parsing\n");
+                return 2;
+            }
+        }
+        parser_print(ast);
+        execute_ast(ast);
 
-		destroy_AST(ast);
+        destroy_AST(ast);
 
-		if (argc == 1)
-			break;
+        if (argc == 1)
+            break;
 
-		tok = get_token(NULL);
-	}
+        tok = get_token(NULL);
+    }
 
     return 0;
 }
