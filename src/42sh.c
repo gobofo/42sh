@@ -1,10 +1,10 @@
 #include <stdio.h>
 
-#include "io_backend/input.h"
 #include "ast/ast.h"
+#include "execution/execution.h"
+#include "io_backend/input.h"
 #include "lexer/lexer.h"
 #include "parser/parser.h"
-#include "execution/execution.h"
 #include "token.h"
 
 int main(int argc, char *argv[])
