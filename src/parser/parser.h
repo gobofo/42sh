@@ -17,4 +17,8 @@ struct AST *compound_list(struct token **token);
 struct AST *simple_command(struct token **token);
 struct AST *element(struct token **token);
 
+// print
+//
+
+void parser_print(struct AST *ast);
 #endif /* ! PARSER_H */
