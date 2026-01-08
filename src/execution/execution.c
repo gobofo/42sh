@@ -121,5 +121,4 @@ void execute_ast(struct AST *root)
         return;
 
     execute_node(root);
-    destroy_AST(root);
 }
