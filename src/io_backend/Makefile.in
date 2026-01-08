@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-#lib_LIBRARIES = libio.a
+#lib_LIBRARIES = libio_backend.a
 
 VPATH = @srcdir@
 am__is_gnu_make = { \
@@ -90,7 +90,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-subdir = src/IO
+subdir = src/io_backend
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -105,11 +105,11 @@ AM_V_AR = $(am__v_AR_@AM_V@)
 am__v_AR_ = $(am__v_AR_@AM_DEFAULT_V@)
 am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
-libio_a_AR = $(AR) $(ARFLAGS)
-libio_a_RANLIB = $(RANLIB)
-libio_a_LIBADD =
-am_libio_a_OBJECTS = libio_a-io.$(OBJEXT)
-libio_a_OBJECTS = $(am_libio_a_OBJECTS)
+libio_backend_a_AR = $(AR) $(ARFLAGS)
+libio_backend_a_RANLIB = $(RANLIB)
+libio_backend_a_LIBADD =
+am_libio_backend_a_OBJECTS = libio_backend_a-input.$(OBJEXT)
+libio_backend_a_OBJECTS = $(am_libio_backend_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -125,7 +125,7 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/libio_a-io.Po
+am__depfiles_remade = ./$(DEPDIR)/libio_backend_a-input.Po
 am__mv = mv -f
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -143,8 +143,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libio_a_SOURCES)
-DIST_SOURCES = $(libio_a_SOURCES)
+SOURCES = $(libio_backend_a_SOURCES)
+DIST_SOURCES = $(libio_backend_a_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -262,13 +262,13 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-libio_a_SOURCES = \
-	io.c \
-	io.h
+libio_backend_a_SOURCES = \
+	input.c \
+	input.h
 
-libio_a_CPPFLAGS = -I$(top_srcdir)/src
-libio_a_CFLAGS = -std=c99 -pedantic -Werror -Wall -Wextra -Wvla
-noinst_LIBRARIES = libio.a
+libio_backend_a_CPPFLAGS = -I$(top_srcdir)/src
+libio_backend_a_CFLAGS = -std=c99 -pedantic -Werror -Wall -Wextra -Wvla
+noinst_LIBRARIES = libio_backend.a
 all: all-am
 
 .SUFFIXES:
@@ -282,9 +282,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/IO/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/io_backend/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign src/IO/Makefile
+	  $(AUTOMAKE) --foreign src/io_backend/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -306,10 +306,10 @@ $(am__aclocal_m4_deps):
 clean-noinstLIBRARIES:
 	-$(am__rm_f) $(noinst_LIBRARIES)
 
-libio.a: $(libio_a_OBJECTS) $(libio_a_DEPENDENCIES) $(EXTRA_libio_a_DEPENDENCIES) 
-	$(AM_V_at)-rm -f libio.a
-	$(AM_V_AR)$(libio_a_AR) libio.a $(libio_a_OBJECTS) $(libio_a_LIBADD)
-	$(AM_V_at)$(libio_a_RANLIB) libio.a
+libio_backend.a: $(libio_backend_a_OBJECTS) $(libio_backend_a_DEPENDENCIES) $(EXTRA_libio_backend_a_DEPENDENCIES) 
+	$(AM_V_at)-rm -f libio_backend.a
+	$(AM_V_AR)$(libio_backend_a_AR) libio_backend.a $(libio_backend_a_OBJECTS) $(libio_backend_a_LIBADD)
+	$(AM_V_at)$(libio_backend_a_RANLIB) libio_backend.a
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -317,7 +317,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libio_a-io.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libio_backend_a-input.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -341,19 +341,19 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
-libio_a-io.o: io.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libio_a_CPPFLAGS) $(CPPFLAGS) $(libio_a_CFLAGS) $(CFLAGS) -MT libio_a-io.o -MD -MP -MF $(DEPDIR)/libio_a-io.Tpo -c -o libio_a-io.o `test -f 'io.c' || echo '$(srcdir)/'`io.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libio_a-io.Tpo $(DEPDIR)/libio_a-io.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='io.c' object='libio_a-io.o' libtool=no @AMDEPBACKSLASH@
+libio_backend_a-input.o: input.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libio_backend_a_CPPFLAGS) $(CPPFLAGS) $(libio_backend_a_CFLAGS) $(CFLAGS) -MT libio_backend_a-input.o -MD -MP -MF $(DEPDIR)/libio_backend_a-input.Tpo -c -o libio_backend_a-input.o `test -f 'input.c' || echo '$(srcdir)/'`input.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libio_backend_a-input.Tpo $(DEPDIR)/libio_backend_a-input.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='input.c' object='libio_backend_a-input.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libio_a_CPPFLAGS) $(CPPFLAGS) $(libio_a_CFLAGS) $(CFLAGS) -c -o libio_a-io.o `test -f 'io.c' || echo '$(srcdir)/'`io.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libio_backend_a_CPPFLAGS) $(CPPFLAGS) $(libio_backend_a_CFLAGS) $(CFLAGS) -c -o libio_backend_a-input.o `test -f 'input.c' || echo '$(srcdir)/'`input.c
 
-libio_a-io.obj: io.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libio_a_CPPFLAGS) $(CPPFLAGS) $(libio_a_CFLAGS) $(CFLAGS) -MT libio_a-io.obj -MD -MP -MF $(DEPDIR)/libio_a-io.Tpo -c -o libio_a-io.obj `if test -f 'io.c'; then $(CYGPATH_W) 'io.c'; else $(CYGPATH_W) '$(srcdir)/io.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libio_a-io.Tpo $(DEPDIR)/libio_a-io.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='io.c' object='libio_a-io.obj' libtool=no @AMDEPBACKSLASH@
+libio_backend_a-input.obj: input.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libio_backend_a_CPPFLAGS) $(CPPFLAGS) $(libio_backend_a_CFLAGS) $(CFLAGS) -MT libio_backend_a-input.obj -MD -MP -MF $(DEPDIR)/libio_backend_a-input.Tpo -c -o libio_backend_a-input.obj `if test -f 'input.c'; then $(CYGPATH_W) 'input.c'; else $(CYGPATH_W) '$(srcdir)/input.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libio_backend_a-input.Tpo $(DEPDIR)/libio_backend_a-input.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='input.c' object='libio_backend_a-input.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libio_a_CPPFLAGS) $(CPPFLAGS) $(libio_a_CFLAGS) $(CFLAGS) -c -o libio_a-io.obj `if test -f 'io.c'; then $(CYGPATH_W) 'io.c'; else $(CYGPATH_W) '$(srcdir)/io.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libio_backend_a_CPPFLAGS) $(CPPFLAGS) $(libio_backend_a_CFLAGS) $(CFLAGS) -c -o libio_backend_a-input.obj `if test -f 'input.c'; then $(CYGPATH_W) 'input.c'; else $(CYGPATH_W) '$(srcdir)/input.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -479,7 +479,7 @@ clean: clean-am
 clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-am
-	-rm -f ./$(DEPDIR)/libio_a-io.Po
+	-rm -f ./$(DEPDIR)/libio_backend_a-input.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -525,7 +525,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -f ./$(DEPDIR)/libio_a-io.Po
+	-rm -f ./$(DEPDIR)/libio_backend_a-input.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
