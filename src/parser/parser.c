@@ -67,13 +67,7 @@ struct AST *input(struct token **token)
 {
     if ((*token)->type == NEWLINE)
     {
-        *token = eat(*token);
-
-        if (*token != NULL)
-        {
-            free_token(*token);
-            return NULL;
-        }
+        free_token(*token);
         return create_ast(AST_LIST, NULL);
     }
 
@@ -92,15 +86,9 @@ struct AST *input(struct token **token)
             destroy_AST(ast);
             return NULL;
         }
-        else if ((*token) != NULL && (*token)->type == NEWLINE)
+        if (*token != NULL)
         {
-            *token = eat(*token);
-            if (*token != NULL)
-            {
-                free_token(*token);
-                destroy_AST(ast);
-                return NULL;
-            }
+            free_token(*token);
         }
         return ast;
     }
@@ -136,9 +124,8 @@ struct AST *list(struct token **token)
         {
             *token = eat(*token);
 
-            if (*token == NULL)
+            if (*token == NULL || (*token)->type == NEWLINE)
             { // AJOUTER POUR GERER LES NULL
-
                 return ast;
             }
         }
@@ -564,7 +551,7 @@ struct AST *simple_command(struct token **token)
             }
             ast = add_children(ast, child);
 
-            if (*token == NULL)
+            if (*token == NULL || (*token)->type == NEWLINE)
             { // AJOUTER POUR GERER LES NULL
 
                 return ast;
