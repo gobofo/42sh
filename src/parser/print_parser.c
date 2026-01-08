@@ -29,8 +29,8 @@ char *next(int suivant)
     {
         c++;
     }
-    char *buffer = malloc(10);
-    sprintf(buffer, "%c", c);
+    char *buffer = malloc(20);
+    sprintf(buffer, "%d", c);
     return buffer;
 }
 
