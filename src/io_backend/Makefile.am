@@ -1,8 +1,8 @@
 #lib_LIBRARIES = libio_backend.a
 
 libio_backend_a_SOURCES = \
-	io_backend.c \
-	io_backend.h
+	input.c \
+	input.h
 
 libio_backend_a_CPPFLAGS = -I$(top_srcdir)/src
 
