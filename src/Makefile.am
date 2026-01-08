@@ -1,6 +1,6 @@
 SUBDIRS = \
-		  expansion \
 		  execution \
+		  expansion \
 		  ast \
 		  parser \
 		  lexer \
@@ -16,8 +16,8 @@ bin_PROGRAMS = 42sh
 42sh_CFLAGS = -std=c99 -pedantic -Werror -Wall -Wextra -Wvla
 
 42sh_LDADD =  \
-	   expansion/libexpansion.a \
 	   execution/libexecution.a \
+	   expansion/libexpansion.a \
 	   ast/libast.a \
        parser/libparser.a \
 	   lexer/liblexer.a \
