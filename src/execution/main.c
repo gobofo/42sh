@@ -25,8 +25,6 @@ int main(void) {
     add_children(cmd_echo, create_arg("Hello"));
     add_children(cmd_echo, create_arg("World"));
 
-//	parser_print(cmd_echo);
-
     execute_ast(cmd_echo); 
     printf("\n");
 
