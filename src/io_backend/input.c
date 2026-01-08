@@ -7,16 +7,17 @@
 FILE *getInputFile(int argc, char *argv[])
 {
     if (argc == 1)
-        return stdin;
+		return stdin;
+
+    if (argc == 2)
+		return fopen(argv[1], "r");
 
     if (argc != 3)
         return NULL;
 
+
     if (strcmp(argv[1], "-c") == 0)
         return fmemopen(argv[2], strlen(argv[2]), "r");
-
-    if (strcmp(argv[1], "-e") == 0)
-        return fopen(argv[2], "r");
 
     return NULL;
 }
