@@ -4,6 +4,7 @@
 #include "ast/ast.h"
 #include "lexer/lexer.h"
 #include "parser/parser.h"
+#include "execution/execution.h"
 #include "token.h"
 int main(int argc, char *argv[])
 {
@@ -35,7 +36,7 @@ int main(int argc, char *argv[])
         }
     }
     parser_print(ast);
-    // execution_ast(ast);
+    execute_ast(ast);
 
     destroy_AST(ast);
 
