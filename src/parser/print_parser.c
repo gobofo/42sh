@@ -101,4 +101,5 @@ void parser_print(struct AST *ast)
     add(file_def_node, "}");
     fclose(file_node);
     fclose(file_def_node);
+    remove("AST_node.txt");
 }
