@@ -1,0 +1,22 @@
+digraph Arbre {
+node [shape=box, style=filled, fillcolor=lightblue];
+1 [label="LIST"];
+2 [label="IF"];
+3 [label="LIST"];
+4 [label="CMD"];
+5 [label="echo"];
+6 [label="ok"];
+7 [label="LIST"];
+8 [label="CMD"];
+9 [label="echo"];
+10 [label="foobar"];
+     1 -> 2;
+     2 -> 3;
+     3 -> 4;
+     4 -> 5;
+     4 -> 6;
+     2 -> 7;
+     7 -> 8;
+     8 -> 9;
+     8 -> 10;
+}
