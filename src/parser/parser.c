@@ -82,10 +82,7 @@ struct AST *input(struct token **token)
         struct AST *ast = list(token);
         if (ast == NULL)
         {
-            if (*token != NULL){
-                free_token(*token);
-            }
-            
+            free_token(*token);
             return NULL;
         }
 
