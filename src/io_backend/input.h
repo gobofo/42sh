@@ -3,6 +3,6 @@
 
 #include <stdio.h>
 
-FILE *getInputFile(int argc, char* argv[]);
+FILE *getInputFile(int argc, char *argv[]);
 
 #endif /* ! INPUT_H */
