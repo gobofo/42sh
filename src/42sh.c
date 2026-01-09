@@ -17,6 +17,8 @@ int main(int argc, char *argv[])
         return 2;
     }
 
+	int exit_code = 0;
+
     struct token *tok = get_token(file);
 
     while (tok)
@@ -39,7 +41,7 @@ int main(int argc, char *argv[])
             }
         }
         parser_print(ast);
-        execute_ast(ast);
+        exit_code = execute_ast(ast);
 
         destroy_AST(ast);
 
@@ -49,5 +51,5 @@ int main(int argc, char *argv[])
         tok = get_token(NULL);
     }
 
-    return 0;
+    return exit_code;
 }

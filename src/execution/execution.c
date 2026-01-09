@@ -115,10 +115,10 @@ int execute_node(struct AST *root)
     }
 }
 
-void execute_ast(struct AST *root)
+int execute_ast(struct AST *root)
 {
     if (!root)
-        return;
+        return 1;
 
-    execute_node(root);
+    return execute_node(root);
 }
