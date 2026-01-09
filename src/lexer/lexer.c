@@ -85,6 +85,9 @@ struct token *get_token(FILE *input)
 {
     static FILE *stream = NULL;
 
+	if (input)
+		stream = input;
+
     if (!stream)
         stream = input;
 

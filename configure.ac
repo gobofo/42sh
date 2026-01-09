@@ -1,4 +1,4 @@
-AC_INIT([42sh], [1.0], [yann.fernandez-puig@epita.fr])
+AC_INIT([42sh], [1.0])
 
 AM_INIT_AUTOMAKE([subdir-objects] [foreign])
 
@@ -12,6 +12,13 @@ AC_PROG_CC
 
 CFLAGS="$CFLAGS -std=c99 -pedantic -Werror -Wall -Wextra -Wvla"
 
+PKG_CHECK_MODULES([CRITERION], [criterion], [has_criterion=yes], [has_criterion=no])
+
+# Handle coverage mode for Testsuites
+AM_CONDITIONAL([COVERAGE_ASKED], [test "x$COVERAGE" = "xyes"])
+
+AC_SUBST([CRITERION_LIBS])
+
 AC_CONFIG_FILES([
 				 Makefile
 				 src/Makefile
@@ -21,6 +28,7 @@ AC_CONFIG_FILES([
 				 src/expansion/Makefile
 				 src/execution/Makefile
 				 src/io_backend/Makefile
-				])
+				 tests/Makefile
+				 ])
 
 AC_OUTPUT

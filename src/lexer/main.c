@@ -46,12 +46,14 @@ int main(int argc, char **argv)
 
     while (tok != NULL)
     {
-        printf("Token: [%s]\n", tok->content);
+        printf("[%s](%s)", tok->content, get_type_name(tok->type));
 
         free_token(tok);
 
         tok = get_token(NULL);
     }
+
+	printf("\n");
 
     free_token(tok);
     fclose(stream);
