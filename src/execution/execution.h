@@ -8,6 +8,6 @@
 #include "../ast/ast.h"
 #include "../parser/parser.h"
 
-void execute_ast(struct AST *root);
+int execute_ast(struct AST *root);
 
 #endif /* ! EXECUTION_H */
