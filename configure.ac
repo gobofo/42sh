@@ -14,6 +14,9 @@ CFLAGS="$CFLAGS -std=c99 -pedantic -Werror -Wall -Wextra -Wvla"
 
 PKG_CHECK_MODULES([CRITERION], [criterion], [has_criterion=yes], [has_criterion=no])
 
+CFLAGS="$CFLAGS $CRITERION_CFLAGS"
+LIBS="$LIBS $CRITERION_LIBS"
+
 # Handle coverage mode for Testsuites
 AM_CONDITIONAL([COVERAGE_ASKED], [test "x$COVERAGE" = "xyes"])
 
