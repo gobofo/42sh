@@ -155,8 +155,8 @@ struct AST *list(struct token **token)
 
                 if (*token == NULL)
                 {
-                    destroy_AST(ast);
-                    return NULL;
+                    //destroy_AST(ast);
+                    return ast;
                 }
             }
             else
