@@ -29,10 +29,10 @@ const char *get_type_name(enum types type)
         return "REDIR";
     case PIPE:
         return "PIPE";
-    case OPERATOR:
-        return "OPERATOR";
-    case ESC:
-        return "ESC";
+    case OR:
+        return "OR";
+    case AND:
+        return "AND";
 	case NEG:
 		return "NEG";
 

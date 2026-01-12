@@ -21,8 +21,8 @@ enum types
 	// MISC
 	REDIR,
 	PIPE,
-	OPERATOR,
-	ESC,
+	OR,
+	AND,
 	NEG,
 	
 	// LOOP clause
