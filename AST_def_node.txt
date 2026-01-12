@@ -1,4 +1,0 @@
-digraph Arbre {
-node [shape=box, style=filled, fillcolor=lightblue];
-4 [label="LIST" , fillcolor="#3498DB"];
-}

@@ -26,7 +26,7 @@ GRE="\e[2;37m"
 
 test_null() {
 	local TMP=$(mktemp -d)
-	local SHELL42="$(realpath src/42sh)"
+	local SHELL42="$(realpath ../42sh)"
 	cd "$TMP"
 
 	cat > expected.txt << 'EOF'
@@ -54,7 +54,7 @@ EOF
 
 test_echo_simple() {
 	local TMP=$(mktemp -d)
-	local SHELL42="$(realpath src/42sh)"
+	local SHELL42="$(realpath ../42sh)"
 	cd "$TMP"
 
 	cat > expected.txt << 'EOF'
@@ -85,7 +85,7 @@ EOF
 
 test_echo_multiple() {
 	local TMP=$(mktemp -d)
-	local SHELL42="$(realpath src/42sh)"
+	local SHELL42="$(realpath ../42sh)"
 	cd "$TMP"
 
 	cat > expected.txt << 'EOF'
@@ -118,7 +118,7 @@ EOF
 
 test_if_simple() {
 	local TMP=$(mktemp -d)
-	local SHELL42="$(realpath src/42sh)"
+	local SHELL42="$(realpath ../42sh)"
 	cd "$TMP"
 
 	cat > expected.txt << 'EOF'
@@ -149,7 +149,7 @@ EOF
 
 test_simple_nested_if() {
 	local TMP=$(mktemp -d)
-	local SHELL42="$(realpath src/42sh)"
+	local SHELL42="$(realpath ../42sh)"
 	cd "$TMP"
 
 	cat > expected.txt << 'EOF'
@@ -180,7 +180,7 @@ EOF
 
 test_expert_nested_if() {
 	local TMP=$(mktemp -d)
-	local SHELL42="$(realpath src/42sh)"
+	local SHELL42="$(realpath ../42sh)"
 	cd "$TMP"
 
 	cat > expected.txt << 'EOF'
@@ -211,7 +211,7 @@ EOF
 
 test_missing_separator() {
 	local TMP=$(mktemp -d)
-	local SHELL42="$(realpath src/42sh)"
+	local SHELL42="$(realpath ../42sh)"
 	cd "$TMP"
 
 	cat > expected.txt << 'EOF'
@@ -240,7 +240,7 @@ EOF
 
 test_missing_fi() {
 	local TMP=$(mktemp -d)
-	local SHELL42="$(realpath src/42sh)"
+	local SHELL42="$(realpath ../42sh)"
 	cd "$TMP"
 
 	cat > expected.txt << 'EOF'
@@ -269,7 +269,7 @@ EOF
 
 test_multiple_else() {
 	local TMP=$(mktemp -d)
-	local SHELL42="$(realpath src/42sh)"
+	local SHELL42="$(realpath ../42sh)"
 	cd "$TMP"
 
 	cat > expected.txt << 'EOF'
@@ -298,7 +298,7 @@ EOF
 
 test_missing_then() {
 	local TMP=$(mktemp -d)
-	local SHELL42="$(realpath src/42sh)"
+	local SHELL42="$(realpath ../42sh)"
 	cd "$TMP"
 
 	cat > expected.txt << 'EOF'
@@ -327,7 +327,7 @@ EOF
 
 test_too_much_separator() {
 	local TMP=$(mktemp -d)
-	local SHELL42="$(realpath src/42sh)"
+	local SHELL42="$(realpath ../42sh)"
 	cd "$TMP"
 
 	cat > expected.txt << 'EOF'
@@ -356,7 +356,7 @@ EOF
 
 test_start_with_separator() {
 	local TMP=$(mktemp -d)
-	local SHELL42="$(realpath src/42sh)"
+	local SHELL42="$(realpath ../42sh)"
 	cd "$TMP"
 
 	cat > expected.txt << 'EOF'
