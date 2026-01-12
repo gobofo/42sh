@@ -14,7 +14,9 @@
 
     input =
 (1)     list '\n'
+       |list EOF
 (2)    | '\n'
+       | EOF
 
 (3) list = and_or { ';' and_or } [ ';' ]
 
