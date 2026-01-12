@@ -4,6 +4,35 @@
 #include <stdlib.h>
 
 /**
+ * @brief		Check if the string is a redirection argument
+ *
+ * Determine if the string passed in parameter is used as a redirection
+ * argument by using regex.
+ *
+ * @param str	The string (content of the token)
+ *
+ * @return		Success or Fail (1 or 0)
+ */
+int is_redir(char *str)
+{
+	if (!str)
+		return 0;
+
+	regex_t regex;
+
+	const char *pattern = "^[0-2]?(>|<|>>|>&|<&|>\\||<>)$";
+	if (regcomp(&regex, pattern, REG_EXTENDED))
+		return 0;
+
+	int status = regexec(&regex, str, 0, NULL, 0);
+
+	if (status == 0)
+		return 1;
+
+	return 0;
+}
+
+/**
  * @brief 		Creates a token.
  *
  * The function creates a token from a specific string, that will be the
@@ -22,7 +51,11 @@ static struct token *create_token(char *str)
     struct token *token = malloc(sizeof(struct token));
     token->content = str;
 
-    if (strcmp(str, "if") == 0)
+	// First check if it's a redirection
+	if (is_redir(str) == 1)
+		token->type = REDIR;
+	// Then check for other possible token by comparing the content
+	else if (strcmp(str, "if") == 0)
         token->type = IF;
     else if (strcmp(str, "then") == 0)
         token->type = THEN;

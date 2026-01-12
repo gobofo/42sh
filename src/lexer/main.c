@@ -2,29 +2,31 @@
 
 const char *get_type_name(enum types type)
 {
-    switch (type)
-    {
-    case IF:
-        return "IF";
-    case THEN:
-        return "THEN";
-    case ELIF:
-        return "ELIF";
-    case ELSE:
-        return "ELSE";
-    case FI:
-        return "FI";
-    case SEMICOLON:
-        return "SEMICOLON";
-    case NEWLINE:
-        return "NEWLINE";
-    case S_QUOTE:
-        return "S_QUOTE";
-    case WORDS:
-        return "WORDS";
-    default:
-        return "UNKNOWN";
-    }
+	switch (type)
+	{
+		case IF:
+			return "IF";
+		case THEN:
+			return "THEN";
+		case ELIF:
+			return "ELIF";
+		case ELSE:
+			return "ELSE";
+		case FI:
+			return "FI";
+		case SEMICOLON:
+			return "SEMICOLON";
+		case NEWLINE:
+			return "NEWLINE";
+		case S_QUOTE:
+			return "S_QUOTE";
+		case REDIR:
+			return "REDIR";
+		case WORDS:
+			return "WORDS";
+		default:
+			return "UNKNOWN";
+	}
 }
 
 int main(int argc, char **argv)
