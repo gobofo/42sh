@@ -1,10 +1,4 @@
 digraph Arbre {
 node [shape=box, style=filled, fillcolor=lightblue];
-6 [label="LIST" , fillcolor="#3498DB"];
-7 [label="CMD" , fillcolor="#2ECC71"];
-8 [label="echo" , fillcolor="#ECF0F1"];
-9 [label="echo" , fillcolor="#ECF0F1"];
-     6 -> 7;
-     7 -> 8;
-     7 -> 9;
+4 [label="LIST" , fillcolor="#3498DB"];
 }
