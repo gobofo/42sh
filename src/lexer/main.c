@@ -2,31 +2,57 @@
 
 const char *get_type_name(enum types type)
 {
-	switch (type)
-	{
-		case IF:
-			return "IF";
-		case THEN:
-			return "THEN";
-		case ELIF:
-			return "ELIF";
-		case ELSE:
-			return "ELSE";
-		case FI:
-			return "FI";
-		case SEMICOLON:
-			return "SEMICOLON";
-		case NEWLINE:
-			return "NEWLINE";
-		case S_QUOTE:
-			return "S_QUOTE";
-		case REDIR:
-			return "REDIR";
-		case WORDS:
-			return "WORDS";
-		default:
-			return "UNKNOWN";
-	}
+    switch (type)
+    {
+    case IF:
+        return "IF";
+    case THEN:
+        return "THEN";
+    case ELIF:
+        return "ELIF";
+    case ELSE:
+        return "ELSE";
+    case FI:
+        return "FI";
+
+    case SEMICOLON:
+        return "SEMICOLON";
+    case NEWLINE:
+        return "NEWLINE";
+
+    case S_QUOTE:
+        return "S_QUOTE";
+    case D_QUOTE:
+        return "D_QUOTE";
+
+    case REDIR:
+        return "REDIR";
+    case PIPE:
+        return "PIPE";
+    case OPERATOR:
+        return "OPERATOR";
+    case ESC:
+        return "ESC";
+
+    case WHILE:
+        return "WHILE";
+    case UNTIL:
+        return "UNTIL";
+    case DO:
+        return "DO";
+    case DONE:
+        return "DONE";
+
+    case FOR:
+        return "FOR";
+    case IN:
+        return "IN";
+
+    case WORDS:
+        return "WORDS";
+    default:
+        return "UNKNOWN";
+    }
 }
 
 int main(int argc, char **argv)
@@ -48,14 +74,14 @@ int main(int argc, char **argv)
 
     while (tok != NULL)
     {
-        printf("[%s](%s)", tok->content, get_type_name(tok->type));
+        printf("[%s](%s)\n", tok->content, get_type_name(tok->type));
 
         free_token(tok);
 
         tok = get_token(NULL);
     }
 
-	printf("\n");
+    printf("\n");
 
     free_token(tok);
     fclose(stream);

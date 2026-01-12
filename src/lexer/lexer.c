@@ -15,10 +15,10 @@
  */
 int is_redir(char *str)
 {
-	return strcmp(str, ">") == 0 || strcmp(str, "<") == 0 ||
-		strcmp(str, ">>") == 0 || strcmp(str, ">&") == 0 ||
-		strcmp(str, "<&") == 0 || strcmp(str, ">|") == 0 ||
-		strcmp(str, "<>") == 0;
+    return strcmp(str, ">") == 0 || strcmp(str, "<") == 0
+        || strcmp(str, ">>") == 0 || strcmp(str, ">&") == 0
+        || strcmp(str, "<&") == 0 || strcmp(str, ">|") == 0
+        || strcmp(str, "<>") == 0;
 }
 
 /**
@@ -40,8 +40,8 @@ static struct token *create_token(char *str)
     struct token *token = malloc(sizeof(struct token));
     token->content = str;
 
-	// IF clause
-	if (strcmp(str, "if") == 0)
+    // IF clause
+    if (strcmp(str, "if") == 0)
         token->type = IF;
     else if (strcmp(str, "then") == 0)
         token->type = THEN;
@@ -51,39 +51,39 @@ static struct token *create_token(char *str)
         token->type = ELSE;
     else if (strcmp(str, "fi") == 0)
         token->type = FI;
-	// END OF COMMAND
+    // END OF COMMAND
     else if (strcmp(str, ";") == 0)
         token->type = SEMICOLON;
     else if (strcmp(str, "\n") == 0)
         token->type = NEWLINE;
-	// QUOTES
+    // QUOTES
     else if (strcmp(str, "'") == 0)
         token->type = S_QUOTE;
-	else if (strcmp(str, "\"") == 0)
-		token->type = PIPE;
-	//MISC
-	else if (is_redir(str) == 0)
-		token->type = REDIR;
-	else if (strcmp(str, "|") == 0)
-		token->type = PIPE;
-	else if (strcmp(str, "||") == 0 || strcmp(str, "&&") == 0)
-		token->type = OPERATOR;
-	else if (strcmp(str, "\\") == 0)
-		token->type = ESC;
-	// LOOP clause
-	else if (strcmp(str, "while") == 0)
-		token->type = WHILE;
-	else if (strcmp(str, "until") == 0)
-		token->type = UNTIL;
-	else if (strcmp(str, "DO") == 0)
-		token->type = DO;
-	else if (strcmp(str, "DONE") == 0)
-		token->type = DONE;
-	else if (strcmp(str, "FOR") == 0)
-		token->type = FOR;	
-	else if (strcmp(str, "IN") == 0)
-		token->type = IN;
-	//OTHER
+    else if (strcmp(str, "\"") == 0)
+        token->type = D_QUOTE;
+    // MISC
+    else if (is_redir(str) == 1)
+        token->type = REDIR;
+    else if (strcmp(str, "|") == 0)
+        token->type = PIPE;
+    else if (strcmp(str, "||") == 0 || strcmp(str, "&&") == 0)
+        token->type = OPERATOR;
+    else if (strcmp(str, "\\") == 0)
+        token->type = ESC;
+    // LOOP clause
+    else if (strcmp(str, "while") == 0)
+        token->type = WHILE;
+    else if (strcmp(str, "until") == 0)
+        token->type = UNTIL;
+    else if (strcmp(str, "do") == 0)
+        token->type = DO;
+    else if (strcmp(str, "done") == 0)
+        token->type = DONE;
+    else if (strcmp(str, "for") == 0)
+        token->type = FOR;
+    else if (strcmp(str, "in") == 0)
+        token->type = IN;
+    // OTHER
     else
         token->type = WORDS;
 
@@ -128,8 +128,8 @@ struct token *get_token(FILE *input)
 {
     static FILE *stream = NULL;
 
-	if (input)
-		stream = input;
+    if (input)
+        stream = input;
 
     if (!stream)
         stream = input;
@@ -201,33 +201,35 @@ struct token *read_input(FILE *file)
             }
         }
 
-		// Those two characters are considered as operators if they are doubled
-		// For the | it can also be considered as a pipe if it is alone
-		// If one this two charcaters is found we need to check if the next one
-		// is also the same character
-		if (c == '|' || c == '&')
-		{
-			fputc(c, stream);
+        // Those two characters are considered as operators if they are doubled
+        // For the | it can also be considered as a pipe if it is alone
+        // If one this two charcaters is found we need to check if the next one
+        // is also the same character
+        if (c == '|' || c == '&')
+        {
+            fputc(c, stream);
 
-			int next_c = fgetc(file);
+            int next_c = fgetc(file);
+			if (next_c == EOF)
+				break;
 
-			// A double is found
-			if (next_c == c)
-			{
-				fputc(next_c, stream);
+            // A double is found
+            if (next_c == c)
+            {
+                fputc(next_c, stream);
 
-				return flush_stream(stream, &buffer);
-			}
-			// No double is found and we are in a pipe case
-			else if (c == '|')
-			{
-				// Put back the next character since it is part of a different
-				// token than the pipe
-				ungetc(next_c, file);
+                return flush_stream(stream, &buffer);
+            }
+            // No double is found and we are in a pipe case
+            else if (c == '|')
+            {
+                // Put back the next character since it is part of a different
+                // token than the pipe
+                ungetc(next_c, file);
 
-				return flush_stream(stream, &buffer);
-			}
-		}
+                return flush_stream(stream, &buffer);
+            }
+        }
 
         // A single quote is found
         // In that case, everythin between the 2 single quotes are considered

@@ -7,53 +7,81 @@
 
 const char *get_type(enum types type)
 {
-    switch (type)
-    {
-    case IF:
-        return "IF";
-    case THEN:
-        return "THEN";
-    case ELIF:
-        return "ELIF";
-    case ELSE:
-        return "ELSE";
-    case FI:
-        return "FI";
-    case SEMICOLON:
-        return "SEMICOLON";
-    case NEWLINE:
-        return "NEWLINE";
-    case S_QUOTE:
-        return "S_QUOTE";
-    case WORDS:
-        return "WORDS";
-    default:
-        return "UNKNOWN";
-    }
+	switch (type)
+	{
+		case IF:
+			return "IF";
+		case THEN:
+			return "THEN";
+		case ELIF:
+			return "ELIF";
+		case ELSE:
+			return "ELSE";
+		case FI:
+			return "FI";
+
+		case SEMICOLON:
+			return "SEMICOLON";
+		case NEWLINE:
+			return "NEWLINE";
+
+		case S_QUOTE:
+			return "S_QUOTE";
+		case D_QUOTE:
+			return "D_QUOTE";
+
+		case REDIR:
+			return "REDIR";
+		case PIPE:
+			return "PIPE";
+		case OPERATOR:
+			return "OPERATOR";
+		case ESC:
+			return "ESC";
+
+		case WHILE:
+			return "WHILE";
+		case UNTIL:
+			return "UNTIL";
+		case DO:
+			return "DO";
+		case DONE:
+			return "DONE";
+
+		case FOR:
+			return "FOR";
+		case IN:
+			return "IN";
+
+		case WORDS:
+			return "WORDS";
+		default:
+			return "UNKNOWN";
+	}
 }
 
 void print_lexing(const char *input)
 {
-    if (!input) return;
+	if (!input) return;
 
-    FILE *stream = fmemopen((void *)input, strlen(input), "r");
-    if (!stream) return;
+	FILE *stream = fmemopen((void *)input, strlen(input), "r");
+	if (!stream) return;
 
-    struct token *tok = get_token(stream);
+	struct token *tok = get_token(stream);
 
-    while (tok != NULL)
-    {
- 		printf("[%s](%s)\n", tok->content, get_type(tok->type));
+	while (tok != NULL)
+	{
+		printf("[%s](%s)\n", tok->content, get_type(tok->type));
 		free_token(tok);
-        tok = get_token(stream);
-    }
+		tok = get_token(stream);
+	}
 
 	fclose(stream);
 }
 
 void setup_stdout(void)
 {
-    cr_redirect_stdout();
+	cr_redirect_stdout();
 }
 
 Test(edge_case, empty_input, .init = setup_stdout)
@@ -64,7 +92,7 @@ Test(edge_case, empty_input, .init = setup_stdout)
 
 	fflush(stdout);
 
-    cr_assert_stdout_eq_str("");
+	cr_assert_stdout_eq_str("");
 }
 
 // Tests to check if lexer handles correctly single tokens
@@ -79,7 +107,7 @@ Test(single_token, word_token, .init = setup_stdout)
 
 	fflush(stdout);
 
-    cr_assert_stdout_eq_str("[bien](WORDS)\n");
+	cr_assert_stdout_eq_str("[bien](WORDS)\n");
 }
 
 Test(single_token, if_token, .init = setup_stdout)
@@ -90,7 +118,7 @@ Test(single_token, if_token, .init = setup_stdout)
 
 	fflush(stdout);
 
-    cr_assert_stdout_eq_str("[if](IF)\n");
+	cr_assert_stdout_eq_str("[if](IF)\n");
 }
 
 Test(single_token, then_token, .init = setup_stdout)
@@ -101,7 +129,7 @@ Test(single_token, then_token, .init = setup_stdout)
 
 	fflush(stdout);
 
-    cr_assert_stdout_eq_str("[then](THEN)\n");
+	cr_assert_stdout_eq_str("[then](THEN)\n");
 }
 
 Test(single_token, elif_token, .init = setup_stdout)
@@ -112,7 +140,7 @@ Test(single_token, elif_token, .init = setup_stdout)
 
 	fflush(stdout);
 
-    cr_assert_stdout_eq_str("[elif](ELIF)\n");
+	cr_assert_stdout_eq_str("[elif](ELIF)\n");
 }
 
 Test(single_token, else_token, .init = setup_stdout)
@@ -123,7 +151,7 @@ Test(single_token, else_token, .init = setup_stdout)
 
 	fflush(stdout);
 
-    cr_assert_stdout_eq_str("[else](ELSE)\n");
+	cr_assert_stdout_eq_str("[else](ELSE)\n");
 }
 
 Test(single_token, fi_token, .init = setup_stdout)
@@ -134,7 +162,7 @@ Test(single_token, fi_token, .init = setup_stdout)
 
 	fflush(stdout);
 
-    cr_assert_stdout_eq_str("[fi](FI)\n");
+	cr_assert_stdout_eq_str("[fi](FI)\n");
 }
 
 Test(single_token, semicolon_token, .init = setup_stdout)
@@ -145,7 +173,7 @@ Test(single_token, semicolon_token, .init = setup_stdout)
 
 	fflush(stdout);
 
-    cr_assert_stdout_eq_str("[;](SEMICOLON)\n");
+	cr_assert_stdout_eq_str("[;](SEMICOLON)\n");
 }
 
 Test(single_token, newline_token, .init = setup_stdout)
@@ -156,7 +184,7 @@ Test(single_token, newline_token, .init = setup_stdout)
 
 	fflush(stdout);
 
-    cr_assert_stdout_eq_str("[\n](NEWLINE)\n");
+	cr_assert_stdout_eq_str("[\n](NEWLINE)\n");
 }
 
 Test(single_token, single_quote_token, .init = setup_stdout)
@@ -167,7 +195,194 @@ Test(single_token, single_quote_token, .init = setup_stdout)
 
 	fflush(stdout);
 
-    cr_assert_stdout_eq_str("['](S_QUOTE)\n");
+	cr_assert_stdout_eq_str("['](S_QUOTE)\n");
+}
+
+Test(single_token, double_quote_token, .init = setup_stdout)
+{
+	char *input = "\"";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[\"](D_QUOTE)\n");
+}
+
+Test(single_token, and_token, .init = setup_stdout)
+{
+	char *input = "&&";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[&&](OPERATOR)\n");
+}
+
+Test(single_token, or_token, .init = setup_stdout)
+{
+	char *input = "||";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[||](OPERATOR)\n");
+}
+
+Test(single_token, pipe_token, .init = setup_stdout)
+{
+	char *input = "|";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[|](PIPE)\n");
+}
+
+Test(single_token, while_token, .init = setup_stdout)
+{
+	char *input = "while";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[while](WHILE)\n");
+}
+
+Test(single_token, until_token, .init = setup_stdout)
+{
+	char *input = "until";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[until](UNTIL)\n");
+}
+
+Test(single_token, do_token, .init = setup_stdout)
+{
+	char *input = "do";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[do](DO)\n");
+}
+
+Test(single_token, done_token, .init = setup_stdout)
+{
+	char *input = "done";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[done](DONE)\n");
+}
+
+Test(single_token, for_token, .init = setup_stdout)
+{
+	char *input = "for";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[for](FOR)\n");
+}
+
+Test(single_token, in_token, .init = setup_stdout)
+{
+	char *input = "in";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[in](IN)\n");
+}
+
+Test(single_token, redir_token_1, .init = setup_stdout)
+{
+	char *input = ">";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[>](REDIR)\n");
+}
+
+Test(single_token, redir_token_2, .init = setup_stdout)
+{
+	char *input = "<";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[<](REDIR)\n");
+}
+
+Test(single_token, redir_token_3, .init = setup_stdout)
+{
+	char *input = ">>";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[>>](REDIR)\n");
+}
+
+Test(single_token, redir_token_4, .init = setup_stdout)
+{
+	char *input = ">&";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[>&](REDIR)\n");
+}
+
+Test(single_token, redir_token_5, .init = setup_stdout)
+{
+	char *input = "<&";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[<&](REDIR)\n");
+}
+
+Test(single_token, redir_token_6, .init = setup_stdout)
+{
+	char *input = ">|";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[>|](REDIR)\n");
+}
+
+Test(single_token, redir_token_7, .init = setup_stdout)
+{
+	char *input = "<>";
+
+	print_lexing(input);
+
+	fflush(stdout);
+
+	cr_assert_stdout_eq_str("[<>](REDIR)\n");
 }
 
 // Tests for if clausures
