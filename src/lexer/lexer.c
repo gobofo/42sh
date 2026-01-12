@@ -41,7 +41,7 @@ static struct token *create_token(char *str)
     token->content = str;
 
 	// IF clause
-	else if (strcmp(str, "if") == 0)
+	if (strcmp(str, "if") == 0)
         token->type = IF;
     else if (strcmp(str, "then") == 0)
         token->type = THEN;
@@ -207,14 +207,14 @@ struct token *read_input(FILE *file)
 		// is also the same character
 		if (c == '|' || c == '&')
 		{
-			fputc(c);
+			fputc(c, stream);
 
 			int next_c = fgetc(file);
 
 			// A double is found
 			if (next_c == c)
 			{
-				fputc(next_c);
+				fputc(next_c, stream);
 
 				return flush_stream(stream, &buffer);
 			}
@@ -234,7 +234,7 @@ struct token *read_input(FILE *file)
         // as a single word
         // Iterate until the next single quote marking the closure of the
         // quoting
-        if (c == '\'' c == '"')
+        if (c == '\'' || c == '"')
         {
             fputc(c, stream);
 
