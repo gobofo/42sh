@@ -7,5 +7,5 @@ noinst_LIBRARIES = liblexer.a
 
 lexer_exe_SOURCES = main.c
 lexer_exe_LDADD = liblexer.a
-lexer_exe_CFLAGS = -std=c99 -pedantic -Werror -Wall -Wextra -Wvla
+lexer_exe_CFLAGS = -std=c99 -pedantic -Werror -Wall -Wextra -Wvla -fsanitize=address -g
 noinst_PROGRAMS = lexer_exe
