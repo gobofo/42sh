@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 
     struct token *tok = get_token(file);
 
-    while (tok)
+    while (1)
     {
         struct AST *ast;
 
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
         destroy_AST(ast);
 
-        if (argc == 1)
+        if (argc != 1)
             break;
 
         tok = get_token(NULL);
