@@ -227,7 +227,7 @@ struct token *read_input(FILE *file)
         // For the | it can also be considered as a pipe if it is alone
         // If one this two charcaters is found we need to check if the next one
         // is also the same character
-        if (c == '|' || c == '&')
+        if ((c == '|' || c == '&')
         {
 			fflush(stream);
 
