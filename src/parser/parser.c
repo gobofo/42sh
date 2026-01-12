@@ -20,15 +20,19 @@
 
 (3) list = and_or { ';' and_or } [ ';' ]
 
-(4) and_or = pipeline
+(4) and_or = pipeline { ( '&&' | '||' ) {'\n'} pipeline }
 
-(5) pipeline = command
+(5) pipeline = [!] command { '|' {'\n'} command }
 
     command =
 (6)    simple_command
-(7)    | shell_command
+(7)    | shell_command {redirection}
 
-(8) shell_command = rule_if
+(8) shell_command = 
+        rule_if
+        | rule_while
+        | rule_until
+        | rule_for
 
 (9) rule_if = 'if' compound_list 'then' compound_list [else_clause] 'fi'
 
@@ -36,12 +40,27 @@
 (10)    'else' compound_list
 (11)    | 'elif' compound_list 'then' compound_list [else_clause]
 
+rule_while = 'while' compound_list 'do' compound_list 'done'
+
+rule_until = 'until' compound_list 'do' compound_list 'done'
+
+rule_for = 'for' WORD ( [';'] | [ {'\n'} 'in' { WORD } ( ';' | '\n' ) ] ) {'\n'} 'do' compound_list 'done' 
+
 (12) compound_list = {'\n'} and_or { ( ';' | '\n' ) {'\n'} and_or } [';'] {'\n'}
 
-(13) simple_command = WORD { element }
+(13) simple_command = 
+          prefix {prefix}
+        | {prefix} WORD { element }
 
-(14) element = WORD
+prefix = 
+        redirection
+        | ASSIGNEMENT_WORD
 
+redirection = [IONUMBER] ( '>' | '<' | '>>' | '>&' | '<&' | '>|' | '<>' ) WORD 
+
+(14) element = 
+        WORD
+        | redirection
 */
 
 struct AST *input(struct token **token);
