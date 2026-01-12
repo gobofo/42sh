@@ -54,7 +54,7 @@ static struct token *create_token(char *str)
 	// First check if it's a redirection
 	if (is_redir(str) == 1)
 		token->type = REDIR;
-	// Then check for other possible token by comparing the content
+	// IF clause
 	else if (strcmp(str, "if") == 0)
         token->type = IF;
     else if (strcmp(str, "then") == 0)
@@ -65,12 +65,38 @@ static struct token *create_token(char *str)
         token->type = ELSE;
     else if (strcmp(str, "fi") == 0)
         token->type = FI;
+	// END OF COMMAND
     else if (strcmp(str, ";") == 0)
         token->type = SEMICOLON;
     else if (strcmp(str, "\n") == 0)
         token->type = NEWLINE;
+	// QUOTES
     else if (strcmp(str, "'") == 0)
         token->type = S_QUOTE;
+	else if (strcmp(str, "\"") == 0)
+		token->type = PIPE;
+	//MISC
+		// TODO - Add REDIR case
+	else if (strcmp(str, "|") == 0)
+		token->type = REDIR;
+	else if (strcmp(str, "||") == 0 || strcmp(str, "&&") == 0)
+		token->type = OPERATOR;
+	else if (strcmp(str, "\\") == 0)
+		token->type = ESC;
+	// LOOP clause
+	else if (strcmp(str, "while") == 0)
+		token->type = WHILE;
+	else if (strcmp(str, "until") == 0)
+		token->type = UNTIL;
+	else if (strcmp(str, "DO") == 0)
+		token->type = DO;
+	else if (strcmp(str, "DONE") == 0)
+		token->type = DONE;
+	else if (strcmp(str, "FOR") == 0)
+		token->type = FOR;	
+	else if (strcmp(str, "IN") == 0)
+		token->type = IN;
+	//OTHER
     else
         token->type = WORDS;
 
@@ -166,7 +192,7 @@ struct token *read_input(FILE *file)
             return flush_stream(stream, &buffer);
         }
 
-        // Same as before but those charcacters need to be safe as tokens
+        // Same as before but those charcacters need to be safed as tokens
         if (c == ';' || c == '\n')
         {
             // Sync the stream
