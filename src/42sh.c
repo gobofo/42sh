@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "ast/ast.h"
 #include "execution/execution.h"
@@ -17,7 +18,7 @@ int main(int argc, char *argv[])
         return 2;
     }
 
-	int exit_code = 0;
+    int exit_code = 0;
 
     struct token *tok = get_token(file);
 
@@ -45,10 +46,9 @@ int main(int argc, char *argv[])
 
         destroy_AST(ast);
 
-        if (argc != 1)
-            break;
-
         tok = get_token(NULL);
+        if (argc != 1 && tok == NULL)
+            break;
     }
 
     return exit_code;
