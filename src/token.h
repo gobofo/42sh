@@ -3,15 +3,36 @@
 
 enum types
 {
+	// IF clause
     IF,
     THEN,
     ELIF,
     ELSE,
     FI,
+
+	// END OF COMMAND
     SEMICOLON,
     NEWLINE,
-    S_QUOTE,
+    
+	// QUOTES
+	S_QUOTE,
+	D_QUOTE,
+
+	// MISC
 	REDIR,
+	PIPE,
+	OPERATOR,
+	ESC,
+	
+	// LOOP clause
+	WHILE,
+	UNTIL,
+	DO,
+	DONE,
+	FOR,
+	IN,
+
+	// OTHER
     WORDS
 };
 
