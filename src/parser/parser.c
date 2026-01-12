@@ -14,51 +14,51 @@
 
     input =
 (1)     list '\n'
-       |list EOF
-(2)    | '\n'
-       | EOF
+(2)    | list EOF
+(3)    | '\n'
+(4)    | EOF
 
-(3) list = and_or { ';' and_or } [ ';' ]
+(5) list = and_or { ';' and_or } [ ';' ]
 
-(4) and_or = pipeline { ( '&&' | '||' ) {'\n'} pipeline }
+(6) and_or = pipeline { ( '&&' | '||' ) {'\n'} pipeline }
 
-(5) pipeline = [!] command { '|' {'\n'} command }
+(7) pipeline = [!] command { '|' {'\n'} command }
 
     command =
-(6)    simple_command
-(7)    | shell_command {redirection}
+(8)    simple_command
+(9)    | shell_command {redirection}
 
-(8) shell_command = 
+(10) shell_command = 
         rule_if
         | rule_while
         | rule_until
         | rule_for
 
-(9) rule_if = 'if' compound_list 'then' compound_list [else_clause] 'fi'
+(11) rule_if = 'if' compound_list 'then' compound_list [else_clause] 'fi'
 
     else_clause =
-(10)    'else' compound_list
-(11)    | 'elif' compound_list 'then' compound_list [else_clause]
+(12)    'else' compound_list
+(13)    | 'elif' compound_list 'then' compound_list [else_clause]
 
-rule_while = 'while' compound_list 'do' compound_list 'done'
+(14) rule_while = 'while' compound_list 'do' compound_list 'done'
 
-rule_until = 'until' compound_list 'do' compound_list 'done'
+(15) rule_until = 'until' compound_list 'do' compound_list 'done'
 
-rule_for = 'for' WORD ( [';'] | [ {'\n'} 'in' { WORD } ( ';' | '\n' ) ] ) {'\n'} 'do' compound_list 'done' 
+(16) rule_for = 'for' WORD ( [';'] | [ {'\n'} 'in' { WORD } ( ';' | '\n' ) ] ) {'\n'} 'do' compound_list 'done' 
 
-(12) compound_list = {'\n'} and_or { ( ';' | '\n' ) {'\n'} and_or } [';'] {'\n'}
+(17) compound_list = {'\n'} and_or { ( ';' | '\n' ) {'\n'} and_or } [';'] {'\n'}
 
-(13) simple_command = 
+(18) simple_command = 
           prefix {prefix}
-        | {prefix} WORD { element }
+(19)    | {prefix} WORD { element }
 
-prefix = 
+(20) prefix = 
         redirection
         | ASSIGNEMENT_WORD
 
-redirection = [IONUMBER] ( '>' | '<' | '>>' | '>&' | '<&' | '>|' | '<>' ) WORD 
+(21) redirection = [IONUMBER] ( '>' | '<' | '>>' | '>&' | '<&' | '>|' | '<>' ) WORD 
 
-(14) element = 
+(22) element = 
         WORD
         | redirection
 */
