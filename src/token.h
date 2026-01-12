@@ -11,6 +11,7 @@ enum types
     SEMICOLON,
     NEWLINE,
     S_QUOTE,
+	REDIR,
     WORDS
 };
 

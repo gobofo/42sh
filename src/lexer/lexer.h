@@ -3,6 +3,7 @@
 
 #define _POSIX_C_SOURCE 200809L
 
+#include <regex.h>
 #include <stdio.h>
 #include <string.h>
 
