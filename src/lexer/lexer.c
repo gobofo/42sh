@@ -15,21 +15,10 @@
  */
 int is_redir(char *str)
 {
-	if (!str)
-		return 0;
-
-	regex_t regex;
-
-	const char *pattern = "^[0-2]?(>|<|>>|>&|<&|>\\||<>)$";
-	if (regcomp(&regex, pattern, REG_EXTENDED))
-		return 0;
-
-	int status = regexec(&regex, str, 0, NULL, 0);
-
-	if (status == 0)
-		return 1;
-
-	return 0;
+	return strcmp(str, ">") == 0 || strcmp(str, "<") == 0 ||
+		strcmp(str, ">>") == 0 || strcmp(str, ">&") == 0 ||
+		strcmp(str, "<&") == 0 || strcmp(str, ">|") == 0 ||
+		strcmp(str, "<>") == 0;
 }
 
 /**
@@ -51,9 +40,6 @@ static struct token *create_token(char *str)
     struct token *token = malloc(sizeof(struct token));
     token->content = str;
 
-	// First check if it's a redirection
-	if (is_redir(str) == 1)
-		token->type = REDIR;
 	// IF clause
 	else if (strcmp(str, "if") == 0)
         token->type = IF;
@@ -76,9 +62,10 @@ static struct token *create_token(char *str)
 	else if (strcmp(str, "\"") == 0)
 		token->type = PIPE;
 	//MISC
-		// TODO - Add REDIR case
-	else if (strcmp(str, "|") == 0)
+	else if (is_redir(str) == 0)
 		token->type = REDIR;
+	else if (strcmp(str, "|") == 0)
+		token->type = PIPE;
 	else if (strcmp(str, "||") == 0 || strcmp(str, "&&") == 0)
 		token->type = OPERATOR;
 	else if (strcmp(str, "\\") == 0)
@@ -123,9 +110,7 @@ static struct token *flush_stream(FILE *stream, char **buffer)
     struct token *new_token = create_token(*buffer);
 
     if (!new_token)
-    {
         free(*buffer);
-    }
 
     return new_token;
 }
@@ -193,7 +178,7 @@ struct token *read_input(FILE *file)
         }
 
         // Same as before but those charcacters need to be safed as tokens
-        if (c == ';' || c == '\n')
+        if (c == ';' || c == '\n' || c == '!' || c == '\\')
         {
             // Sync the stream
             fflush(stream);
@@ -216,16 +201,44 @@ struct token *read_input(FILE *file)
             }
         }
 
+		// Those two characters are considered as operators if they are doubled
+		// For the | it can also be considered as a pipe if it is alone
+		// If one this two charcaters is found we need to check if the next one
+		// is also the same character
+		if (c == '|' || c == '&')
+		{
+			fputc(c);
+
+			int next_c = fgetc(file);
+
+			// A double is found
+			if (next_c == c)
+			{
+				fputc(next_c);
+
+				return flush_stream(stream, &buffer);
+			}
+			// No double is found and we are in a pipe case
+			else if (c == '|')
+			{
+				// Put back the next character since it is part of a different
+				// token than the pipe
+				ungetc(next_c, file);
+
+				return flush_stream(stream, &buffer);
+			}
+		}
+
         // A single quote is found
         // In that case, everythin between the 2 single quotes are considered
         // as a single word
         // Iterate until the next single quote marking the closure of the
         // quoting
-        if (c == '\'')
+        if (c == '\'' c == '"')
         {
             fputc(c, stream);
 
-            while ((c = fgetc(file)) != EOF && c != '\'')
+            while ((c = fgetc(file)) != EOF && (c != '\'' || c != '"'))
                 fputc(c, stream);
         }
 
