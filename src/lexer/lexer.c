@@ -55,7 +55,7 @@ static struct token *create_token(char *str)
  * @param buffer	The buffer holding the value of the token
  * @param size	 	The size (in bytes) of the bufferer
  *
- * @return A new node
+ * @return 			The token in the stream
  */
 static struct token *flush_stream(FILE *stream, char **buffer)
 {
@@ -78,9 +78,8 @@ static struct token *flush_stream(FILE *stream, char **buffer)
  *
  * @param input		The input where the parser is reading
  *
- * @return 			The next token in stream
+ * @return 			Next token in stream
  */
-
 struct token *get_token(FILE *input)
 {
     static FILE *stream = NULL;
@@ -96,6 +95,18 @@ struct token *get_token(FILE *input)
     return token;
 }
 
+/**
+ * @brief			Reads the input from user
+ *
+ * Reads the user's input in order to determine the next token to process by
+ * the parser.
+ * Iterates character by character the stream (reprensenting the input) and
+ * stops when a vaild token is found.
+ *
+ * @ param file 	The user's input in a stream form
+ *
+ * @return			The next valid token in the stream
+ */
 struct token *read_input(FILE *file)
 {
     int c;
