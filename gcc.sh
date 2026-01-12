@@ -1,4 +1,4 @@
-rm 42
+rm 42sh
 
 autoreconf --install
 ./configure
@@ -31,3 +31,5 @@ rm -rf tests/.deps
 
 rm $(find src -name "Makefile" -o -name "Makefile.in")
 rm -rf $(find src -type d -name ".deps")
+
+mv 42 42sh
