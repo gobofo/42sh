@@ -12,7 +12,8 @@ int execute_node(struct AST *root);
  * @return			Succes or Failure (0 or 1) of the function
  */
 
-int is_valid_echo_flags(char *flags){
+int is_valid_echo_flags(char *flags)
+{
 	if(flags[0]!='-') return 0;
 
 	int i=1;
@@ -159,6 +160,7 @@ int execute_cmd(struct AST *root)
     else if (strcmp(command[0], "echo") == 0)
         status = my_echo(command + 1);
     else
+		// TODO - Use execvp
         fprintf(stderr, "Error: undefined command: \"%s\"\n", command[0]);
     free(command);
 
