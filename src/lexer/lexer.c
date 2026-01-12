@@ -70,6 +70,8 @@ static struct token *create_token(char *str)
         token->type = OPERATOR;
     else if (strcmp(str, "\\") == 0)
         token->type = ESC;
+    else if (strcmp(str, "!") == 0)
+		token->type = NEG;
     // LOOP clause
     else if (strcmp(str, "while") == 0)
         token->type = WHILE;
@@ -139,6 +141,32 @@ struct token *get_token(FILE *input)
     return token;
 }
 
+struct token *empty_stream(FILE *file, FILE **stream, char **buffer, char c)
+{
+	ungetc(c, file);
+
+	return flush_stream(*stream, buffer);
+}
+
+void handle_quotes(FILE *file, FILE **stream, int *c)
+{
+	fputc(*c, *stream);
+
+	while ((*c = fgetc(file)) != EOF && (*c != '\'' || *c != '"'))
+		fputc(*c, *stream);
+}
+
+void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
+{
+	fflush(*stream);
+
+	if (size == 0)
+	{
+		while ((*c = fgetc(file)) != EOF && *c != '\n')
+			;
+	}
+}
+
 /**
  * @brief			Reads the input from user
  *
@@ -184,22 +212,16 @@ struct token *read_input(FILE *file)
             fflush(stream);
 
             if (size > 0)
-            {
-                ungetc(c, file);
+				return empty_stream(file, &stream, &buffer, c);
 
-                return flush_stream(stream, &buffer);
-            }
-            else
-            {
-                // If we were already reading a token, then we need to save
-                // the delim, return the current token, then read again the
-                // delim So once the token is processed we put back the delim in
-                // the file stream. This way it can be read again
-                fputc(c, stream);
+			// If we were already reading a token, then we need to save
+			// the delim, return the current token, then read again the
+			// delim So once the token is processed we put back the delim in
+			// the file stream. This way it can be read again
+			fputc(c, stream);
 
-                return flush_stream(stream, &buffer);
-            }
-        }
+			return flush_stream(stream, &buffer);
+		}
 
         // Those two characters are considered as operators if they are doubled
         // For the | it can also be considered as a pipe if it is alone
@@ -207,6 +229,11 @@ struct token *read_input(FILE *file)
         // is also the same character
         if (c == '|' || c == '&')
         {
+			fflush(stream);
+
+            if (size > 0)
+				return empty_stream(file, &stream, &buffer, c);
+
             fputc(c, stream);
 
             int next_c = fgetc(file);
@@ -237,26 +264,13 @@ struct token *read_input(FILE *file)
         // Iterate until the next single quote marking the closure of the
         // quoting
         if (c == '\'' || c == '"')
-        {
-            fputc(c, stream);
-
-            while ((c = fgetc(file)) != EOF && (c != '\'' || c != '"'))
-                fputc(c, stream);
-        }
+			handle_quotes(file, &stream, &c);
 
         // If we find comments we dont take them in consideration
         // If the # is in the middle of a word then it makes part of the
         // word
         if (c == '#')
-        {
-            fflush(stream);
-
-            if (size == 0)
-            {
-                while ((c = fgetc(file)) != EOF && c != '\n')
-                    ;
-            }
-        }
+			hanlde_comments(file, &stream, &size, &c);
 
         if (c != EOF && c != '\n')
             fputc(c, stream);

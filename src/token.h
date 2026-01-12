@@ -23,6 +23,7 @@ enum types
 	PIPE,
 	OPERATOR,
 	ESC,
+	NEG,
 	
 	// LOOP clause
 	WHILE,

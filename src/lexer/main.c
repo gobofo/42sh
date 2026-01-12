@@ -33,6 +33,8 @@ const char *get_type_name(enum types type)
         return "OPERATOR";
     case ESC:
         return "ESC";
+	case NEG:
+		return "NEG";
 
     case WHILE:
         return "WHILE";
