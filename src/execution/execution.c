@@ -43,8 +43,7 @@ int execute_cmd(struct AST *root)
     else if (strcmp(command[0], "echo") == 0)
         status = my_echo(command + 1);
     else
-        // TODO - Use execvp
-        fprintf(stderr, "Error: undefined command: \"%s\"\n", command[0]);
+		status = execute_non_builtin(command);
     free(command);
 
     return status;
