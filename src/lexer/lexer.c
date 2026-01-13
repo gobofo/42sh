@@ -1,5 +1,38 @@
 #include "lexer.h"
 
+//#####################
+//#   MAIN FUNCTION   #
+//#####################
+
+/**
+ * @brief 			Function to return the next token
+ *
+ * Returns the next token found in the stream when asked from the parser
+ *
+ * @param input		The input where the parser is reading
+ *
+ * @return 			Next token in stream
+ */
+
+struct token *get_token(FILE *input)
+{
+    static FILE *stream = NULL;
+
+    if (input)
+        stream = input;
+
+    if (!stream)
+        stream = input;
+
+    struct token *token = read_input(stream);
+
+    return token;
+}
+
+//##############
+//#   STREAM   #
+//##############
+
 /**
  * @brief  		 	Empties the current stream and creates a node
  *
@@ -27,28 +60,22 @@ static struct token *flush_stream(FILE *stream, char **buffer)
 }
 
 /**
- * @brief 			Function to return the next token
+ * @brief 			Puts back the current character and flushes the stream
  *
- * Returns the next token found in the stream when asked from the parser
+ * This function is called when we find a deliminter in the input and we were
+ * currently reading a token.
+ * Since we need both, the current token and the delimiter, for the parsing we
+ * need to empty the stream and return the current so then we can process the 
+ * delim.
  *
- * @param input		The input where the parser is reading
+ * @param file		The file from which we read the tokens and in which we want
+ * 					to put back the delim
+ * @param stream	The stream where the current token is held
+ * @param buffer	The buffer linked with the stream
+ * @param c			The current character read: the delim
  *
- * @return 			Next token in stream
+ * @return			The token before the delim
  */
-struct token *get_token(FILE *input)
-{
-    static FILE *stream = NULL;
-
-    if (input)
-        stream = input;
-
-    if (!stream)
-        stream = input;
-
-    struct token *token = read_input(stream);
-
-    return token;
-}
 
 struct token *empty_stream(FILE *file, FILE **stream, char **buffer, char c)
 {
@@ -57,6 +84,21 @@ struct token *empty_stream(FILE *file, FILE **stream, char **buffer, char c)
     return flush_stream(*stream, buffer);
 }
 
+//######################
+//#   TOKEN HANDLING   #
+//######################
+
+/**
+ * @brief			Processes the quote token
+ *
+ * When quotes are found we keep the literal value inside, so we need to
+ * iterate on the input until the corresponding closing quote is found.
+ *
+ * @param file		The file in which we read the input
+ * @param stream	The stream holding the token
+ * @param c			The start of the quoting token
+ */
+
 void handle_quotes(FILE *file, FILE **stream, int *c)
 {
     fputc(*c, *stream);
@@ -64,6 +106,20 @@ void handle_quotes(FILE *file, FILE **stream, int *c)
     while ((*c = fgetc(file)) != EOF && (*c != '\'' || *c != '"'))
         fputc(*c, *stream);
 }
+
+/**
+ * @brief			Process the comment token
+ *
+ * When a comment symbol is found #, there are two options to handle it:
+ * - if there is nothing before it then it is considered as a comment and
+ *   everything between the symbol and the next \n is ignored
+ * - the symbol is in the middle of a word, then it makes part of the word
+ *
+ * @param file		The file in which we read the input
+ * @param stream	The stream holding the token
+ * @param size		The size of the buffer (the token read)
+ * @param c			The start of the quoting token
+ */
 
 void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
 {
@@ -74,22 +130,6 @@ void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
         while ((*c = fgetc(file)) != EOF && *c != '\n')
             ;
     }
-}
-
-/**
- * @brief			Mimics the function ungetc but for strings
- *
- * Puts back all characters from a string back into a stream
- *
- * @param str		The string which characters we want to put back
- * @param stream	The stream in which we want to put the characters
- */
-void unget_str(const char *str, FILE *stream)
-{
-	size_t len = strlen(str);
-
-	for (size_t i = 0; i < len; i++)
-		ungetc(str[i], stream);
 }
 
 /**
@@ -108,6 +148,7 @@ void unget_str(const char *str, FILE *stream)
  * @return              A pointer to the created token, or NULL if no
  * redirection
  */
+
 struct token *handle_redir(FILE *file, FILE **stream, char **buffer, int c)
 {
     char buff[4] = { 0 };
@@ -142,6 +183,10 @@ struct token *handle_redir(FILE *file, FILE **stream, char **buffer, int c)
     return NULL;
 }
 
+//#####################
+//#   INPUT READING   #
+//#####################
+
 /**
  * @brief			Reads the input from user
  *
@@ -154,6 +199,7 @@ struct token *handle_redir(FILE *file, FILE **stream, char **buffer, int c)
  *
  * @return			The next valid token in the stream
  */
+
 struct token *read_input(FILE *file)
 {
     int c;
@@ -244,18 +290,9 @@ struct token *read_input(FILE *file)
             continue;
         }
 
-        // A quote is found.
-        // In that case, everything between the 2 quotes is considered as a
-		// single word.
-        // Iterate until the next quote is found, marking the closure of the
-		// quoting.
-		// The expansion will be handled in the execution
         if (c == '\'' || c == '"')
             handle_quotes(file, &stream, &c);
 
-        // If we find comments we dont take them in consideration
-        // If the # is in the middle of a word then it makes part of the
-        // word
         if (c == '#')
             hanlde_comments(file, &stream, &size, &c);
 
@@ -281,11 +318,16 @@ struct token *read_input(FILE *file)
     return flush_stream(stream, &buffer);
 }
 
+//#############
+//#   OTHER   #
+//#############
+
 /**
  * @brief 	Frees the token
  *
  * @param	The token to free
  */
+
 void free_token(struct token *token)
 {
     if (!token)
