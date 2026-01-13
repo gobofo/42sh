@@ -5,9 +5,13 @@ enum rule
 {
 
     AST_LIST,
-    AST_CMD,
+    AST_SHELL_CMD,
+    AST_SIMPLE_CMD,
     AST_IF,
-    AST_VALUE
+    AST_VALUE,
+    AST_AND,
+    AST_OR,
+    AST_PIPELINE
 
 };
 
@@ -18,6 +22,7 @@ struct AST
     struct AST **children; // tous les enfants
     int count_children; // nb d'enfant
     int max_children; // pour pouvoir realloc
+    int is_neg = 0;
 };
 
 struct AST *create_ast(enum rule rule, char *content);
