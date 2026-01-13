@@ -34,10 +34,12 @@ const char *get_type(enum types type)
 			return "REDIR";
 		case PIPE:
 			return "PIPE";
-		case OPERATOR:
-			return "OPERATOR";
-		case ESC:
-			return "ESC";
+		case OR:
+			return "OR";
+		case AND:
+			return "AND";
+		case NEG:
+			return "NEG";
 
 		case WHILE:
 			return "WHILE";
@@ -217,7 +219,7 @@ Test(single_token, and_token, .init = setup_stdout)
 
 	fflush(stdout);
 
-	cr_assert_stdout_eq_str("[&&](OPERATOR)\n");
+	cr_assert_stdout_eq_str("[&&](AND)\n");
 }
 
 Test(single_token, or_token, .init = setup_stdout)
@@ -228,7 +230,7 @@ Test(single_token, or_token, .init = setup_stdout)
 
 	fflush(stdout);
 
-	cr_assert_stdout_eq_str("[||](OPERATOR)\n");
+	cr_assert_stdout_eq_str("[||](OR)\n");
 }
 
 Test(single_token, pipe_token, .init = setup_stdout)

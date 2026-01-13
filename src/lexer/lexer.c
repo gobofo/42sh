@@ -1,109 +1,5 @@
 #include "lexer.h"
 
-#include <ctype.h>
-#include <stdlib.h>
-
-/**
- * @brief		Check if the string is a redirection argument
- *
- * Determine if the string passed in parameter is used as a redirection
- * argument by using regex.
- *
- * @param str	The string (content of the token)
- *
- * @return		Success or Fail (1 or 0)
- */
-int is_redir(char *str)
-{
-    if (!*str)
-        return 0;
-
-    if ('0' <= *str && *str <= '2')
-    {
-        str++;
-        return strcmp(str, ">") == 0 || strcmp(str, "<") == 0
-            || strcmp(str, ">>") == 0 || strcmp(str, ">&") == 0
-            || strcmp(str, "<&") == 0 || strcmp(str, ">|") == 0
-            || strcmp(str, "<>") == 0;
-    }
-
-    return strcmp(str, ">") == 0 || strcmp(str, "<") == 0
-        || strcmp(str, ">>") == 0 || strcmp(str, ">&") == 0
-        || strcmp(str, "<&") == 0 || strcmp(str, ">|") == 0
-        || strcmp(str, "<>") == 0;
-}
-
-/**
- * @brief 		Creates a token.
- *
- * The function creates a token from a specific string, that will be the
- * content, and associates the corresponding type.
- *
- * @param str 	The content of the token.
- * 			  	Must not be NULL
- *
- * @return 		Token
- */
-static struct token *create_token(char *str)
-{
-    if (!str || strcmp(str, "") == 0)
-        return NULL;
-
-    struct token *token = malloc(sizeof(struct token));
-    token->content = str;
-
-    // IF clause
-    if (strcmp(str, "if") == 0)
-        token->type = IF;
-    else if (strcmp(str, "then") == 0)
-        token->type = THEN;
-    else if (strcmp(str, "elif") == 0)
-        token->type = ELIF;
-    else if (strcmp(str, "else") == 0)
-        token->type = ELSE;
-    else if (strcmp(str, "fi") == 0)
-        token->type = FI;
-    // END OF COMMAND
-    else if (strcmp(str, ";") == 0)
-        token->type = SEMICOLON;
-    else if (strcmp(str, "\n") == 0)
-        token->type = NEWLINE;
-    // QUOTES
-    else if (strcmp(str, "'") == 0)
-        token->type = S_QUOTE;
-    else if (strcmp(str, "\"") == 0)
-        token->type = D_QUOTE;
-    // MISC
-    else if (is_redir(str) == 1)
-        token->type = REDIR;
-    else if (strcmp(str, "|") == 0)
-        token->type = PIPE;
-    else if (strcmp(str, "||") == 0)
-        token->type = OR;
-    else if (strcmp(str, "&&") == 0)
-        token->type = AND;
-    else if (strcmp(str, "!") == 0)
-        token->type = NEG;
-    // LOOP clause
-    else if (strcmp(str, "while") == 0)
-        token->type = WHILE;
-    else if (strcmp(str, "until") == 0)
-        token->type = UNTIL;
-    else if (strcmp(str, "do") == 0)
-        token->type = DO;
-    else if (strcmp(str, "done") == 0)
-        token->type = DONE;
-    else if (strcmp(str, "for") == 0)
-        token->type = FOR;
-    else if (strcmp(str, "in") == 0)
-        token->type = IN;
-    // OTHER
-    else
-        token->type = WORDS;
-
-    return token;
-}
-
 /**
  * @brief  		 	Empties the current stream and creates a node
  *
@@ -117,6 +13,7 @@ static struct token *create_token(char *str)
  *
  * @return 			The token in the stream
  */
+
 static struct token *flush_stream(FILE *stream, char **buffer)
 {
     fclose(stream);
