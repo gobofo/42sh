@@ -179,6 +179,66 @@ void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
 	}
 }
 
+
+
+ /**
+ * @brief               Process and tokenize redirection operators
+ *
+ * Identifies redirection sequences (e.g., '>', '>>', '2>', etc.) by looking 
+ * ahead in the input. If a redirection is found while the current buffer 
+ * contains data, it flushes the buffer first to maintain correct token 
+ * boundaries. Otherwise, it flushes the redirection itself as a token.
+ *
+ * @param file          The input stream where the parser is reading
+ * @param stream        The memory stream used to build the current token
+ * @param buffer        The string buffer associated with the memory stream
+ * @param c             The first character of the potential redirection
+ *
+ * @return              A pointer to the created token, or NULL if no redirection
+ */
+struct token *handle_redir(FILE *file, FILE **stream, char **buffer, int c){
+
+	char buff[4] = {0};
+	buff[0] = c;
+	buff[1] = fgetc(file);
+	buff[2] = fgetc(file);
+	if(is_redir(buff))
+	{
+		if(strlen(*buffer)>0){
+			ungetc(buff[2], file);
+			ungetc(buff[1], file);
+			ungetc(buff[0], file);
+			return flush_stream(*stream, buffer);
+		}
+		fprintf(*stream, "%s", buff);
+		return flush_stream(*stream, buffer);
+	}
+	ungetc(buff[2], file);
+	buff[2] = 0;
+	if(is_redir(buff))
+	{
+		if(strlen(*buffer)>0){
+			ungetc(buff[1], file);
+			ungetc(buff[0], file);
+			return flush_stream(*stream, buffer);
+		}
+		fprintf(*stream, "%s", buff);
+		return flush_stream(*stream, buffer);
+	}
+	ungetc(buff[1], file);
+	buff[1] = 0;
+	if(is_redir(buff))
+	{
+		if(strlen(*buffer)>0){
+			ungetc(buff[0], file);
+			return flush_stream(*stream, buffer);
+		}
+		fprintf(*stream, "%s", buff);
+		return flush_stream(*stream, buffer);
+	}
+	return NULL;
+}
+
 /**
  * @brief			Reads the input from user
  *
@@ -273,12 +333,12 @@ struct token *read_input(FILE *file)
 			{
 				// Put back the next character since it is part of a different
 				// token than the pipe
-				
+
 				ungetc(next_c, file);
 
 				return flush_stream(stream, &buffer);
 			}
-			
+
 			ungetc(next_c, file);
 			continue;
 		}
@@ -300,44 +360,9 @@ struct token *read_input(FILE *file)
 
 		fflush(stream);
 		if(('0'<=c && c<='2' && size == 0) || c == '<' || c == '>'){
-			char buff[4] = {0};
-			buff[0] = c;
-			buff[1] = fgetc(file);
-			buff[2] = fgetc(file);
-			if(is_redir(buff))
-			{
-				if(size>0){
-					ungetc(buff[2], file);
-					ungetc(buff[1], file);
-					ungetc(buff[0], file);
-					return flush_stream(stream, &buffer);
-				}
-				fprintf(stream, "%s", buff);
-				return flush_stream(stream, &buffer);
-			}
-			ungetc(buff[2], file);
-			buff[2] = 0;
-			if(is_redir(buff))
-			{
-				if(size>0){
-					ungetc(buff[1], file);
-					ungetc(buff[0], file);
-					return flush_stream(stream, &buffer);
-				}
-				fprintf(stream, "%s", buff);
-				return flush_stream(stream, &buffer);
-			}
-			ungetc(buff[1], file);
-			buff[1] = 0;
-			if(is_redir(buff))
-			{
-				if(size>0){
-					ungetc(buff[0], file);
-					return flush_stream(stream, &buffer);
-				}
-				fprintf(stream, "%s", buff);
-				return flush_stream(stream, &buffer);
-			}
+			struct token* t = handle_redir(file, &stream, &buffer, c);
+			if(t)
+				return t;
 		}
 
 		if (c != EOF && c != '\n')
