@@ -8,6 +8,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-void execute_command(char *cmd);
+int execute_non_builtin(char **cmd);
 
 #endif /* ! EXECUTE_COMMAND_H  */

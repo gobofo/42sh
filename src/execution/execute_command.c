@@ -1,16 +1,22 @@
 #include "execute_command.h"
 
-void execute_command(char *cmd)
+int execute_non_builtin(char **cmd)
 {
     pid_t pid = fork();
 
     if (pid == -1)
-		printf("fork() failure");
+	{
+		fprintf(stderr, "Error: fork() failure\n");
+		return 1;
+	}
 
     if (pid == 0)
     {
-        if (execlp("/bin/sh", "supershell", "-c", cmd, NULL) == -1)
-			printf("%s command not found", cmd);
+        if (execvp(cmd[0], cmd) == -1)
+		{
+			fprintf(stderr, "Error: command not found: %s\n", cmd[0]);
+			return 127;
+		}
     }
     else
     {
@@ -18,9 +24,17 @@ void execute_command(char *cmd)
         int child_pid = waitpid(pid, &wstatus, 0);
 
         if (child_pid == -1)
-			printf("waitpid() failure");
+		{
+			fprintf(stderr, "Error: waitpid() failure\n");
+			return 1;
+		}
 
         if (WIFEXITED(wstatus) && WEXITSTATUS(wstatus))
-			printf("%s command failure", cmd);
-    }
+		{
+			fprintf(stderr, "Error: command failure: %s\n", cmd[0]);
+    		return 1;
+		}
+	}
+
+	return 0;
 }
