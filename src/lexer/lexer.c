@@ -15,22 +15,22 @@
  */
 int is_redir(char *str)
 {
-	if(!*str)
-		return 0;
+    if (!*str)
+        return 0;
 
-	if('0'<=*str && *str<='2'){
-		str++;
-		return strcmp(str, ">") == 0 || strcmp(str, "<") == 0
-			|| strcmp(str, ">>") == 0 || strcmp(str, ">&") == 0
-			|| strcmp(str, "<&") == 0 || strcmp(str, ">|") == 0
-			|| strcmp(str, "<>") == 0;
-	}
+    if ('0' <= *str && *str <= '2')
+    {
+        str++;
+        return strcmp(str, ">") == 0 || strcmp(str, "<") == 0
+            || strcmp(str, ">>") == 0 || strcmp(str, ">&") == 0
+            || strcmp(str, "<&") == 0 || strcmp(str, ">|") == 0
+            || strcmp(str, "<>") == 0;
+    }
 
-	return strcmp(str, ">") == 0 || strcmp(str, "<") == 0
-		|| strcmp(str, ">>") == 0 || strcmp(str, ">&") == 0
-		|| strcmp(str, "<&") == 0 || strcmp(str, ">|") == 0
-		|| strcmp(str, "<>") == 0;
-
+    return strcmp(str, ">") == 0 || strcmp(str, "<") == 0
+        || strcmp(str, ">>") == 0 || strcmp(str, ">&") == 0
+        || strcmp(str, "<&") == 0 || strcmp(str, ">|") == 0
+        || strcmp(str, "<>") == 0;
 }
 
 /**
@@ -46,62 +46,62 @@ int is_redir(char *str)
  */
 static struct token *create_token(char *str)
 {
-	if (!str || strcmp(str, "") == 0)
-		return NULL;
+    if (!str || strcmp(str, "") == 0)
+        return NULL;
 
-	struct token *token = malloc(sizeof(struct token));
-	token->content = str;
+    struct token *token = malloc(sizeof(struct token));
+    token->content = str;
 
-	// IF clause
-	if (strcmp(str, "if") == 0)
-		token->type = IF;
-	else if (strcmp(str, "then") == 0)
-		token->type = THEN;
-	else if (strcmp(str, "elif") == 0)
-		token->type = ELIF;
-	else if (strcmp(str, "else") == 0)
-		token->type = ELSE;
-	else if (strcmp(str, "fi") == 0)
-		token->type = FI;
-	// END OF COMMAND
-	else if (strcmp(str, ";") == 0)
-		token->type = SEMICOLON;
-	else if (strcmp(str, "\n") == 0)
-		token->type = NEWLINE;
-	// QUOTES
-	else if (strcmp(str, "'") == 0)
-		token->type = S_QUOTE;
-	else if (strcmp(str, "\"") == 0)
-		token->type = D_QUOTE;
-	// MISC
-	else if (is_redir(str) == 1)
-		token->type = REDIR;
-	else if (strcmp(str, "|") == 0)
-		token->type = PIPE;
-	else if (strcmp(str, "||") == 0)
-		token->type = OR;
-	else if (strcmp(str, "&&") == 0)
-		token->type = AND;
-	else if (strcmp(str, "!") == 0)
-		token->type = NEG;
-	// LOOP clause
-	else if (strcmp(str, "while") == 0)
-		token->type = WHILE;
-	else if (strcmp(str, "until") == 0)
-		token->type = UNTIL;
-	else if (strcmp(str, "do") == 0)
-		token->type = DO;
-	else if (strcmp(str, "done") == 0)
-		token->type = DONE;
-	else if (strcmp(str, "for") == 0)
-		token->type = FOR;
-	else if (strcmp(str, "in") == 0)
-		token->type = IN;
-	// OTHER
-	else
-		token->type = WORDS;
+    // IF clause
+    if (strcmp(str, "if") == 0)
+        token->type = IF;
+    else if (strcmp(str, "then") == 0)
+        token->type = THEN;
+    else if (strcmp(str, "elif") == 0)
+        token->type = ELIF;
+    else if (strcmp(str, "else") == 0)
+        token->type = ELSE;
+    else if (strcmp(str, "fi") == 0)
+        token->type = FI;
+    // END OF COMMAND
+    else if (strcmp(str, ";") == 0)
+        token->type = SEMICOLON;
+    else if (strcmp(str, "\n") == 0)
+        token->type = NEWLINE;
+    // QUOTES
+    else if (strcmp(str, "'") == 0)
+        token->type = S_QUOTE;
+    else if (strcmp(str, "\"") == 0)
+        token->type = D_QUOTE;
+    // MISC
+    else if (is_redir(str) == 1)
+        token->type = REDIR;
+    else if (strcmp(str, "|") == 0)
+        token->type = PIPE;
+    else if (strcmp(str, "||") == 0)
+        token->type = OR;
+    else if (strcmp(str, "&&") == 0)
+        token->type = AND;
+    else if (strcmp(str, "!") == 0)
+        token->type = NEG;
+    // LOOP clause
+    else if (strcmp(str, "while") == 0)
+        token->type = WHILE;
+    else if (strcmp(str, "until") == 0)
+        token->type = UNTIL;
+    else if (strcmp(str, "do") == 0)
+        token->type = DO;
+    else if (strcmp(str, "done") == 0)
+        token->type = DONE;
+    else if (strcmp(str, "for") == 0)
+        token->type = FOR;
+    else if (strcmp(str, "in") == 0)
+        token->type = IN;
+    // OTHER
+    else
+        token->type = WORDS;
 
-	return token;
+    return token;
 }
 
 /**
@@ -119,14 +119,14 @@ static struct token *create_token(char *str)
  */
 static struct token *flush_stream(FILE *stream, char **buffer)
 {
-	fclose(stream);
+    fclose(stream);
 
-	struct token *new_token = create_token(*buffer);
+    struct token *new_token = create_token(*buffer);
 
-	if (!new_token)
-		free(*buffer);
+    if (!new_token)
+        free(*buffer);
 
-	return new_token;
+    return new_token;
 }
 
 /**
@@ -140,103 +140,109 @@ static struct token *flush_stream(FILE *stream, char **buffer)
  */
 struct token *get_token(FILE *input)
 {
-	static FILE *stream = NULL;
+    static FILE *stream = NULL;
 
-	if (input)
-		stream = input;
+    if (input)
+        stream = input;
 
-	if (!stream)
-		stream = input;
+    if (!stream)
+        stream = input;
 
-	struct token *token = read_input(stream);
+    struct token *token = read_input(stream);
 
-	return token;
+    return token;
 }
 
 struct token *empty_stream(FILE *file, FILE **stream, char **buffer, char c)
 {
-	ungetc(c, file);
+    ungetc(c, file);
 
-	return flush_stream(*stream, buffer);
+    return flush_stream(*stream, buffer);
 }
 
 void handle_quotes(FILE *file, FILE **stream, int *c)
 {
-	fputc(*c, *stream);
+    fputc(*c, *stream);
 
-	while ((*c = fgetc(file)) != EOF && (*c != '\'' || *c != '"'))
-		fputc(*c, *stream);
+    while ((*c = fgetc(file)) != EOF && (*c != '\'' || *c != '"'))
+        fputc(*c, *stream);
 }
 
 void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
 {
-	fflush(*stream);
+    fflush(*stream);
 
-	if (size == 0)
-	{
-		while ((*c = fgetc(file)) != EOF && *c != '\n')
-			;
-	}
+    if (size == 0)
+    {
+        while ((*c = fgetc(file)) != EOF && *c != '\n')
+            ;
+    }
 }
 
+/**
+ * @brief			Mimics the function ungetc but for strings
+ *
+ * Puts back all characters from a string back into a stream
+ *
+ * @param str		The string which characters we want to put back
+ * @param stream	The stream in which we want to put the characters
+ */
+void unget_str(const char *str, FILE *stream)
+{
+	size_t len = strlen(str);
 
+	for (size_t i = 0; i < len; i++)
+		ungetc(str[i], stream);
+}
 
- /**
+/**
  * @brief               Process and tokenize redirection operators
  *
- * Identifies redirection sequences (e.g., '>', '>>', '2>', etc.) by looking 
- * ahead in the input. If a redirection is found while the current buffer 
- * contains data, it flushes the buffer first to maintain correct token 
- * boundaries. Otherwise, it flushes the redirection itself as a token.
+ * Identifies redirection sequences by looking ahead in the input.
+ * If a redirection is found while the current buffer contains data, it 
+ * flushes the buffer first to maintain correct token boundaries.
+ * Else, it flushes the redirection itself as a token.
  *
  * @param file          The input stream where the parser is reading
  * @param stream        The memory stream used to build the current token
  * @param buffer        The string buffer associated with the memory stream
  * @param c             The first character of the potential redirection
  *
- * @return              A pointer to the created token, or NULL if no redirection
+ * @return              A pointer to the created token, or NULL if no
+ * redirection
  */
-struct token *handle_redir(FILE *file, FILE **stream, char **buffer, int c){
+struct token *handle_redir(FILE *file, FILE **stream, char **buffer, int c)
+{
+    char buff[4] = { 0 };
 
-	char buff[4] = {0};
-	buff[0] = c;
-	buff[1] = fgetc(file);
-	buff[2] = fgetc(file);
-	if(is_redir(buff))
+    buff[0] = c;
+    buff[1] = fgetc(file);
+    buff[2] = fgetc(file);
+
+	int idx = 2;
+
+	while (idx >= 0)
 	{
-		if(strlen(*buffer)>0){
-			ungetc(buff[2], file);
-			ungetc(buff[1], file);
-			ungetc(buff[0], file);
+		if (is_redir(buff))
+		{
+			if (strlen(*buffer) > 0)
+			{
+				unget_str(buff, file);
+
+				return flush_stream(*stream, buffer);
+			}
+
+			fprintf(*stream, "%s", buff);
 			return flush_stream(*stream, buffer);
 		}
-		fprintf(*stream, "%s", buff);
-		return flush_stream(*stream, buffer);
+
+		ungetc(buff[idx], file);
+		buff[idx] = '\0';
+
+		idx--;
 	}
-	ungetc(buff[2], file);
-	buff[2] = 0;
-	if(is_redir(buff))
-	{
-		if(strlen(*buffer)>0){
-			ungetc(buff[1], file);
-			ungetc(buff[0], file);
-			return flush_stream(*stream, buffer);
-		}
-		fprintf(*stream, "%s", buff);
-		return flush_stream(*stream, buffer);
-	}
-	ungetc(buff[1], file);
-	buff[1] = 0;
-	if(is_redir(buff))
-	{
-		if(strlen(*buffer)>0){
-			ungetc(buff[0], file);
-			return flush_stream(*stream, buffer);
-		}
-		fprintf(*stream, "%s", buff);
-		return flush_stream(*stream, buffer);
-	}
-	return NULL;
+
+    return NULL;
 }
 
 /**
@@ -253,123 +259,129 @@ struct token *handle_redir(FILE *file, FILE **stream, char **buffer, int c){
  */
 struct token *read_input(FILE *file)
 {
-	int c;
+    int c;
 
-	char *buffer = NULL;
+    char *buffer = NULL;
 
-	size_t size = 0;
+    size_t size = 0;
 
-	FILE *stream = open_memstream(&buffer, &size);
+    FILE *stream = open_memstream(&buffer, &size);
 
-	// We read each character in the input one by one
-	// Each time we encounter a token delimiter we create a new token
-	// Store it in our list of tokens
-	while ((c = fgetc(file)) != EOF)
-	{
+    // We read each character in the input one by one
+    // Each time we encounter a token delimiter we create a new token
+    // Store it in our list of tokens
+    while ((c = fgetc(file)) != EOF)
+    {
+        if (c == '\\')
+        {
+            fputc(c, stream);
+            c = fgetc(file);
+            fputc(c, stream);
+            continue;
+        }
 
-		if(c == '\\'){
-			fputc(c, stream);
-			c = fgetc(file);
-			fputc(c, stream);
-			continue;
-		}
+        // A whitespace marks the end of the token
+        if (c == ' ' || c == '\t')
+        {
+            fflush(stream);
 
+            if (size == 0)
+                continue;
 
-		// A whitespace marks the end of the token
-		if (c == ' ' || c == '\t')
-		{
-			fflush(stream);
+            return flush_stream(stream, &buffer);
+        }
 
-			if (size == 0)
-				continue;
+        // Same as before but those charcacters need to be safed as tokens
+        if (c == ';' || c == '\n' || c == '!')
+        {
+            // Sync the stream
+            fflush(stream);
 
-			return flush_stream(stream, &buffer);
-		}
+            if (size > 0)
+                return empty_stream(file, &stream, &buffer, c);
 
-		// Same as before but those charcacters need to be safed as tokens
-		if (c == ';' || c == '\n' || c == '!')
-		{
-			// Sync the stream
-			fflush(stream);
+            // If we were already reading a token, then we need to save
+            // the delim, return the current token, then read again the
+            // delim So once the token is processed we put back the delim in
+            // the file stream. This way it can be read again.
+            fputc(c, stream);
 
-			if (size > 0)
-				return empty_stream(file, &stream, &buffer, c);
+            return flush_stream(stream, &buffer);
+        }
 
-			// If we were already reading a token, then we need to save
-			// the delim, return the current token, then read again the
-			// delim So once the token is processed we put back the delim in
-			// the file stream. This way it can be read again
-			fputc(c, stream);
+        // Those two characters are considered as operators if they are doubled
+        // For the | it can also be considered as a pipe if it is alone.
+        // If one this two charcaters is found we need to check if the next one
+        // is also the same character.
+        if (c == '|' || c == '&')
+        {
+            fflush(stream);
 
-			return flush_stream(stream, &buffer);
-		}
+            if (size > 0)
+                return empty_stream(file, &stream, &buffer, c);
 
-		// Those two characters are considered as operators if they are doubled
-		// For the | it can also be considered as a pipe if it is alone
-		// If one this two charcaters is found we need to check if the next one
-		// is also the same character
-		if (c == '|' || c == '&')
-		{
-			fflush(stream);
+            fputc(c, stream);
 
-			if (size > 0)
-				return empty_stream(file, &stream, &buffer, c);
+            int next_c = fgetc(file);
+            if (next_c == EOF)
+                break;
 
-			fputc(c, stream);
+            // A double is found
+            if (next_c == c)
+            {
+                fputc(next_c, stream);
 
-			int next_c = fgetc(file);
-			if (next_c == EOF)
-				break;
+                return flush_stream(stream, &buffer);
+            }
+            // No double is found and we are in a pipe case
+            else if (c == '|')
+            {
+                // Put back the next character since it is part of a different
+                // token than the pipe
+                ungetc(next_c, file);
 
-			// A double is found
-			if (next_c == c)
-			{
-				fputc(next_c, stream);
+                return flush_stream(stream, &buffer);
+            }
 
-				return flush_stream(stream, &buffer);
-			}
-			// No double is found and we are in a pipe case
-			else if (c == '|')
-			{
-				// Put back the next character since it is part of a different
-				// token than the pipe
+            ungetc(next_c, file);
+            continue;
+        }
 
-				ungetc(next_c, file);
+        // A quote is found.
+        // In that case, everything between the 2 quotes is considered as a
+		// single word.
+        // Iterate until the next quote is found, marking the closure of the
+		// quoting.
+		// The expansion will be handled in the execution
+        if (c == '\'' || c == '"')
+            handle_quotes(file, &stream, &c);
 
-				return flush_stream(stream, &buffer);
-			}
+        // If we find comments we dont take them in consideration
+        // If the # is in the middle of a word then it makes part of the
+        // word
+        if (c == '#')
+            hanlde_comments(file, &stream, &size, &c);
 
-			ungetc(next_c, file);
-			continue;
-		}
+        fflush(stream);
 
-		// A single quote is found
-		// In that case, everythin between the 2 single quotes are considered
-		// as a single word
-		// Iterate until the next single quote marking the closure of the
-		// quoting
-		if (c == '\'' || c == '"')
-			handle_quotes(file, &stream, &c);
+        if (('0' <= c && c <= '2' && size == 0) || c == '<' || c == '>')
+        {
+			// If we find a character potentially identifying a redirection, we
+			// read the next characters (until 3 read since the max size of a 
+			// redir is 3).
+			// If we found a valid redirection then we return the token found,
+			// else we keep going.
+            struct token *token = handle_redir(file, &stream, &buffer, c);
 
-		// If we find comments we dont take them in consideration
-		// If the # is in the middle of a word then it makes part of the
-		// word
-		if (c == '#')
-			hanlde_comments(file, &stream, &size, &c);
+            if (token)
+                return token;
+        }
 
+        if (c != EOF && c != '\n')
+            fputc(c, stream);
+    }
 
-		fflush(stream);
-		if(('0'<=c && c<='2' && size == 0) || c == '<' || c == '>'){
-			struct token* t = handle_redir(file, &stream, &buffer, c);
-			if(t)
-				return t;
-		}
-
-		if (c != EOF && c != '\n')
-			fputc(c, stream);
-	}
-
-	return flush_stream(stream, &buffer);
+    return flush_stream(stream, &buffer);
 }
 
 /**
@@ -379,9 +391,9 @@ struct token *read_input(FILE *file)
  */
 void free_token(struct token *token)
 {
-	if (!token)
-		return;
+    if (!token)
+        return;
 
-	free(token->content);
-	free(token);
+    free(token->content);
+    free(token);
 }

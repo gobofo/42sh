@@ -33,8 +33,8 @@ const char *get_type_name(enum types type)
         return "OR";
     case AND:
         return "AND";
-	case NEG:
-		return "NEG";
+    case NEG:
+        return "NEG";
 
     case WHILE:
         return "WHILE";
