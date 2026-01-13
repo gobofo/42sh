@@ -414,11 +414,6 @@ struct AST *rule_if(struct token **token)
     { // regle 9
         *token = eat(*token);
 
-        if (*token == NULL)
-        { // AJOUTER POUR GERER LES NULL
-            goto err;
-        }
-
         if (first_compound_list(*token))
         { // first de compound_list
 
@@ -430,10 +425,7 @@ struct AST *rule_if(struct token **token)
             ast = add_children(ast, child);
 
             if (*token == NULL || (*token)->type != THEN)
-            { 
-                if((*token))
-                    free_token(*token);
-                }
+            {
                 goto err;
             }
             *token = eat(*token);
@@ -445,7 +437,7 @@ struct AST *rule_if(struct token **token)
                 struct AST *child = compound_list(token);
                 if (child == NULL)
                 {
-                    destroy_AST(ast);  e
+                    destroy_AST(ast);
                     return NULL;
                 }
                 ast = add_children(ast, child);
@@ -475,7 +467,6 @@ struct AST *rule_if(struct token **token)
 
             if (*token ==NULL || (*token)->type != FI)
             { // verifie la GRAMMAR FIN
-               if(*token) free_token(*token);
                 goto err;
             }
             *token = eat(*token);
