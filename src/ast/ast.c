@@ -44,7 +44,8 @@ struct AST *add_children(struct AST *root, struct AST *child)
 
 void destroy_AST(struct AST *root)
 { // detruit l'AST (free)
-
+    if (root == NULL)
+        return;
     for (int i = 0; i < root->count_children; i++)
     {
         destroy_AST(root->children[i]);
