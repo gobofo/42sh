@@ -12,32 +12,9 @@
 
 (5) list = and_or { ';' and_or } [ ';' ]
 
-
-// 
-
-
-
-
-
-
-
-
 (6) and_or = pipeline { ( '&&' | '||' ) {'\n'} pipeline }
 
 (7) pipeline = [!] command { '|' {'\n'} command }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     command =
 (8)    simple_command
@@ -55,7 +32,7 @@
 (12)    'else' compound_list
 (13)    | 'elif' compound_list 'then' compound_list [else_clause]
 
-(14) rule_while = 'while' compound_list 'do' compound_list 'done'
+(14) rule_while = 'while' compound_list 'do' compound_list 'done' while true do echo a done 
 
 (15) rule_until = 'until' compound_list 'do' compound_list 'done'
 
