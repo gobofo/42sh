@@ -12,6 +12,7 @@ struct AST *create_ast(enum rule rule, char *content)
     start->count_children = 0;
     start->children = NULL;
     start->max_children = 0;
+    start->is_neg = 0;
 
     return start;
 }

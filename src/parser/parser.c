@@ -57,8 +57,7 @@
         redirection
         | ASSIGNEMENT_WORD
 
-(21) redirection = [IONUMBER] ( '>' | '<' | '>>' | '>&' | '<&' | '>|' | '<>' )
-WORD
+(21) redirection = [IONUMBER] ( '>' | '<' | '>>' | '>&' | '<&' | '>|' | '<>' ) WORD
 
 (22) element =
         WORD
@@ -82,7 +81,19 @@ static struct AST *rule_for(struct token **token);
 static struct AST *rule_while(struct token **token);
 static struct AST *rule_until(struct token **token);
 
-struct token *eat(struct token *token)
+static bool is_valid_word(struct token *token){
+
+    if (token == NULL){
+        return false;
+    }
+
+    enum types type = token->type;
+
+    return type != NEWLINE && type != AND && type != OR && type != SEMICOLON && type != PIPE && type != REDIR;
+
+}
+
+static struct token *eat(struct token *token)
 {
     free_token(token);
     return get_token(NULL);
@@ -453,7 +464,7 @@ struct AST *rule_if(struct token **token)
                 goto err;
             }
 
-            if (first_else_close(*token))
+            if (first_else_clause(*token))
             { // esle clause existe
                 struct AST *child = else_clause(token);
                 if (child == NULL)
@@ -525,7 +536,7 @@ struct AST *else_clause(struct token **token)
         }
         ast = add_children(ast, child);
 
-        if (*token == NULL) || (*token)->type != THEN)
+        if (*token == NULL || (*token)->type != THEN)
         { 
           goto err;
         }
@@ -545,7 +556,7 @@ struct AST *else_clause(struct token **token)
         {
           goto err;
         }
-        if (first_else_close(*token))
+        if (first_else_clause(*token))
         { // esle clause existe
           struct AST *child = else_clause(token);
           if (child == NULL)
@@ -669,14 +680,21 @@ struct AST *rule_for(struct token ** token){
       goto err;
     }
 
-    struct AST* child =create_ast(AST_VALUE,strdup(token->content); // WORDS
-    ast= add_children(ast,child);
 
+    if (is_valid_word(*token)){
+        struct AST* child =create_ast(AST_VALUE,strdup((*token)->content)); // WORDS
+        ast= add_children(ast,child);
+    }
+
+    else {
+        goto err;
+    }
+    
     if(*token==NULL)
       goto err;
 
 
-    if((*token->type==SEMICOLON)) // cas 1
+    if((*token)->type==SEMICOLON) // cas 1
       *token=eat(*token);
         
     else if((*token)->type==NEWLINE || (*token)->type==IN){ // cas 2
@@ -688,9 +706,17 @@ struct AST *rule_for(struct token ** token){
 
       *token=eat(*token);
       while(token !=NULL && (*token)->type!=SEMICOLON && (*token)->type!=NEWLINE){
-         struct AST* child =create_ast(AST_VALUE,strdup(token->content); // WORDS
-         ast= add_children(ast,child);
-         *token=eat(*token);
+        if (is_valid_word(*token)){
+            struct AST* child =create_ast(AST_VALUE,strdup((*token)->content)); // WORDS
+            ast= add_children(ast,child);
+            *token=eat(*token);
+        }
+
+        else {
+            goto err;
+        }
+
+
       }
       if((*token)->type==NEWLINE || (*token)->type==SEMICOLON){ // fin 
         *token=eat(*token);
@@ -807,18 +833,18 @@ err:
 struct AST *simple_command(struct token **token)
 {
     struct AST *ast = create_ast(AST_SIMPLE_CMD, NULL);
-    int prefix=0;
+    int pref=0;
     while(first_prefix(*token)){
-      prefix=1;
+      pref=1;
       struct AST* child=prefix(token);
       if(child==NULL)
         goto err;
       ast=add_children(ast,child);
     }
-    if(prefix==0 && *token==NULL)
+    if(pref==0 && *token==NULL){
       goto err;
     }
-    if(prefix==0)//regle 2
+    if(pref==0)//regle 2
     {
       struct AST* child= create_ast(AST_VALUE,strdup((*token)->content));
       ast=add_children(ast,child);
@@ -831,7 +857,7 @@ struct AST *simple_command(struct token **token)
         ast=add_children(ast,child_el);
 
       }
-      if(follow_simple_commad(*token)){
+      if(follow_simple_command(*token)){
         return ast;
       }
       else{
@@ -840,6 +866,43 @@ struct AST *simple_command(struct token **token)
     }
     else{
 
+        if (is_valid_word(*token)){
+
+            struct AST* child= create_ast(AST_VALUE,strdup((*token)->content));
+            ast=add_children(ast,child);
+
+            *token = eat(*token);
+
+            while (first_element(*token)){
+
+                struct AST *children = element(token);
+
+                if (children == NULL){
+                    goto err;
+                }
+
+                ast=add_children(ast, children);
+
+            }
+
+            if (follow_simple_command(*token)){
+                return ast;
+            }
+
+            else{
+                goto err;
+            }
+        }
+
+        else if (follow_simple_command(*token)){
+            return ast;
+        }
+
+        else {
+            goto err;
+        }
+
+
     }
 err :
     destroy_AST(ast);
@@ -847,20 +910,92 @@ err :
 
 }
 
-//(14) element = WORD
-//
+//(20) prefix =
+//        redirection
+//        | ASSIGNEMENT_WORD
+
+static struct AST *prefix(struct token **token){
+
+    if ((*token)->type == WORDS){
+        struct AST *ast = create_ast(AST_VALUE, strdup((*token)->content));
+        return ast;
+    }
+
+    else if (first_redirection(*token)){
+        struct AST *ast = redirection(token);
+        if (ast == NULL){
+            return NULL;
+        }
+        return ast;
+    }
+
+    return NULL;
+
+}
+
+//(21) redirection = [IONUMBER] ( '>' | '<' | '>>' | '>&' | '<&' | '>|' | '<>' ) WORD
+
+static struct AST *redirection(struct token **token){
+
+    struct AST *ast;
+    
+    if ((*token)->type == REDIR){
+
+        ast = create_ast(AST_REDIR, NULL);
+        struct AST *ast_val = create_ast(AST_VALUE, strdup((*token)->content));
+        ast = add_children(ast, ast_val);
+
+        *token = eat(*token);
+
+        if (is_valid_word(*token)){
+
+            struct AST *ast_val2 = create_ast(AST_VALUE, strdup((*token)->content));
+            ast = add_children(ast, ast_val2);
+            *token = eat(*token);
+
+        }
+
+        else {
+            goto err;
+        }
+
+    }
+
+    else {
+        goto err;
+    }
+
+err:
+    destroy_AST(ast);
+    return NULL;
+
+}
+
+//(22) element =
+//        WORD
+//        | redirection
 
 struct AST *element(struct token **token)
 {
-    struct AST *ast = create_ast(AST_VALUE, strdup((*token)->content));
-    if ((*token)->type == WORDS)
-    {
+    if (is_valid_word(*token)){
+
+        struct AST *ast = create_ast(AST_VALUE, strdup((*token)->content));
         *token = eat(*token);
         return ast;
+
     }
-    else
-    {
-        destroy_AST(ast);
+
+    else if ((*token)->type == REDIR){
+
+        struct AST *ast = redirection(token);
+        if (ast == NULL){
+            return NULL;
+        }
+        return ast;
+
+    }
+
+    else {
         return NULL;
     }
 }
