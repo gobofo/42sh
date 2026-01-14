@@ -1,0 +1,45 @@
+echo
+echo hello
+echo hello world
+true
+false
+echo a
+echo b
+echo a
+echo b
+true && echo ok
+false || echo fallback
+echo a && echo b || echo c
+echo a | cat
+echo a | tr a b | cat
+! false
+! echo ok | cat
+>out
+2>err
+VAR=1 >out 2>>err
+VAR=1 >out
+VAR=1 echo hi
+echo hi >out
+echo hi >>out
+echo hi <in
+echo hi <>file
+echo hi >|out
+echo hi 3<>file
+echo hi 1>&2
+echo hi 2<&1
+! false || echo ok
+echo hi | cat
+echo done
+if true; then echo ok; fi
+if false; then echo no; else echo yes; fi
+if false; then echo no; elif true; then echo mid; else echo end; fi
+if true && echo cond; then echo ok; fi
+if true; then echo ok; fi >out 2>>err
+if true; then echo ok; fi | cat
+while false; do echo loop; done
+until true; do echo loop; done
+while true; do echo hi; done 2>err
+for i; do echo $i; done
+for i in a b c; do echo $i; done
+for i in; do echo never; done
+for i in a; do if true; then echo $i; fi; done
