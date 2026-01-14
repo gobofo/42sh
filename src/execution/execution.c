@@ -424,10 +424,11 @@ int execute_node(struct AST *root)
 		case AST_AND:
 			return execute_and(root);
 
-			// Not supposed to get there but we never know
-		default:
-			return 1;
-	}
+    // Not supposed to get there but we never know
+    default:
+        printf("Probleme\n");
+        return 0;
+    }
 }
 
 int execute_ast(struct AST *root)
