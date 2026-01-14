@@ -26,6 +26,7 @@ struct AST
     struct AST **children; // tous les enfants
     int count_children; // nb d'enfant
     int max_children; // pour pouvoir realloc
+    int is_neg;
 };
 
 struct AST *create_ast(enum rule rule, char *content);

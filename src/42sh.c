@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
         destroy_AST(ast);
 
-        if (argc != 1)
+        if (tok == NULL)
             break;
 
         tok = get_token(NULL);

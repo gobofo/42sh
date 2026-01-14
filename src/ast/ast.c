@@ -12,6 +12,7 @@ struct AST *create_ast(enum rule rule, char *content)
     start->count_children = 0;
     start->children = NULL;
     start->max_children = 0;
+    start->is_neg = 0;
 
     return start;
 }
@@ -44,7 +45,8 @@ struct AST *add_children(struct AST *root, struct AST *child)
 
 void destroy_AST(struct AST *root)
 { // detruit l'AST (free)
-
+    if (root == NULL)
+        return;
     for (int i = 0; i < root->count_children; i++)
     {
         destroy_AST(root->children[i]);
