@@ -3,6 +3,7 @@
 #include "../expansion/expansion.h"
 
 int execute_node(struct AST *root);
+int execute_list(struct AST *root);
 
 /**
  * @brief 		Creates the command with children from a node
@@ -29,7 +30,7 @@ char **create_command(struct AST *root)
     return command;
 }
 
-int execute_cmd(struct AST *root)
+int execute_simple_cmd(struct AST *root)
 {
     char **command = create_command(root);
 
@@ -63,13 +64,106 @@ int execute_if(struct AST *root)
     return status;
 }
 
+//############
+//#   LOOP   #
+//############
+int execute_while(struct AST *root)
+{
+	int status = 0;
+
+	while (execute_node(root->children[0]))
+		status = execute_node(root->children[1]);
+
+	return status;
+}
+
+int execute_until(struct AST *root)
+{
+	int status = 0;
+
+	while (!execute_node(root->children[0]))
+		status = execute_node(root->children[1]);
+
+	return status;
+}
+
+int execute_for(struct AST *root)
+{
+	//TODO - Implement the function
+	if (root)
+		return 0;
+
+	return 1;
+}
+
+//#################
+//#   OPERATORS   #
+//#################
+
+int execute_or(struct AST *root)
+{
+	return execute_node(root->children[0]) || execute_node(root->children[1]);
+}
+
+int execute_and(struct AST *root)
+{
+	return execute_node(root->children[0]) && execute_node(root->children[1]);
+}
+
+//####################
+//#   REDIRECTIONS   #
+//####################
+
+int execute_redir(struct AST *root)
+{
+	int fd = 1;
+
+	if (root->content[0] >= '0' && root->content[0] <= '9')
+		fd = root->content[0] - '0';
+
+	//IF FOR EACH REDIR
+}
+
+int redir_in(struct AST *root, int fd)
+{
+	int fd_save = fd;
+
+	int fd_file = open(root->children[1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (fd_file == -1)
+	{
+		fprintf(stderr, "Error: Could not open the file: %s\n",
+				root->children[1]);
+		return 1;
+	}
+	
+	if (dup2(fd_file, fd) == -1)
+	{
+		fprintf(stderr, "Error: Could not dup\n");
+		return 1;
+	}
+	close(fd_file);
+
+	int status = execute_node(root->children[0]);
+
+	if (dup2(fd_save, fd) == -1)
+	{
+		fprintf(stderr, "Error: Could not dup\n");
+		return 1;
+	}
+
+	return status;
+}
+
+//################
+//#   PIPELINE   #
+//################
+
 int execute_list(struct AST *root)
 {
     int status = 0;
 
     for (int i = 0; i < root->count_children; i++)
         status = execute_node(root->children[i]);
-
     return status;
 }
 
@@ -80,11 +174,32 @@ int execute_node(struct AST *root)
     case AST_LIST:
         return execute_list(root);
 
-    case AST_CMD:
-        return execute_cmd(root);
+    case AST_SIMPLE_CMD:
+        return execute_simple_cmd(root);
 
     case AST_IF:
         return execute_if(root);
+
+	case AST_WHILE:
+		return execute_while(root);
+
+	case AST_UNTIL:
+		return execute_until(root);
+
+	case AST_FOR:
+		return execute_for(root);
+
+	case AST_PIPELINE:
+		return execute_pipeline(root);
+	
+	case AST_OR:
+		return execute_or(root);
+	
+	case AST_AND:
+		return execute_and(root);
+
+	case AST_REDIR:
+		return execute_redir(root);
 
     // Not supposed to get there but we never know
     default:
