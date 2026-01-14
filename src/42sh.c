@@ -20,10 +20,8 @@ int main(int argc, char *argv[])
 	int exit_code = 0;
 
     struct token *tok = get_token(file);
-    int c =0;
     while (1)
     {
-        printf("%d\n",c++);
         struct AST *ast;
 
         if (tok == NULL)
