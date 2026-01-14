@@ -107,7 +107,7 @@ static struct token *eat(struct token *token)
 //(3)    | '\n'
 //(4)    | EOF
 
-struct AST *input(struct token **token)
+ struct AST *input(struct token **token)
 {
     if (*token == NULL || (*token)->type == NEWLINE)
     {
@@ -140,8 +140,8 @@ struct AST *input(struct token **token)
     }
 }
 
-//(3) list = and_or { ';' and_or } [ ';' ]
-struct AST *list(struct token **token)
+//(3) list = and_or { 'w' and_or } [ ';' ]
+static struct AST *list(struct token **token)
 {
     struct AST *ast = create_ast(AST_LIST, NULL);
 
@@ -210,7 +210,8 @@ err:
 
 //(6) and_or = pipeline { ( '&&' | '||' ) {'\n'} pipeline }
 
-struct AST *and_or(struct token **token)
+
+static struct AST *and_or(struct token **token)
 {
     struct AST *ast = NULL;
     if (first_pipeline(*token))
@@ -277,7 +278,7 @@ err:
     return NULL;
 }
 
-struct AST *pipeline(struct token **token)
+static struct AST *pipeline(struct token **token)
 {
     struct AST *ast = create_ast(AST_PIPELINE, NULL);
     if ((*token)->type == NEG)
@@ -341,7 +342,7 @@ err:
 // entation de la fonction libre indique explicitement qu'il est possible de
 // lui passer un pointeur n
 
-struct AST *command(struct token **token)
+static struct AST *command(struct token **token)
 {
     if (first_simple_command(*token))
     {
@@ -382,7 +383,7 @@ struct AST *command(struct token **token)
 
 //(8) shell_command = rule_if
 
-struct AST *shell_command(struct token **token)
+static struct AST *shell_command(struct token **token)
 {
     if (first_rule_if(*token))
     {
@@ -420,7 +421,7 @@ struct AST *shell_command(struct token **token)
 
 //(9) rule_if = 'if' compound_list 'then' compound_list [else_clause] 'fi'
 
-struct AST *rule_if(struct token **token)
+static struct AST *rule_if(struct token **token)
 {
     struct AST *ast = create_ast(AST_IF, NULL);
     if ((*token)->type == IF)
@@ -504,7 +505,7 @@ err:
 //(10)    'else' compound_list
 //(11)    | 'elif' compound_list 'then' compound_list [else_clause]
 
-struct AST *else_clause(struct token **token)
+static struct AST *else_clause(struct token **token)
 {
     struct AST *ast = NULL;
 
@@ -577,7 +578,7 @@ err:
 }
 
 //(14) rule_while = 'while' compound_list 'do' compound_list 'done'
-struct AST *rule_while(struct token **token)
+static struct AST *rule_while(struct token **token)
 {
     struct AST *ast = create_ast(AST_WHILE, NULL);
     if ((*token)->type == WHILE)
@@ -626,7 +627,7 @@ err:
 }
 
 //(15) rule_until = 'until' compound_list 'do' compound_list 'done'
-struct AST *rule_until(struct token **token)
+static struct AST *rule_until(struct token **token)
 {
     struct AST *ast = create_ast(AST_UNTIL, NULL);
     if ((*token)->type == UNTIL)
@@ -678,7 +679,7 @@ err:
 //                          | [ {'\n'} 'in' { WORD } ( ';' | '\n' ) ] )
 //{'\n'} 'do' compound_list 'done'
 
-struct AST *rule_for(struct token **token)
+static struct AST *rule_for(struct token **token)
 {
     struct AST *ast = create_ast(AST_FOR, NULL);
     if ((*token)->type == FOR)
@@ -694,6 +695,7 @@ struct AST *rule_for(struct token **token)
             struct AST *child =
                 create_ast(AST_VALUE, strdup((*token)->content)); // WORDS
             ast = add_children(ast, child);
+            *token=eat(*token);
         }
 
         else
@@ -776,7 +778,7 @@ err:
 //(12) compound_list = {'\n'} and_or { ( ';' | '\n' ) {'\n'} and_or } [';']
 //{'\n'}
 
-struct AST *compound_list(struct token **token)
+static struct AST *compound_list(struct token **token)
 {
     struct AST *ast = create_ast(AST_LIST, NULL);
 
@@ -796,6 +798,8 @@ struct AST *compound_list(struct token **token)
     {
         goto err;
     }
+    if(*token==NULL) 
+      goto err;
 
     while ((*token)->type == NEWLINE || (*token)->type == SEMICOLON)
     {
@@ -806,7 +810,7 @@ struct AST *compound_list(struct token **token)
             if (*token == NULL)
                 goto err;
 
-            if (first_compound_list(*token))
+            if (follow_compound_list(*token))
             { // follow de compound_list donc on sort
                 return ast;
             }
@@ -846,13 +850,13 @@ err:
 //         prefix {prefix}
 //(19)    | {prefix} WORD { element }
 
-struct AST *simple_command(struct token **token)
+static struct AST *simple_command(struct token **token)
 {
     struct AST *ast = create_ast(AST_SIMPLE_CMD, NULL);
 
     int pref = 0;
 
-    while (*token && first_prefix(*token))
+    while (*token && first_prefix(*token) )
     {
         pref = 1;
         struct AST *child = prefix(token);
@@ -874,10 +878,10 @@ struct AST *simple_command(struct token **token)
 
         *token = eat(*token);
 
-        while (*token && first_element(*token))
+        while (*token && (first_element(*token) || is_valid_word(*token)))
         {
             struct AST *child_el = element(token);
-            if (child == NULL)
+            if (child_el == NULL)
                 goto err;
 
             ast = add_children(ast, child_el);
@@ -902,7 +906,7 @@ struct AST *simple_command(struct token **token)
 
             *token = eat(*token);
 
-            while (*token && first_element(*token))
+            while (*token && (first_element(*token) || is_valid_word(*token) ))
             {
                 struct AST *children = element(token);
 
@@ -946,9 +950,9 @@ err:
 
 static struct AST *prefix(struct token **token)
 {
-    if ((*token)->type == WORDS)
+    if ((*token)->type == A_WORDS)
     {
-        struct AST *ast = create_ast(AST_VALUE, strdup((*token)->content));
+        struct AST *ast = create_ast(AST_ASSIGNEMENT, strdup((*token)->content));
 		*token = eat(*token);
         return ast;
     }
@@ -987,6 +991,7 @@ static struct AST *redirection(struct token **token)
                 create_ast(AST_VALUE, strdup((*token)->content));
             ast = add_children(ast, ast_val2);
             *token = eat(*token);
+            return ast;
         }
 
         else
@@ -1009,7 +1014,7 @@ err:
 //        WORD
 //        | redirection
 
-struct AST *element(struct token **token)
+static struct AST *element(struct token **token)
 {
     if (is_valid_word(*token))
     {
