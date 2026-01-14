@@ -176,10 +176,21 @@ int execute_list(struct AST *root)
 // ################
 int execute_pipeline(struct AST *root)
 {
-    if (root)
-        return 1;
+	int negation = 0;
 
-    return 0;
+	int status = 0;
+
+	for (int i = 0; i < root->count_children; i++)
+	{
+		negation = root->children[i]->is_neg % 2;
+
+		status = execute_node(root->children[i]);		
+	}
+
+	if (negation)
+		return !status;
+
+    return status;
 }
 
 int execute_node(struct AST *root)
