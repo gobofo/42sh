@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
                 return 2;
             }
         }
-        parser_print(ast);
+        //parser_print(ast);
         exit_code = execute_ast(ast);
 
         destroy_AST(ast);
