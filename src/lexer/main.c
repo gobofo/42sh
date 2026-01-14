@@ -14,12 +14,42 @@ const char *get_type_name(enum types type)
         return "ELSE";
     case FI:
         return "FI";
+
     case SEMICOLON:
         return "SEMICOLON";
     case NEWLINE:
         return "NEWLINE";
+
     case S_QUOTE:
         return "S_QUOTE";
+    case D_QUOTE:
+        return "D_QUOTE";
+
+    case REDIR:
+        return "REDIR";
+    case PIPE:
+        return "PIPE";
+    case OR:
+        return "OR";
+    case AND:
+        return "AND";
+    case NEG:
+        return "NEG";
+
+    case WHILE:
+        return "WHILE";
+    case UNTIL:
+        return "UNTIL";
+    case DO:
+        return "DO";
+    case DONE:
+        return "DONE";
+
+    case FOR:
+        return "FOR";
+    case IN:
+        return "IN";
+
     case WORDS:
         return "WORDS";
     default:
@@ -46,14 +76,14 @@ int main(int argc, char **argv)
 
     while (tok != NULL)
     {
-        printf("[%s](%s)", tok->content, get_type_name(tok->type));
+        printf("[%s](%s)\n", tok->content, get_type_name(tok->type));
 
         free_token(tok);
 
         tok = get_token(NULL);
     }
 
-	printf("\n");
+    printf("\n");
 
     free_token(tok);
     fclose(stream);

@@ -1,48 +1,37 @@
 #include "lexer.h"
 
-#include <ctype.h>
-#include <stdlib.h>
+//#####################
+//#   MAIN FUNCTION   #
+//#####################
 
 /**
- * @brief 		Creates a token.
+ * @brief 			Function to return the next token
  *
- * The function creates a token from a specific string, that will be the
- * content, and associates the corresponding type.
+ * Returns the next token found in the stream when asked from the parser
  *
- * @param str 	The content of the token.
- * 			  	Must not be NULL
+ * @param input		The input where the parser is reading
  *
- * @return 		Token
+ * @return 			Next token in stream
  */
-static struct token *create_token(char *str)
+
+struct token *get_token(FILE *input)
 {
-    if (!str || strcmp(str, "") == 0)
-        return NULL;
+    static FILE *stream = NULL;
 
-    struct token *token = malloc(sizeof(struct token));
-    token->content = str;
+    if (input)
+        stream = input;
 
-    if (strcmp(str, "if") == 0)
-        token->type = IF;
-    else if (strcmp(str, "then") == 0)
-        token->type = THEN;
-    else if (strcmp(str, "elif") == 0)
-        token->type = ELIF;
-    else if (strcmp(str, "else") == 0)
-        token->type = ELSE;
-    else if (strcmp(str, "fi") == 0)
-        token->type = FI;
-    else if (strcmp(str, ";") == 0)
-        token->type = SEMICOLON;
-    else if (strcmp(str, "\n") == 0)
-        token->type = NEWLINE;
-    else if (strcmp(str, "'") == 0)
-        token->type = S_QUOTE;
-    else
-        token->type = WORDS;
+    if (!stream)
+        stream = input;
+
+    struct token *token = read_input(stream);
 
     return token;
 }
+
+//##############
+//#   STREAM   #
+//##############
 
 /**
  * @brief  		 	Empties the current stream and creates a node
@@ -55,8 +44,9 @@ static struct token *create_token(char *str)
  * @param buffer	The buffer holding the value of the token
  * @param size	 	The size (in bytes) of the bufferer
  *
- * @return A new node
+ * @return 			The token in the stream
  */
+
 static struct token *flush_stream(FILE *stream, char **buffer)
 {
     fclose(stream);
@@ -64,37 +54,151 @@ static struct token *flush_stream(FILE *stream, char **buffer)
     struct token *new_token = create_token(*buffer);
 
     if (!new_token)
-    {
         free(*buffer);
-    }
 
     return new_token;
 }
 
 /**
- * @brief 			Function to return the next token
+ * @brief 			Puts back the current character and flushes the stream
  *
- * Returns the next token found in the stream when asked from the parser
+ * This function is called when we find a deliminter in the input and we were
+ * currently reading a token.
+ * Since we need both, the current token and the delimiter, for the parsing we
+ * need to empty the stream and return the current so then we can process the 
+ * delim.
  *
- * @param input		The input where the parser is reading
+ * @param file		The file from which we read the tokens and in which we want
+ * 					to put back the delim
+ * @param stream	The stream where the current token is held
+ * @param buffer	The buffer linked with the stream
+ * @param c			The current character read: the delim
  *
- * @return 			The next token in stream
+ * @return			The token before the delim
  */
 
-struct token *get_token(FILE *input)
+struct token *empty_stream(FILE *file, FILE **stream, char **buffer, char c)
 {
-    static FILE *stream = NULL;
+    ungetc(c, file);
 
-	if (input)
-		stream = input;
-
-    if (!stream)
-        stream = input;
-
-    struct token *token = read_input(stream);
-
-    return token;
+    return flush_stream(*stream, buffer);
 }
+
+//######################
+//#   TOKEN HANDLING   #
+//######################
+
+/**
+ * @brief			Processes the quote token
+ *
+ * When quotes are found we keep the literal value inside, so we need to
+ * iterate on the input until the corresponding closing quote is found.
+ *
+ * @param file		The file in which we read the input
+ * @param stream	The stream holding the token
+ * @param c			The start of the quoting token
+ */
+
+void handle_quotes(FILE *file, FILE **stream, int *c)
+{
+    fputc(*c, *stream);
+
+    while ((*c = fgetc(file)) != EOF && (*c != '\'' || *c != '"'))
+        fputc(*c, *stream);
+}
+
+/**
+ * @brief			Process the comment token
+ *
+ * When a comment symbol is found #, there are two options to handle it:
+ * - if there is nothing before it then it is considered as a comment and
+ *   everything between the symbol and the next \n is ignored
+ * - the symbol is in the middle of a word, then it makes part of the word
+ *
+ * @param file		The file in which we read the input
+ * @param stream	The stream holding the token
+ * @param size		The size of the buffer (the token read)
+ * @param c			The start of the quoting token
+ */
+
+void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
+{
+    fflush(*stream);
+
+    if (size == 0)
+    {
+        while ((*c = fgetc(file)) != EOF && *c != '\n')
+            ;
+    }
+}
+
+/**
+ * @brief               Process and tokenize redirection operators
+ *
+ * Identifies redirection sequences by looking ahead in the input.
+ * If a redirection is found while the current buffer contains data, it 
+ * flushes the buffer first to maintain correct token boundaries.
+ * Else, it flushes the redirection itself as a token.
+ *
+ * @param file          The input stream where the parser is reading
+ * @param stream        The memory stream used to build the current token
+ * @param buffer        The string buffer associated with the memory stream
+ * @param c             The first character of the potential redirection
+ *
+ * @return              A pointer to the created token, or NULL if no
+ * redirection
+ */
+
+struct token *handle_redir(FILE *file, FILE **stream, char **buffer, int c)
+{
+    char buff[4] = { 0 };
+
+    buff[0] = c;
+    buff[1] = fgetc(file);
+    buff[2] = fgetc(file);
+
+	int idx = 2;
+
+	while (idx >= 0)
+	{
+		if (is_redir(buff))
+		{
+			if (strlen(*buffer) > 0)
+			{
+				unget_str(buff, file);
+
+				return flush_stream(*stream, buffer);
+			}
+
+			fprintf(*stream, "%s", buff);
+			return flush_stream(*stream, buffer);
+		}
+
+		ungetc(buff[idx], file);
+		buff[idx] = '\0';
+
+		idx--;
+	}
+
+    return NULL;
+}
+
+//#####################
+//#   INPUT READING   #
+//#####################
+
+/**
+ * @brief			Reads the input from user
+ *
+ * Reads the user's input in order to determine the next token to process by
+ * the parser.
+ * Iterates character by character the stream (reprensenting the input) and
+ * stops when a vaild token is found.
+ *
+ * @ param file 	The user's input in a stream form
+ *
+ * @return			The next valid token in the stream
+ */
 
 struct token *read_input(FILE *file)
 {
@@ -111,6 +215,14 @@ struct token *read_input(FILE *file)
     // Store it in our list of tokens
     while ((c = fgetc(file)) != EOF)
     {
+        if (c == '\\')
+        {
+            fputc(c, stream);
+            c = fgetc(file);
+            fputc(c, stream);
+            continue;
+        }
+
         // A whitespace marks the end of the token
         if (c == ' ' || c == '\t')
         {
@@ -122,55 +234,81 @@ struct token *read_input(FILE *file)
             return flush_stream(stream, &buffer);
         }
 
-        // Same as before but those charcacters need to be safe as tokens
-        if (c == ';' || c == '\n')
+        // Same as before but those charcacters need to be safed as tokens
+        if (c == ';' || c == '\n' || c == '!')
         {
             // Sync the stream
             fflush(stream);
 
             if (size > 0)
-            {
-                ungetc(c, file);
+                return empty_stream(file, &stream, &buffer, c);
 
-                return flush_stream(stream, &buffer);
-            }
-            else
-            {
-                // If we were already reading a token, then we need to save
-                // the delim, return the current token, then read again the
-                // delim So once the token is processed we put back the delim in
-                // the file stream. This way it can be read again
-                fputc(c, stream);
-
-                return flush_stream(stream, &buffer);
-            }
-        }
-
-        // A single quote is found
-        // In that case, everythin between the 2 single quotes are considered
-        // as a single word
-        // Iterate until the next single quote marking the closure of the
-        // quoting
-        if (c == '\'')
-        {
+            // If we were already reading a token, then we need to save
+            // the delim, return the current token, then read again the
+            // delim So once the token is processed we put back the delim in
+            // the file stream. This way it can be read again.
             fputc(c, stream);
 
-            while ((c = fgetc(file)) != EOF && c != '\'')
-                fputc(c, stream);
+            return flush_stream(stream, &buffer);
         }
 
-        // If we find comments we dont take them in consideration
-        // If the # is in the middle of a word then it makes part of the
-        // word
-        if (c == '#')
+        // Those two characters are considered as operators if they are doubled
+        // For the | it can also be considered as a pipe if it is alone.
+        // If one this two charcaters is found we need to check if the next one
+        // is also the same character.
+        if (c == '|' || c == '&')
         {
             fflush(stream);
 
-            if (size == 0)
+            if (size > 0)
+                return empty_stream(file, &stream, &buffer, c);
+
+            fputc(c, stream);
+
+            int next_c = fgetc(file);
+            if (next_c == EOF)
+                break;
+
+            // A double is found
+            if (next_c == c)
             {
-                while ((c = fgetc(file)) != EOF && c != '\n')
-                    ;
+                fputc(next_c, stream);
+
+                return flush_stream(stream, &buffer);
             }
+            // No double is found and we are in a pipe case
+            else if (c == '|')
+            {
+                // Put back the next character since it is part of a different
+                // token than the pipe
+                ungetc(next_c, file);
+
+                return flush_stream(stream, &buffer);
+            }
+
+            ungetc(next_c, file);
+            continue;
+        }
+
+        if (c == '\'' || c == '"')
+            handle_quotes(file, &stream, &c);
+
+        if (c == '#')
+            hanlde_comments(file, &stream, &size, &c);
+
+        fflush(stream);
+
+        if (('0' <= c && c <= '2' && size == 0) || c == '<' || c == '>')
+        {
+			// If we find a character potentially identifying a redirection, we
+			// read the next characters (until 3 read since the max size of a 
+			// redir is 3).
+			// If we found a valid redirection then we return the token found,
+			// else we keep going.
+            struct token *token = handle_redir(file, &stream, &buffer, c);
+
+            if (token)
+                return token;
         }
 
         if (c != EOF && c != '\n')
@@ -180,11 +318,16 @@ struct token *read_input(FILE *file)
     return flush_stream(stream, &buffer);
 }
 
+//#############
+//#   OTHER   #
+//#############
+
 /**
  * @brief 	Frees the token
  *
  * @param	The token to free
  */
+
 void free_token(struct token *token)
 {
     if (!token)
