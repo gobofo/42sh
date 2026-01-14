@@ -24,6 +24,15 @@ char **create_command(struct AST *root)
     for (int i = 0; i < root->count_children; i++)
     {
         expand(&root->children[i]->content);
+
+		// Iterate over all children of the command node
+		// Create two separate arrays:
+		// - One for WORDS and ASSIGMENT WORDS
+		// - One for REDIR
+		// The array of WORDS and A_WORDS make part of the command to execute
+		// The array of REDIR are the redirs to compute
+		// -> Compute them recursivly so we can deredir easily
+
         command[i] = root->children[i]->content;
     }
 
@@ -115,19 +124,13 @@ int execute_and(struct AST *root)
 // #   REDIRECTIONS   #
 // ####################
 
-int redir_in(struct AST *root, int fd)
+// REDIR >
+int redir_in(int fd)
 {
-    int fd_save = fd;
-
     int fd_file =
         open(root->children[1]->content, O_CREAT | O_WRONLY | O_TRUNC, 0644);
 
-    if (fd_file == -1)
-    {
-        fprintf(stderr, "Error: Could not open the file: %s\n",
-                root->children[1]->content);
-        return 1;
-    }
+    int fd_save = dup(fd);
 
     if (dup2(fd_file, fd) == -1)
     {
@@ -136,13 +139,12 @@ int redir_in(struct AST *root, int fd)
     }
     close(fd_file);
 
-    int status = execute_node(root->children[0]);
-
     if (dup2(fd_save, fd) == -1)
     {
         fprintf(stderr, "Error: Could not dup\n");
         return 1;
     }
+	close(fd_save);
 
     return status;
 }
