@@ -218,6 +218,7 @@ int execute_node(struct AST *root)
 
     // Not supposed to get there but we never know
     default:
+        printf("Probleme\n");
         return 0;
     }
 }

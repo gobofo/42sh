@@ -694,6 +694,7 @@ struct AST *rule_for(struct token **token)
             struct AST *child =
                 create_ast(AST_VALUE, strdup((*token)->content)); // WORDS
             ast = add_children(ast, child);
+            *token=eat(*token);
         }
 
         else
@@ -796,6 +797,8 @@ struct AST *compound_list(struct token **token)
     {
         goto err;
     }
+    if(*token==NULL) 
+      goto err;
 
     while ((*token)->type == NEWLINE || (*token)->type == SEMICOLON)
     {
@@ -806,7 +809,7 @@ struct AST *compound_list(struct token **token)
             if (*token == NULL)
                 goto err;
 
-            if (first_compound_list(*token))
+            if (follow_compound_list(*token))
             { // follow de compound_list donc on sort
                 return ast;
             }
@@ -874,7 +877,7 @@ struct AST *simple_command(struct token **token)
 
         *token = eat(*token);
 
-        while (*token && first_element(*token))
+        while (*token && (first_element(*token) || is_valid_word(*token)))
         {
             struct AST *child_el = element(token);
             if (child == NULL)
@@ -946,9 +949,9 @@ err:
 
 static struct AST *prefix(struct token **token)
 {
-    if ((*token)->type == WORDS)
+    if ((*token)->type == A_WORDS)
     {
-        struct AST *ast = create_ast(AST_VALUE, strdup((*token)->content));
+        struct AST *ast = create_ast(AST_ASSIGNEMENT, strdup((*token)->content));
 		*token = eat(*token);
         return ast;
     }

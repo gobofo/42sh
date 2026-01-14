@@ -35,7 +35,8 @@ enum types
     IN,
 
     // OTHER
-    WORDS
+    WORDS,
+    A_WORDS
 };
 
 struct token
