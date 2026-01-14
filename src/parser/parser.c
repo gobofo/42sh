@@ -855,7 +855,7 @@ struct AST *simple_command(struct token **token)
 
     int pref = 0;
 
-    while (*token && first_prefix(*token))
+    while (*token && first_prefix(*token) )
     {
         pref = 1;
         struct AST *child = prefix(token);
@@ -880,7 +880,7 @@ struct AST *simple_command(struct token **token)
         while (*token && (first_element(*token) || is_valid_word(*token)))
         {
             struct AST *child_el = element(token);
-            if (child == NULL)
+            if (child_el == NULL)
                 goto err;
 
             ast = add_children(ast, child_el);
@@ -905,7 +905,7 @@ struct AST *simple_command(struct token **token)
 
             *token = eat(*token);
 
-            while (*token && first_element(*token))
+            while (*token && (first_element(*token) || is_valid_word(*token) ))
             {
                 struct AST *children = element(token);
 
@@ -990,6 +990,7 @@ static struct AST *redirection(struct token **token)
                 create_ast(AST_VALUE, strdup((*token)->content));
             ast = add_children(ast, ast_val2);
             *token = eat(*token);
+            return ast;
         }
 
         else
