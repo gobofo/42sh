@@ -21,9 +21,13 @@ char **create_command(struct AST *root)
     // Is free by caller
     char **command = calloc(root->count_children + 1, sizeof(char *));
 
+	size_t idx = 0;
+
     for (int i = 0; i < root->count_children; i++)
     {
-        expand(&root->children[i]->content);
+       	if (root->children[i]->type == AST_VALUE)
+		{
+			expand(&root->children[i]->content);
 
 		// Iterate over all children of the command node
 		// Create two separate arrays:
@@ -33,15 +37,35 @@ char **create_command(struct AST *root)
 		// The array of REDIR are the redirs to compute
 		// -> Compute them recursivly so we can deredir easily
 
-        command[i] = root->children[i]->content;
-    }
+			command[idx++] = root->children[i]->content;
+		}
+	}
 
     return command;
+}
+
+char **create_redir(struct AST *root)
+{
+	struct AST **redir = calloc(root->count_children + 1, sizeof(struct AST *));
+
+	size_t idx = 0;
+
+	for (int i = 0; i < root->count_children; i++)
+	{
+		if (root->children[i]->type == AST_REDIR)
+			redir[idx++] = root->children[i];
+	}
+
+	return redir;
 }
 
 int execute_simple_cmd(struct AST *root)
 {
     char **command = create_command(root);
+
+	struct AST **redir = create_redir(root);
+
+	// REDIR
 
     int status = 0;
 
@@ -54,7 +78,9 @@ int execute_simple_cmd(struct AST *root)
         status = my_echo(command + 1);
     else
         status = execute_non_builtin(command);
-    free(command);
+    
+	free(command);
+	free(redir);
 
     return status;
 }
