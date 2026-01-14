@@ -10,7 +10,7 @@ AC_PROG_RANLIB
 
 AC_PROG_CC
 
-CFLAGS="$CFLAGS -O0 -fno-omit-frame-pointer -g3 -std=c99 -pedantic -Werror -Wall -Wextra -Wvla"
+CFLAGS="$CFLAGS -std=c99 -pedantic -Werror -Wall -Wextra -Wvla"
 
 # Check for Criterion library
 AC_CHECK_LIB([criterion], [criterion_initialize],
