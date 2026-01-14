@@ -105,7 +105,9 @@ struct token *create_token(char *str)
     else if (strcmp(str, "\n") == 0)
         token->type = NEWLINE;
         // OTHER
-    else
+	else if(strchr(str, '=') != NULL)
+		token->type = A_WORDS;
+	else
         token->type = WORDS;
 
     return token;
@@ -139,7 +141,7 @@ int is_redir(char *str)
     if (!*str)
         return 0;
 
-    if ('0' <= *str && *str <= '2')
+    if ('0' <= *str && *str <= '9')
     {
         str++;
 		return is_redir_helper(str);
@@ -163,8 +165,8 @@ int is_redir(char *str)
 
 void unget_str(const char *str, FILE *stream)
 {
-	size_t len = strlen(str);
+	int len = strlen(str);
 
-	for (size_t i = 0; i < len; i++)
+	for (int i = len-1; i >= 0; i--)
 		ungetc(str[i], stream);
 }
