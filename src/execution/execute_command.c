@@ -31,7 +31,6 @@ int execute_non_builtin(char **cmd)
 
         if (WIFEXITED(wstatus) && WEXITSTATUS(wstatus))
         {
-            fprintf(stderr, "Error: command failure: %s\n", cmd[0]);
             return 1;
         }
     }
