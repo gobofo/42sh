@@ -393,6 +393,11 @@ int execute_pipeline(struct AST *root)
 	return status;
 }
 
+int execute_shell_cmd(struct AST *root)
+{
+	return execute_node(root->children[0]);
+}
+
 int execute_node(struct AST *root)
 {
 	switch (root->rule)
@@ -423,6 +428,9 @@ int execute_node(struct AST *root)
 
 		case AST_AND:
 			return execute_and(root);
+
+		case AST_SHELL_CMD:
+			return execute_shell_cmd(root);
 
     // Not supposed to get there but we never know
     default:
