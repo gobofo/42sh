@@ -5,12 +5,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
 int read_file(char *file_path)
 {
-    // Open the file
-    // If does not exist create it with the permissions 0644
-
     int fd = open(file_path, O_CREAT | O_RDWR | O_TRUNC, 0644);
     if (fd == -1) // Could not open the file
         return -1;
@@ -20,10 +16,6 @@ int read_file(char *file_path)
 
 int main(int argc, char *argv[])
 {
-    // First argument (argv[1]) must be file
-    // All other arguments makeup the command to execute
-
-    // No arguments passed
     if (argc < 3)
         errx(2, "Usage ./myredir <file_name> <command_to_execute>");
 
@@ -68,6 +60,14 @@ int main(int argc, char *argv[])
             printf("%s exited with %d!\n", argv[2], status);
         }
     }
-
     return 0;
 }
+
+>
+>>
+
+<
+>|
+>&
+<&
+<>
