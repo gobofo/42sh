@@ -11,8 +11,8 @@ char *get_string_of_node(struct AST *ast)
     {
     case AST_IF:
         return "IF";
-    case AST_CMD:
-        return "CMD";
+    case AST_SIMPLE_CMD:
+        return "SIMPLE_CMD";
     case AST_LIST:
         return "LIST";
     case AST_VALUE:
@@ -27,7 +27,7 @@ char *get_color_of_node(struct AST *ast)
     {
     case AST_IF:
         return "#E67E22";
-    case AST_CMD:
+    case AST_SIMPLE_CMD:
         return "#2ECC71";
     case AST_LIST:
         return "#3498DB";

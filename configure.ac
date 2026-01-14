@@ -12,15 +12,24 @@ AC_PROG_CC
 
 CFLAGS="$CFLAGS -std=c99 -pedantic -Werror -Wall -Wextra -Wvla"
 
-PKG_CHECK_MODULES([CRITERION], [criterion], [has_criterion=yes], [has_criterion=no])
+# Check for Criterion library
+AC_CHECK_LIB([criterion], [criterion_initialize],
+			 [CRITERION_LIBS="-lcriterion" has_criterion=yes],
+			 [AC_MSG_ERROR([Criterion library not found. Please install it.])]
+)
 
-CFLAGS="$CFLAGS $CRITERION_CFLAGS"
+# Check for Criterion headers
+AC_CHECK_HEADERS([criterion/criterion.h], [],
+				 [AC_MSG_ERROR([Criterion headers not found.])]
+)
+
+# Make the variables available to your Makefile
+AC_SUBST([CRITERION_LIBS])
+
 LIBS="$LIBS $CRITERION_LIBS"
 
 # Handle coverage mode for Testsuites
 AM_CONDITIONAL([COVERAGE_ASKED], [test "x$COVERAGE" = "xyes"])
-
-AC_SUBST([CRITERION_LIBS])
 
 AC_CONFIG_FILES([
 				 Makefile
