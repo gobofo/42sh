@@ -15,7 +15,8 @@ enum rule
     AST_AND,
     AST_OR,
     AST_PIPELINE,
-    AST_REDIR
+    AST_REDIR,
+    AST_ASSIGNEMENT
 
 };
 
