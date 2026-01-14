@@ -125,7 +125,7 @@ int execute_and(struct AST *root)
 // ####################
 
 // REDIR >
-int redir_in(int fd)
+int redir_in(struct AST *root, int fd)
 {
     int fd_file =
         open(root->children[1]->content, O_CREAT | O_WRONLY | O_TRUNC, 0644);
@@ -146,7 +146,7 @@ int redir_in(int fd)
     }
 	close(fd_save);
 
-    return status;
+    return 0;
 }
 
 int execute_redir(struct AST *root)
