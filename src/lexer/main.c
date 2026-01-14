@@ -52,6 +52,8 @@ const char *get_type_name(enum types type)
 
     case WORDS:
         return "WORDS";
+	case A_WORDS:
+		return "A_WORDS";
     default:
         return "UNKNOWN";
     }
