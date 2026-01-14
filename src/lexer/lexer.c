@@ -173,8 +173,8 @@ struct token *handle_redir(FILE *file, FILE **stream, char **buffer, int c)
 			fprintf(*stream, "%s", buff);
 			return flush_stream(*stream, buffer);
 		}
-
-		ungetc(buff[idx], file);
+		if(idx>0)
+			ungetc(buff[idx], file);
 		buff[idx] = '\0';
 
 		idx--;
@@ -298,7 +298,7 @@ struct token *read_input(FILE *file)
 
         fflush(stream);
 
-        if (('0' <= c && c <= '2' && size == 0) || c == '<' || c == '>')
+        if (('0' <= c && c <= '9' && size == 0) || c == '<' || c == '>')
         {
 			// If we find a character potentially identifying a redirection, we
 			// read the next characters (until 3 read since the max size of a 
