@@ -1,6 +1,7 @@
 #ifndef EXECUTION_H
 #define EXECUTION_H
 
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

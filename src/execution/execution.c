@@ -67,6 +67,7 @@ int execute_if(struct AST *root)
 //############
 //#   LOOP   #
 //############
+
 int execute_while(struct AST *root)
 {
 	int status = 0;
@@ -114,25 +115,17 @@ int execute_and(struct AST *root)
 //#   REDIRECTIONS   #
 //####################
 
-int execute_redir(struct AST *root)
-{
-	int fd = 1;
-
-	if (root->content[0] >= '0' && root->content[0] <= '9')
-		fd = root->content[0] - '0';
-
-	//IF FOR EACH REDIR
-}
-
 int redir_in(struct AST *root, int fd)
 {
 	int fd_save = fd;
 
-	int fd_file = open(root->children[1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	int fd_file = open(root->children[1]->content,
+			O_CREAT | O_WRONLY | O_TRUNC, 0644);
+
 	if (fd_file == -1)
 	{
 		fprintf(stderr, "Error: Could not open the file: %s\n",
-				root->children[1]);
+				root->children[1]->content);
 		return 1;
 	}
 	
@@ -154,6 +147,17 @@ int redir_in(struct AST *root, int fd)
 	return status;
 }
 
+int execute_redir(struct AST *root)
+{
+	int fd = 1;
+
+	if (root->content[0] >= '0' && root->content[0] <= '9')
+		fd = root->content[0] - '0';
+
+	//IF FOR EACH REDIR
+	return redir_in(root, fd);
+}
+
 //################
 //#   PIPELINE   #
 //################
@@ -165,6 +169,17 @@ int execute_list(struct AST *root)
     for (int i = 0; i < root->count_children; i++)
         status = execute_node(root->children[i]);
     return status;
+}
+
+//################
+//#   PIPELINE   #
+//################
+int execute_pipeline(struct AST *root)
+{
+	if (root)
+		return 1;
+
+	return 0;
 }
 
 int execute_node(struct AST *root)
