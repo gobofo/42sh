@@ -1,11 +1,10 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "expansion.h"
-
 extern struct env *env;
-
 int expand(char **value)
 {
+
 	size_t size;
 
 	char *str = *value;
@@ -64,12 +63,11 @@ int expand(char **value)
 					}
 
 					fclose(var);
-					hash_map_dump(env->variables);
 					char *var_value = hash_map_get(env->variables, var_name);
 
 					if (var_value)
 						fputs(var_value, stream);
-					
+
 					free(var_name);
 				}
 				else
@@ -83,7 +81,7 @@ int expand(char **value)
 		}
 		else
 		{
-			fputc(str[i++], stream);
+			fputc(str[i], stream);
 		}
 
 		i++;
