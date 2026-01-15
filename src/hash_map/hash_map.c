@@ -97,7 +97,7 @@ void hash_map_free(struct hash_map *hash_map)
                 struct pair_list *temp = node;
 				
 				free(temp->key);
-				free(temp->data);
+				free(temp->value);
 
                 node = node->next;
                 free(temp);
@@ -136,7 +136,7 @@ void hash_map_dump(struct hash_map *hash_map)
     }
 }
 
-const char *hash_map_get(const struct hash_map *hash_map, const char *key)
+char *hash_map_get(const struct hash_map *hash_map, char *key)
 {
     if (!hash_map || hash_map->size == 0)
         return NULL;
@@ -164,7 +164,7 @@ const char *hash_map_get(const struct hash_map *hash_map, const char *key)
     return NULL;
 }
 
-bool hash_map_remove(struct hash_map *hash_map, const char *key)
+bool hash_map_remove(struct hash_map *hash_map, char *key)
 {
     if (!hash_map || hash_map->size == 0)
         return NULL;

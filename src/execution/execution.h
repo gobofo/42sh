@@ -11,11 +11,14 @@
 #include "../ast/ast.h"
 #include "../expansion/expansion.h"
 #include "../parser/parser.h"
+#include "../environment/environment.h"
+#include "../hash_map/hash_map.h"
+
 #include "execute_command/execute_command.h"
 #include "my_echo/my_echo.h"
 #include "my_pipe.h"
 #include "my_redir/my_redir.h"
 
-int execute_ast(struct AST *root);
+int execute_ast(struct AST *root, struct env *env);
 
 #endif /* ! EXECUTION_H */
