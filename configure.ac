@@ -10,7 +10,7 @@ AC_PROG_RANLIB
 
 AC_PROG_CC
 
-CFLAGS="$CFLAGS -std=c99 -pedantic -Werror -Wall -Wextra -Wvla"
+CFLAGS="$CFLAGS -std=c99 -pedantic -Werror -Wall -Wextra -Wvla -g"
 
 AC_CONFIG_FILES([
 				 Makefile
@@ -21,6 +21,8 @@ AC_CONFIG_FILES([
 				 src/expansion/Makefile
 				 src/execution/Makefile
 				 src/io_backend/Makefile
+				 src/environment/Makefile
+				 src/hash_map/Makefile
 				 tests/Makefile
 				 ])
 
