@@ -15,7 +15,13 @@ int do_redir(struct AST *root, struct AST **redir);
 int variable_assignation(struct AST *root)
 {
 	char *key = strtok(root->content, "=");
-	char *value = strtok(NULL, "=");
+	char *value = strtok(NULL, "= ");
+
+	if (value == NULL){
+
+		value = "";
+
+	}
 
 	bool updated;
 	hash_map_insert(env->variables, key, value, &updated);	
