@@ -1,4 +1,4 @@
-
+#!/bin/sh
 
 #----------------- COLOR -----------------#
 # 0 - No style | 1 - Bold
@@ -487,7 +487,7 @@ test_cmd 'for i in a b c; do echo "$i"; echo next; done' "Test for avec plusieur
 
 test_cmd 'for i in x y; do for j in 1 2; do echo "$i$j"; done; done' "Test for imbrique"
 
-test_cmd 'for i in a b c\ndo echo "$i"\ndone' "Test for avec retours ligne"
+test_error 'for i in a b c\ndo echo "$i"\ndone' "Test for avec retours ligne"
 
 test_cmd 'for i in a b c; do echo "$i"; done; echo after' "Test for puis commande"
 
@@ -499,7 +499,7 @@ test_cmd 'for i in a b; do true && echo "$i"; done' "Test for avec operateur ET"
 
 test_cmd 'for i in a b; do echo "$i" | cat; done' "Test for avec pipe"
 
-test_cmd 'for i in 'hello world' test; do echo "$i"; done' "Test for avec guillemets"
+test_cmd "for i in 'hello world' test; do echo \"$i\"; done" "Test for avec guillemets"
 
 #----------------- TESTS VARIABLES -----------------#
 

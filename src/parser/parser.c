@@ -730,7 +730,7 @@ static struct AST *rule_for(struct token **token)
                 goto err;
 
             *token = eat(*token);
-            while (token != NULL && (*token)->type != SEMICOLON
+            while (*token != NULL && (*token)->type != SEMICOLON
                    && (*token)->type != NEWLINE)
             {
                 if (is_valid_word(*token))
@@ -746,7 +746,7 @@ static struct AST *rule_for(struct token **token)
                     goto err;
                 }
             }
-            if ((*token)->type == NEWLINE || (*token)->type == SEMICOLON)
+            if (*token && ((*token)->type == NEWLINE || (*token)->type == SEMICOLON))
             { // fin
                 *token = eat(*token);
             }
@@ -754,6 +754,9 @@ static struct AST *rule_for(struct token **token)
             {
                 goto err;
             }
+        }
+        else{
+          goto err;
         }
         eat_newlines(token);
 
@@ -776,18 +779,20 @@ int parse_body_if(struct AST** ast,struct token **token){
     struct AST *child = compound_list(token);
 
     if (child == NULL)
-      return false;
+      return 0;
 
     *ast = add_children(*ast, child);
 
     if (*token == NULL || (*token)->type != DONE)
-      return false;
+      return 0;
     *token = eat(*token);
-    return true;
+    return 1;
   }
-  return false;
+  return 0;
 
 }
+
+
 //(12) compound_list = {'\n'} and_or { ( ';' | '\n' ) {'\n'} and_or } [';']
 //{'\n'}
 
@@ -795,7 +800,7 @@ static struct AST *compound_list(struct token **token)
 {
     struct AST *ast = create_ast(AST_LIST, NULL);
 
-    while (token != NULL && (*token)->type == NEWLINE)
+    while (*token != NULL && (*token)->type == NEWLINE)
     {
         *token = eat(*token);
     }
@@ -852,6 +857,9 @@ static struct AST *compound_list(struct token **token)
             goto err;
         }
     }
+
+	eat_newlines(token);
+
     return ast;
 
 err:
