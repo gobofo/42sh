@@ -1,10 +1,11 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "expansion.h"
+
 extern struct env *env;
+
 int expand(char **value)
 {
-
 	size_t size;
 
 	char *str = *value;

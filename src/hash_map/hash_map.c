@@ -77,8 +77,6 @@ bool hash_map_insert(struct hash_map *hash_map, char *key, char *value,
         *updated = false;
     hash_map->data[h] = new_pair;
 
-	hash_map_dump(hash_map);
-
     return true;
 }
 
