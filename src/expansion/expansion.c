@@ -4,6 +4,8 @@
 
 int expand(char **value, struct env *env)
 {
+	printf("VALUE TO EXPAND: %s\n", (*value));
+
 	size_t size;
 
 	char *str = *value;
@@ -11,7 +13,9 @@ int expand(char **value, struct env *env)
 
 	FILE *stream = open_memstream(&buffer, &size);
 
-	for (size_t i = 0; str[i] != '\0'; i++)
+	size_t i = 0;
+
+	while (str[i] != '\0')
 	{
 		if (str[i] == '\'')
 		{
@@ -20,13 +24,14 @@ int expand(char **value, struct env *env)
 
 			while (str[i] != '\0' && str[i] != '\'')
 				fputc(str[i++], stream);
+
+			if (str[i] == '\'')
+				i++;
 		}
 		else if (str[i] == '"')
 		{
 			// Pass the opening quote
 			i++;
-
-			printf("%c\n", str[i]);
 
 			while (str[i] != '\0' && str[i] != '"')
 			{
@@ -63,7 +68,8 @@ int expand(char **value, struct env *env)
 
 					if (var_value)
 						fputs(var_value, stream);
-					printf("\nVAR VALUE: %s\n\n", var_value);
+					
+					printf("EXPANDED VALUE IS: %s\n", var_value);
 
 					free(var_name);
 				}
@@ -72,11 +78,16 @@ int expand(char **value, struct env *env)
 					fputc(str[i++], stream);
 				}
 			}
+
+			if (str[i] == '"')
+				i++;
 		}
 		else
 		{
-			fputc(str[i], stream);
+			fputc(str[i++], stream);
 		}
+
+		i++;
 	}
 
     fclose(stream);

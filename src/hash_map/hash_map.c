@@ -67,12 +67,15 @@ bool hash_map_insert(struct hash_map *hash_map, char *key, char *value,
 			free(new_pair->key);
             free(new_pair);
 
+			printf("Added key: %s with value: %s\n", key, value);
+
             if (updated)
                 *updated = true;
             return true;
         }
     }
 
+	printf("Added key: %s with value: %s\n", key, value);
     if (updated)
         *updated = false;
     hash_map->data[h] = new_pair;
