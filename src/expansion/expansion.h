@@ -8,6 +8,6 @@
 
 #include "../environment/environment.h"
 
-int expand(char **value, struct env *env);
+int expand(char **value);
 
 #endif /* ! EXPANSION_H */

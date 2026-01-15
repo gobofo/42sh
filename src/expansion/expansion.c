@@ -2,10 +2,10 @@
 
 #include "expansion.h"
 
-int expand(char **value, struct env *env)
-{
-	printf("VALUE TO EXPAND: %s\n", (*value));
+extern struct env *env;
 
+int expand(char **value)
+{
 	size_t size;
 
 	char *str = *value;
@@ -64,13 +64,12 @@ int expand(char **value, struct env *env)
 					}
 
 					fclose(var);
+					hash_map_dump(env->variables);
 					char *var_value = hash_map_get(env->variables, var_name);
 
 					if (var_value)
 						fputs(var_value, stream);
 					
-					printf("EXPANDED VALUE IS: %s\n", var_value);
-
 					free(var_name);
 				}
 				else

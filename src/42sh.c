@@ -8,6 +8,8 @@
 #include "environment/environment.h"
 #include "token.h"
 
+struct env *env;
+
 int main(int argc, char *argv[])
 {
     // PRETTY PRINT A ACTIVER AVEC PRETTY_PRINT=1 dans le terminal
@@ -26,7 +28,7 @@ int main(int argc, char *argv[])
         return 2;
     }
 
-	struct env *env = init_env();
+	env = init_env();
 
     int exit_code = 0;
 
@@ -53,7 +55,7 @@ int main(int argc, char *argv[])
         if (pretty_print)
             parser_print(ast);
 
-        exit_code = execute_ast(ast, env);
+        exit_code = execute_ast(ast);
 
         destroy_AST(ast);
 

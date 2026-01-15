@@ -19,6 +19,6 @@
 #include "my_pipe.h"
 #include "my_redir/my_redir.h"
 
-int execute_ast(struct AST *root, struct env *env);
+int execute_ast(struct AST *root);
 
 #endif /* ! EXECUTION_H */
