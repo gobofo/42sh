@@ -272,7 +272,13 @@ int execute_list(struct AST *root)
 
 static pid_t exec_fork(struct AST *root, int input_pipe, int output_pipe)
 {
-	pid_t pid = fork();
+    if(root->count_children==1){
+      if(root->is_neg){
+        return !execute_node(root);
+      }
+      return execute_node(root);
+    }
+	int last_output=-1;
 
 	if (pid == -1)
 		return -1;
@@ -360,10 +366,16 @@ int execute_pipeline(struct AST *root)
 		if (i == root->count_children - 1)
 			status = WEXITSTATUS(wstatus);
 	}
-
-    free(tab_pid);
-
-    return status;
+	int wstatus;
+	for(int i =0;i<root->count_children;i++){
+		waitpid(tab_pid[i],&wstatus,0);
+	}
+	int res=  WEXITSTATUS(wstatus);
+	free(tab_pid);
+    if(root->is_neg){
+	  return !res;
+    }
+    return res;
 }
 
 int execute_node(struct AST *root)
