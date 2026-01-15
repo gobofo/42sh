@@ -82,12 +82,8 @@ static struct AST *rule_for(struct token **token);
 static struct AST *rule_while(struct token **token);
 static struct AST *rule_until(struct token **token);
 
+int parse_body_if(struct AST** ast,struct token **token);
 
-static void eat_newlines(struct token **token)
-{
-    while (*token && (*token)->type == NEWLINE)
-        *token = eat(*token);
-}
 static bool is_valid_word(struct token *token)
 {
     if (token == NULL)
@@ -106,6 +102,13 @@ static struct token *eat(struct token *token)
     free_token(token);
     return get_token(NULL);
 }
+
+static void eat_newlines(struct token **token)
+{
+    while (*token && (*token)->type == NEWLINE)
+        *token = eat(*token);
+}
+
 
 //    input =
 //(1)     list '\n'
@@ -153,7 +156,7 @@ static struct AST *list(struct token **token)
 
     if (first_and_or(*token))
     {
-        struct AST *child;
+        struct AST *child = and_or(token);
         if (child == NULL)
         {
             goto err;
@@ -753,6 +756,7 @@ static struct AST *rule_for(struct token **token)
             }
         }
         eat_newlines(token);
+
         if(parse_body_if(&ast,token)){
           return ast;
         }
@@ -761,6 +765,7 @@ err:
     destroy_AST(ast);
     return NULL;
 } //==40
+
 int parse_body_if(struct AST** ast,struct token **token){
   if (*token == NULL || (*token)->type != DO)
     return 0;
