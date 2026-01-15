@@ -317,7 +317,10 @@ int execute_pipeline(struct AST *root)
 	}
 	int res=  WEXITSTATUS(wstatus);
 	free(tab_pid);
-	return res;
+    if(root->is_neg){
+	  return !res;
+    }
+    return res;
 }
 
 int execute_node(struct AST *root)
