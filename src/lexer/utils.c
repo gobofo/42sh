@@ -1,8 +1,8 @@
 #include "utils.h"
 
-//#############
-//#   TOKEN   #
-//#############
+// #############
+// #   TOKEN   #
+// #############
 
 /**
  * @brief 		Creates a token.
@@ -28,10 +28,10 @@ static int clause_if(struct token **token, char *str)
         (*token)->type = ELSE;
     else if (strcmp(str, "fi") == 0)
         (*token)->type = FI;
-	else
-		return 0;
+    else
+        return 0;
 
-	return 1;
+    return 1;
 }
 
 static int clause_loop(struct token **token, char *str)
@@ -48,22 +48,22 @@ static int clause_loop(struct token **token, char *str)
         (*token)->type = FOR;
     else if (strcmp(str, "in") == 0)
         (*token)->type = IN;
-	else
-		return 0;
+    else
+        return 0;
 
-	return 1;
+    return 1;
 }
 
 static int quotes(struct token **token, char *str)
 {
-	if (strcmp(str, "'") == 0)
+    if (strcmp(str, "'") == 0)
         (*token)->type = S_QUOTE;
     else if (strcmp(str, "\"") == 0)
-    	(*token)->type = D_QUOTE;
-	else
-		return 0;
+        (*token)->type = D_QUOTE;
+    else
+        return 0;
 
-	return 1;
+    return 1;
 }
 
 static int misc(struct token **token, char *str)
@@ -78,10 +78,10 @@ static int misc(struct token **token, char *str)
         (*token)->type = AND;
     else if (strcmp(str, "!") == 0)
         (*token)->type = NEG;
-	else
-		return 0;
+    else
+        return 0;
 
-	return 1;
+    return 1;
 }
 
 struct token *create_token(char *str)
@@ -92,30 +92,30 @@ struct token *create_token(char *str)
     struct token *token = malloc(sizeof(struct token));
     token->content = str;
 
-	if (clause_if(&token, str) == 1)
-		return token;
-	else if (clause_loop(&token, str) == 1)
-		return token;
-	else if (quotes(&token, str) == 1)
-		return token;
-	else if (misc(&token, str) == 1)
-		return token;
+    if (clause_if(&token, str) == 1)
+        return token;
+    else if (clause_loop(&token, str) == 1)
+        return token;
+    else if (quotes(&token, str) == 1)
+        return token;
+    else if (misc(&token, str) == 1)
+        return token;
     else if (strcmp(str, ";") == 0)
         token->type = SEMICOLON;
     else if (strcmp(str, "\n") == 0)
         token->type = NEWLINE;
-        // OTHER
-	else if(strchr(str, '=') != NULL)
-		token->type = A_WORDS;
-	else
+    // OTHER
+    else if (strchr(str, '=') != NULL)
+        token->type = A_WORDS;
+    else
         token->type = WORDS;
 
     return token;
 }
 
-//###################
-//#   REDIRECTION   #
-//##################
+// ###################
+// #   REDIRECTION   #
+// ##################
 
 /**
  * @brief		Check if the string is a redirection argument
@@ -130,10 +130,10 @@ struct token *create_token(char *str)
 
 static int is_redir_helper(char *str)
 {
-	return strcmp(str, ">") == 0 || strcmp(str, "<") == 0
-		|| strcmp(str, ">>") == 0 || strcmp(str, ">&") == 0
-		|| strcmp(str, "<&") == 0 || strcmp(str, ">|") == 0
-		|| strcmp(str, "<>") == 0;
+    return strcmp(str, ">") == 0 || strcmp(str, "<") == 0
+        || strcmp(str, ">>") == 0 || strcmp(str, ">&") == 0
+        || strcmp(str, "<&") == 0 || strcmp(str, ">|") == 0
+        || strcmp(str, "<>") == 0;
 }
 
 int is_redir(char *str)
@@ -144,15 +144,15 @@ int is_redir(char *str)
     if ('0' <= *str && *str <= '9')
     {
         str++;
-		return is_redir_helper(str);
-	}
+        return is_redir_helper(str);
+    }
 
-	return is_redir_helper(str);
+    return is_redir_helper(str);
 }
 
-//####################
-//#   MISCELLANEOUS   #
-//####################
+// ####################
+// #   MISCELLANEOUS   #
+// ####################
 
 /**
  * @brief			Mimics the function ungetc but for strings
@@ -165,8 +165,8 @@ int is_redir(char *str)
 
 void unget_str(const char *str, FILE *stream)
 {
-	int len = strlen(str);
+    int len = strlen(str);
 
-	for (int i = len-1; i >= 0; i--)
-		ungetc(str[i], stream);
+    for (int i = len - 1; i >= 0; i--)
+        ungetc(str[i], stream);
 }
