@@ -11,35 +11,30 @@ BYEL="\e[1;33m"
 TIMEOUT=5
 
 TOTAL=0
-SUCES=0
+SUCCESS=0
 
-#if [ -z "$BIN_PATH" ]; then
-#    echo "Error: BIN_PATH not set"
-#    exit 1
-#fi
+if [ -z "$BIN_PATH" ]; then
+    echo "Error: BIN_PATH not set"
+    exit 0
+fi
 
 test_cmd()
 {
-    TOTAL=$((TOTAL + 1))
+	TOTAL=$((TOTAL + 1))
     
-    local expected=$(timeout $TIMEOUT bash --posix -c "$1" 2>&1)
-    local actual=$(timeout $TIMEOUT ./../src/42sh -c "$1" 2>&1)
+    local expected=$2
+	#$(timeout $TIMEOUT bash --posix -c "$1" 2>&1)
+    local actual=$(timeout $TIMEOUT "$BIN_PATH" -c "$1" 2>&1)
 
 	if [ "$expected" = "$actual" ]; then
-		echo -e "${GRN}$2${WHT}"
-		SUCES=$((SUCES + 1))
+		echo -e "${GRN}$3${WHT}"
+		SUCCESS=$((SUCCES + 1))
 	else
-		echo -e "${RED}$2${WHT}"
+		echo -e "${RED}$3${WHT}"
 		echo -e "${RED}Expected:${WHT} $expected"
 		echo -e "${RED}Actual:${WHT} $actual"
 	fi
-
 }
-
-BIN_PATH=${BIN_PATH:-"$(pwd)/../src/42sh"}
-TOTAL=0
-PASSED=0
-
 
 if [ "$COVERAGE" = "yes" ]; then
 
@@ -48,7 +43,7 @@ if [ "$COVERAGE" = "yes" ]; then
     gcc -I../src unit/lexer_tests.c ../src/lexer/*.c -o unit_tester
 
     if ./unit_tester; then
-        PASSED=$((PASSED + 1))
+        SUCCESS=$((SUCCESS + 1))
     fi
 
     TOTAL=$((TOTAL + 1))
@@ -57,12 +52,20 @@ fi
 
 #test fonctionels
 
-test_cmd "echo a;" "Test echo super simple"
-test_cmd "echo a; echo b" "Test echo double"
+test_cmd \
+	"echo a;" \
+	"a" \
+	"Test echo super simple"
 
-PERCENT=$(($SUCES * 100 / TOTAL))
-echo -e "${BBLU}Succeed:${GRN} $SUCES${WHT}"
-echo -e "${BBLU}Failed:${RED} $(($TOTAL - $SUCES))${WHT}"
+test_cmd \
+	"echo a; echo b" \
+	"a
+b" \
+	"Test echo double"
+
+PERCENT=$(($SUCCESS * 100 / $TOTAL))
+echo -e "${BBLU}Succeed:${GRN} $SUCCESS${WHT}"
+echo -e "${BBLU}Failed:${RED} $(($TOTAL - $SUCCESS))${WHT}"
 echo -e "${BBLU}Results:${BYEL} $PERCENT%${WHT}"
 
 if [ -n "$OUTPUT_FILE" ]; then
