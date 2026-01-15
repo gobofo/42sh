@@ -352,12 +352,12 @@ int execute_for(struct AST *root)
 
 int execute_or(struct AST *root)
 {
-	return !execute_node(root->children[0]) || !execute_node(root->children[1]);
+	return !(!execute_node(root->children[0]) || !execute_node(root->children[1]));
 }
 
 int execute_and(struct AST *root)
 {
-	return !execute_node(root->children[0]) && !execute_node(root->children[1]);
+	return !(!execute_node(root->children[0]) && !execute_node(root->children[1]));
 }
 
 
