@@ -128,7 +128,7 @@ void parser_print(struct AST *ast)
     if (ast == NULL)
         return;
     FILE *file_node = fopen("AST_node.txt", "w"); // ecrase le fichier
-    FILE *file_def_node = fopen("AST_def_node.txt", "w"); // ecrase le fichier
+    FILE *file_def_node = fopen("AST_def_node.dot", "w"); // ecrase le fichier
 
     add(file_def_node, "digraph Arbre {\n");
     add(file_def_node,
