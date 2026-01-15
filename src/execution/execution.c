@@ -1,16 +1,18 @@
 #include "execution.h"
 
-int execute_node(struct AST *root, struct env *env);
-int execute_list(struct AST *root, struct env *env);
+extern struct env *env;
+
+int execute_node(struct AST *root);
+int execute_list(struct AST *root);
 int execute_cmd(char **command);
 
-int do_redir(struct AST *root, struct AST **redir, struct env *env);
+int do_redir(struct AST *root, struct AST **redir);
 
 //#############
 //#   UTILS   #
 //#############
 
-int variable_assignation(struct AST *root, struct env *env)
+int variable_assignation(struct AST *root)
 {
 	char *key = strtok(root->content, "=");
 	char *value = strtok(NULL, "=");
@@ -32,7 +34,7 @@ int variable_assignation(struct AST *root, struct env *env)
  * @return		The command as a string
  */
 
-char **create_command(struct AST *root, struct env *env)
+char **create_command(struct AST *root)
 {
 	// Is free by caller
 	char **command = calloc(root->count_children + 1, sizeof(char *));
@@ -43,7 +45,7 @@ char **create_command(struct AST *root, struct env *env)
 	{
 		if (root->children[i]->rule == AST_VALUE)
 		{
-			expand(&root->children[i]->content, env);
+			expand(&root->children[i]->content);
 
 			command[idx++] = root->children[i]->content;
 		}
@@ -83,7 +85,7 @@ struct AST **create_redir(struct AST *root)
 // #   REDIRECTIONS   #
 // ####################
 
-int execute_redir(struct AST *root, struct AST **redir, struct env *env)
+int execute_redir(struct AST *root, struct AST **redir)
 {
 	int fd = -1;
 
@@ -101,39 +103,37 @@ int execute_redir(struct AST *root, struct AST **redir, struct env *env)
 
 	// IF FOR EACH REDIR
 	if (strcmp(content, ">") == 0 || strcmp(content, ">|") == 0)
-		status = redir_replace_in(root, redir, env, fd == -1 ? 1 : fd);
+		status = redir_replace_in(root, redir, fd == -1 ? 1 : fd);
 	else if (strcmp(content, ">>") == 0)
-		status = redir_append_in(root, redir, env, fd == -1 ? 1 : fd);
+		status = redir_append_in(root, redir, fd == -1 ? 1 : fd);
 	else if (strcmp(content, "<") == 0)
-		status = redir_read(root, redir, env, fd == -1 ? 0 : fd);
+		status = redir_read(root, redir, fd == -1 ? 0 : fd);
 	else if (strcmp(content, ">&") == 0)
-		status = redir_dup(root, redir, env, fd == -1 ? 1 : fd);
+		status = redir_dup(root, redir, fd == -1 ? 1 : fd);
 	else if (strcmp(content, "<&") == 0)
-		status = redir_dup(root, redir, env, fd == -1 ? 0 : fd);
+		status = redir_dup(root, redir, fd == -1 ? 0 : fd);
 	else if (strcmp(content, "<>") == 0)
-		status = redir_open(root, redir, env, fd == -1 ? 0 : fd);
+		status = redir_open(root, redir, fd == -1 ? 0 : fd);
 
 	free(tofree);
 
 	return status;
 }
 
-int do_redir(struct AST *root, struct AST **redir, struct env *env)
+int do_redir(struct AST *root, struct AST **redir)
 {
 	if (*redir)
-		return execute_redir(root, redir, env);
+		return execute_redir(root, redir);
 
 	if (root->rule == AST_SIMPLE_CMD)
 	{
-		char **command = create_command(root, env);
+		char **command = create_command(root);
 		int status = execute_cmd(command);
 		free(command);
 		return status;
 	}
 
-	// root->rule == AST_SHELL_COMMAND
-
-	return execute_node(root, env);
+	return execute_node(root);
 }
 
 // ###############################
@@ -157,26 +157,26 @@ int execute_cmd(char **command)
 	return status;
 }
 
-int execute_simple_cmd(struct AST *root, struct env *env)
+int execute_simple_cmd(struct AST *root)
 {
 	struct AST **redir = create_redir(root);
 
 	if (root->count_children == 1 &&
 			root->children[0]->rule == AST_ASSIGNEMENT)
-		return variable_assignation(root->children[0], env);
+		return variable_assignation(root->children[0]);
 
-	int status = do_redir(root, redir, env);
+	int status = do_redir(root, redir);
 
 	free(redir);
 
 	return status;
 }
 
-int execute_shell_cmd(struct AST *root, struct env *env)
+int execute_shell_cmd(struct AST *root)
 {
 	struct AST **redir = create_redir(root);
 
-	int status = do_redir(root->children[0], redir, env);
+	int status = do_redir(root->children[0], redir);
 
 	free(redir);
 
@@ -187,16 +187,16 @@ int execute_shell_cmd(struct AST *root, struct env *env)
 // #   CONDITIONS   #
 // ##################
 
-int execute_if(struct AST *root, struct env *env)
+int execute_if(struct AST *root)
 {
-	int condition = execute_node(root->children[0], env);
+	int condition = execute_node(root->children[0]);
 
 	int status = 0;
 
 	if (condition == 0)
-		status = execute_node(root->children[1], env);
+		status = execute_node(root->children[1]);
 	else if (root->count_children > 2)
-		status = execute_node(root->children[2], env);
+		status = execute_node(root->children[2]);
 
 	return status;
 }
@@ -205,33 +205,33 @@ int execute_if(struct AST *root, struct env *env)
 // #   LOOP   #
 // ############
 
-int execute_while(struct AST *root, struct env *env)
+int execute_while(struct AST *root)
 {
 	int status = 0;
 
-	while (execute_node(root->children[0], env))
-		status = execute_node(root->children[1], env);
+	while (execute_node(root->children[0]))
+		status = execute_node(root->children[1]);
 
 	return status;
 }
 
-int execute_until(struct AST *root, struct env *env)
+int execute_until(struct AST *root)
 {
 	int status = 0;
 
-	while (!execute_node(root->children[0], env))
-		status = execute_node(root->children[1], env);
+	while (!execute_node(root->children[0]))
+		status = execute_node(root->children[1]);
 
 	return status;
 }
 
-int execute_for(struct AST *root, struct env *env)
+int execute_for(struct AST *root)
 {
 	int exit_code = 0;
 	for (int i = 1; i < root->count_children - 1; i++)
 	{ // on va de deuxieme fils a l avant dernier
 	  // set value  variable : root->children[0]= root->children[i];
-		exit_code = execute_node(root->children[root->count_children - 1], env);
+		exit_code = execute_node(root->children[root->count_children - 1]);
 	}
 
 	return exit_code;
@@ -241,28 +241,28 @@ int execute_for(struct AST *root, struct env *env)
 // #   OPERATORS   #
 // #################
 
-int execute_or(struct AST *root, struct env *env)
+int execute_or(struct AST *root)
 {
-	return !(!execute_node(root->children[0], env)
-			|| !execute_node(root->children[1], env));
+	return !(!execute_node(root->children[0])
+			|| !execute_node(root->children[1]));
 }
 
-int execute_and(struct AST *root, struct env *env)
+int execute_and(struct AST *root)
 {
-	return !(!execute_node(root->children[0], env)
-			&& !execute_node(root->children[1], env));
+	return !(!execute_node(root->children[0])
+			&& !execute_node(root->children[1]));
 }
 
 // ############
 // #   LIST   #
 // ############
 
-int execute_list(struct AST *root, struct env *env)
+int execute_list(struct AST *root)
 {
 	int status = 0;
 
 	for (int i = 0; i < root->count_children; i++)
-		status = execute_node(root->children[i], env);
+		status = execute_node(root->children[i]);
 	return status;
 }
 
@@ -270,8 +270,7 @@ int execute_list(struct AST *root, struct env *env)
 // #   PIPELINE   #
 // ################
 
-static pid_t exec_fork(struct AST *root, struct env *env,
-		int input_pipe, int output_pipe)
+static pid_t exec_fork(struct AST *root, int input_pipe, int output_pipe)
 {
 	pid_t pid = fork();
 
@@ -294,20 +293,20 @@ static pid_t exec_fork(struct AST *root, struct env *env,
 		{
 			if (dup2(output_pipe, STDOUT_FILENO) == -1)
 			{
-				fprintf(stderr, "Err, envor: dup2\n");
+				fprintf(stderr, "Error: dup2\n");
 				return 1;
 			}
 			close(output_pipe);
 		}
 
-		int status = execute_node(root, env);
+		int status = execute_node(root);
 		exit(status);
 	}
 
 	return pid;
 }
 
-int execute_pipeline(struct AST *root, struct env *env)
+int execute_pipeline(struct AST *root)
 {
     int last_output = -1;
 
@@ -336,7 +335,7 @@ int execute_pipeline(struct AST *root, struct env *env)
 //        if (i != root->count_children - 1)
 //            output_pipe = fd[1];
 //
-        tab_pid[i] = exec_fork(root->children[i], env, input_pipe, output_pipe);
+        tab_pid[i] = exec_fork(root->children[i], input_pipe, output_pipe);
 
 		if (input_pipe != -1)
 			close(input_pipe);
@@ -367,39 +366,39 @@ int execute_pipeline(struct AST *root, struct env *env)
     return status;
 }
 
-int execute_node(struct AST *root, struct env *env)
+int execute_node(struct AST *root)
 {
     switch (root->rule)
     {
     case AST_LIST:
-        return execute_list(root, env);
+        return execute_list(root);
 
     case AST_SIMPLE_CMD:
-        return execute_simple_cmd(root, env);
+        return execute_simple_cmd(root);
 
     case AST_IF:
-        return execute_if(root, env);
+        return execute_if(root);
 
     case AST_WHILE:
-        return execute_while(root, env);
+        return execute_while(root);
 
     case AST_UNTIL:
-        return execute_until(root, env);
+        return execute_until(root);
 
     case AST_FOR:
-        return execute_for(root, env);
+        return execute_for(root);
 
     case AST_PIPELINE:
-        return execute_pipeline(root, env);
+        return execute_pipeline(root);
 
     case AST_OR:
-        return execute_or(root, env);
+        return execute_or(root);
 
     case AST_AND:
-        return execute_and(root, env);
+        return execute_and(root);
 
     case AST_SHELL_CMD:
-        return execute_shell_cmd(root, env);
+        return execute_shell_cmd(root);
 
         // Not supposed to get there but we never know
     default:
@@ -408,10 +407,10 @@ int execute_node(struct AST *root, struct env *env)
     }
 }
 
-int execute_ast(struct AST *root, struct env *env)
+int execute_ast(struct AST *root)
 {
     if (!root)
         return 1;
 
-    return execute_node(root, env);
+    return execute_node(root);
 }
