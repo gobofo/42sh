@@ -1,6 +1,6 @@
 #include "my_redir.h"
 
-int do_redir(char **command, struct AST **redir);
+int do_redir(struct AST *root, struct AST **redir);
 
 /**
  * @brief			Mimics the redirections > and >|
@@ -15,7 +15,7 @@ int do_redir(char **command, struct AST **redir);
  * @return			Succes or Failure (0 or 1)
  */
 
-int redir_replace_in(char **command, struct AST **redir, int fd)
+int redir_replace_in(struct AST *root, struct AST **redir, int fd)
 {
     int fd_file = open(redir[0]->children[1]->content,
                        O_CREAT | O_WRONLY | O_TRUNC, 0644);
@@ -29,7 +29,7 @@ int redir_replace_in(char **command, struct AST **redir, int fd)
     }
     close(fd_file);
 
-    int status = do_redir(command, redir + 1);
+    int status = do_redir(root, redir + 1);
 
     if (dup2(fd_save, fd) == -1)
     {
@@ -54,7 +54,7 @@ int redir_replace_in(char **command, struct AST **redir, int fd)
  * @return			Succes or Failure (0 or 1)
  */
 
-int redir_append_in(char **command, struct AST **redir, int fd)
+int redir_append_in(struct AST *root, struct AST **redir, int fd)
 {
     int fd_file = open(redir[0]->children[1]->content,
                        O_CREAT | O_WRONLY | O_APPEND, 0644);
@@ -68,7 +68,7 @@ int redir_append_in(char **command, struct AST **redir, int fd)
     }
     close(fd_file);
 
-    int status = do_redir(command, redir + 1);
+    int status = do_redir(root, redir + 1);
 
     if (dup2(fd_save, fd) == -1)
     {
@@ -93,7 +93,7 @@ int redir_append_in(char **command, struct AST **redir, int fd)
  * @return			Succes or Failure (0 or 1)
  */
 
-int redir_read(char **command, struct AST **redir, int fd)
+int redir_read(struct AST *root, struct AST **redir, int fd)
 {
     int fd_file = open(redir[0]->children[1]->content, O_RDONLY);
 
@@ -106,7 +106,7 @@ int redir_read(char **command, struct AST **redir, int fd)
     }
     close(fd_file);
 
-    int status = do_redir(command, redir + 1);
+    int status = do_redir(root, redir + 1);
 
     if (dup2(fd_save, fd) == -1)
     {
@@ -133,7 +133,7 @@ int redir_read(char **command, struct AST **redir, int fd)
  * @return			Succes or Failure (0 or 1)
  */
 
-int redir_dup(char **command, struct AST **redir, int fd)
+int redir_dup(struct AST *root, struct AST **redir, int fd)
 {
     char *word = redir[0]->children[1]->content;
 
@@ -164,7 +164,7 @@ int redir_dup(char **command, struct AST **redir, int fd)
         }
     }
 
-    int status = do_redir(command, redir + 1);
+    int status = do_redir(root, redir + 1);
 
     if (dup2(fd_save, fd) == -1)
     {
@@ -190,7 +190,7 @@ int redir_dup(char **command, struct AST **redir, int fd)
  * @return			Succes or Failure (0 or 1)
  */
 
-int redir_open(char **command, struct AST **redir, int fd)
+int redir_open(struct AST *root, struct AST **redir, int fd)
 {
     int fd_file = open(redir[0]->children[1]->content, O_RDWR | O_CREAT, 0644);
 
@@ -203,7 +203,7 @@ int redir_open(char **command, struct AST **redir, int fd)
     }
     close(fd_file);
 
-    int status = do_redir(command, redir + 1);
+    int status = do_redir(root, redir + 1);
 
     if (dup2(fd_save, fd) == -1)
     {
