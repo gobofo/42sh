@@ -1,5 +1,5 @@
-#ifndef EXECUTE_COMMAND_H 
-#define EXECUTE_COMMAND_H 
+#ifndef EXECUTE_COMMAND_H
+#define EXECUTE_COMMAND_H
 
 #include <err.h>
 #include <errno.h>

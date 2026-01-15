@@ -10,12 +10,12 @@
 int main(int argc, char *argv[])
 {
     // PRETTY PRINT A ACTIVER AVEC PRETTY_PRINT=1 dans le terminal
-    int pretty_print=0;
+    int pretty_print = 0;
     char *pretty_print_value = getenv("PRETTY_PRINT");
-    if(pretty_print_value){
-      pretty_print=(atoi(pretty_print_value)==1);
+    if (pretty_print_value)
+    {
+        pretty_print = (atoi(pretty_print_value) == 1);
     }
-
 
     FILE *file = getInputFile(argc, argv);
 
@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
         return 2;
     }
 
-	int exit_code = 0;
+    int exit_code = 0;
 
     struct token *tok = get_token(file);
     while (1)
@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
                 return 2;
             }
         }
-        if(pretty_print)
-          parser_print(ast);
+        if (pretty_print)
+            parser_print(ast);
         exit_code = execute_ast(ast);
 
         destroy_AST(ast);
