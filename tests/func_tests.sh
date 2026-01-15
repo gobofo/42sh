@@ -1,22 +1,5 @@
 #!/bin/bash
 
-BIN_PATH=${BIN_PATH:-"$(pwd)/../src/42sh"}
-TOTAL=0
-PASSED=0
-
-if [ "$COVERAGE" = "yes" ]; then #
-    echo "Running Unit Tests..."
-    # Compile manually to avoid Criterion dependency
-    gcc -I../src unit/lexer_tests.c ../src/lexer/*.c -o unit_tester
-    if ./unit_tester; then
-        PASSED=$((PASSED + 1))
-    fi
-    TOTAL=$((TOTAL + 1))
-fi
-
-# 3. Run Functional Tests (Always)
-echo "Running Functional Tests..."
-
 #----------------- COLOR -----------------#
 # 0 - No style | 1 - Bold
 RED="\e[0;31m"
@@ -35,11 +18,12 @@ SUCES=0
 #    exit 1
 #fi
 
-test_cmd() {
+test_cmd()
+{
     TOTAL=$((TOTAL + 1))
     
     local expected=$(timeout $TIMEOUT bash --posix -c "$1" 2>&1)
-    local actual=$(timeout $TIMEOUT ./src/42sh -c "$1" 2>&1) #$BIN_PATH
+    local actual=$(timeout $TIMEOUT ./../src/42sh -c "$1" 2>&1)
 
 	if [ "$expected" = "$actual" ]; then
 		echo -e "${GRN}$2${WHT}"
@@ -52,9 +36,23 @@ test_cmd() {
 
 }
 
+BIN_PATH=${BIN_PATH:-"$(pwd)/../src/42sh"}
+TOTAL=0
+PASSED=0
+
+
 if [ "$COVERAGE" = "yes" ]; then
-    #test unitaires
-	echo "unitaire test"
+
+	echo "Unit Test"
+
+    gcc -I../src unit/lexer_tests.c ../src/lexer/*.c -o unit_tester
+
+    if ./unit_tester; then
+        PASSED=$((PASSED + 1))
+    fi
+
+    TOTAL=$((TOTAL + 1))
+
 fi
 
 #test fonctionels
