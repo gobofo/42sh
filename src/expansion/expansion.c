@@ -27,6 +27,8 @@ int expand(char **value)
 
 			if (str[i] == '\'')
 				i++;
+
+			continue;
 		}
 		else if (str[i] == '"')
 		{
@@ -79,6 +81,8 @@ int expand(char **value)
 
 			if (str[i] == '"')
 				i++;
+
+			continue;
 		}
 		else
 		{
