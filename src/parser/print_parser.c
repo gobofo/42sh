@@ -9,6 +9,25 @@ char *get_string_of_node(struct AST *ast)
 {
     switch (ast->rule)
     {
+    case AST_SHELL_CMD:
+      return "SHELL_CMD";
+    case AST_WHILE:
+      return "WHILE";
+    case AST_UNTIL:
+        return "UNTIL";
+    case AST_FOR:
+       return "FOR";
+    case AST_AND:
+         return "AND";
+    case AST_OR:
+         return "OR";
+
+    case AST_PIPELINE:
+        return "PIPELINE";
+
+    case AST_REDIR:
+        return "REDIR";
+
     case AST_IF:
         return "IF";
     case AST_SIMPLE_CMD:
@@ -16,6 +35,9 @@ char *get_string_of_node(struct AST *ast)
     case AST_LIST:
         return "LIST";
     case AST_VALUE:
+        return ast->content;
+
+    case AST_ASSIGNEMENT:
         return ast->content;
     default:
         return "";
@@ -33,11 +55,30 @@ char *get_color_of_node(struct AST *ast)
         return "#3498DB";
     case AST_VALUE:
         return "#ECF0F1";
+    case AST_PIPELINE:
+        return "#9B59B6";
+
+    case AST_AND:
+        return "#F1C40F";
+    case AST_OR:
+        return "#F1C40F";
+
+    case AST_REDIR:
+        return "#E67E22";
+
+    case AST_UNTIL:
+        return "#1ABC9C";
+    case AST_WHILE:
+        return "#1ABC9C";
+    case AST_FOR:
+        return "#1ABC9C";
+    case AST_SHELL_CMD:
+        return "#E74C3C";
+
     default:
         return "";
     }
 }
-
 char *next(int suivant)
 {
     static int c = 1;
@@ -87,7 +128,7 @@ void parser_print(struct AST *ast)
     if (ast == NULL)
         return;
     FILE *file_node = fopen("AST_node.txt", "w"); // ecrase le fichier
-    FILE *file_def_node = fopen("AST_def_node.txt", "w"); // ecrase le fichier
+    FILE *file_def_node = fopen("AST_def_node.dot", "w"); // ecrase le fichier
 
     add(file_def_node, "digraph Arbre {\n");
     add(file_def_node,

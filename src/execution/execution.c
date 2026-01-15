@@ -192,11 +192,13 @@ int execute_until(struct AST *root)
 
 int execute_for(struct AST *root)
 {
-    // TODO - Implement the function
-    if (root)
-        return 0;
+    int exit_code =0;
+    for(int i=1;i<root->count_children-1;i++){ // on va de deuxieme fils a l avant dernier 
+        // set value  variable : root->children[0]= root->children[i];
+        exit_code = execute_node(root->children[root->count_children-1]);
+    }
 
-    return 1;
+	return exit_code;
 }
 
 //#################
@@ -205,12 +207,12 @@ int execute_for(struct AST *root)
 
 int execute_or(struct AST *root)
 {
-    return execute_node(root->children[0]) || execute_node(root->children[1]);
+	return !(!execute_node(root->children[0]) || !execute_node(root->children[1]));
 }
 
 int execute_and(struct AST *root)
 {
-    return execute_node(root->children[0]) && execute_node(root->children[1]);
+	return !(!execute_node(root->children[0]) && !execute_node(root->children[1]));
 }
 
 //############
@@ -226,26 +228,82 @@ int execute_list(struct AST *root)
     return status;
 }
 
-//################
-//#   PIPELINE   #
-//################
+// ################
+// #   PIPELINE   #
+// ################
+//
+static pid_t exec_fork(struct AST *root , int intput_pipe,int output_pipe){
+  pid_t pid = fork();
+  if(pid !=0){
+    return pid;
+  }
+  if(intput_pipe!=-1){
+    if( dup2(intput_pipe, STDIN_FILENO) == -1){
+      fprintf(stderr,"Error: dup2\n");
+      return 1;
+    }
+    close(intput_pipe);
+  }
+  if(output_pipe!=-1){
+    if( dup2(output_pipe, STDOUT_FILENO) == -1){
+      fprintf(stderr,"Error: dup2\n");
+      return 1;
+
+    }
+    close(output_pipe);
+  }
+  exit(execute_node(root));
+}
+
+
 int execute_pipeline(struct AST *root)
 {
-    int negation = 0;
+  int last_output=-1;
 
-    int status = 0;
+  pid_t* tab_pid= malloc(root->count_children*sizeof(pid_t));
 
-    for (int i = 0; i < root->count_children; i++)
-    {
-        negation = root->children[i]->is_neg % 2;
+  for(int i=0;i<root->count_children;i++){
+    int fd[2];
+    if(i< root->count_children-1){
+      if(pipe(fd) == -1){
+        free(tab_pid);
+        fprintf(stderr,"Error: pipe\n");
+        return 1;
+      }
+    }
+    int intput_pipe=-1;
+    int output_pipe=-1;
 
-        status = execute_node(root->children[i]);
+    if(i!=0){
+      intput_pipe=last_output;
+    }
+    if(i != root->count_children-1){
+      output_pipe=fd[1];
     }
 
-    if (negation)
-        return !status;
+    tab_pid[i] = exec_fork(root->children[i],intput_pipe,output_pipe);
+    if(last_output !=-1)
+      close(last_output);
 
-    return status;
+
+    if(i < root->count_children -1){
+      close(fd[1]);
+      last_output=fd[0];
+    }
+
+
+  }
+  int wstatus;
+  for(int i =0;i<root->count_children;i++){
+    waitpid(tab_pid[i],&wstatus,0);
+  }
+  int res=  WEXITSTATUS(wstatus);
+  free(tab_pid);
+  return res;
+}
+int execute_shell_cmd(struct AST *root){
+  return execute_node(root->children[0]);
+  // redir a gere ici !!!
 }
 
 int execute_node(struct AST *root)
