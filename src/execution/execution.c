@@ -278,9 +278,9 @@ int execute_pipeline(struct AST *root)
 {
     if(root->count_children==1){
       if(root->is_neg){
-        return !execute_node(root);
+        return !execute_node(root->children[0]);
       }
-      return execute_node(root);
+      return execute_node(root->children[0]);
     }
 	int last_output=-1;
 
