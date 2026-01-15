@@ -45,9 +45,9 @@ char **create_command(struct AST *root)
 	{
 		if (root->children[i]->rule == AST_VALUE)
 		{
-			expand(&root->children[i]->content);
+			char *expanded_value = expand(&root->children[i]->content);
 
-			command[idx++] = root->children[i]->content;
+			command[idx++] = expanded_value;
 		}
 	}
 
@@ -213,7 +213,7 @@ int execute_while(struct AST *root)
 {
 	int status = 0;
 
-	while (execute_node(root->children[0]))
+	while (!execute_node(root->children[0]))
 		status = execute_node(root->children[1]);
 
 	return status;
@@ -223,7 +223,7 @@ int execute_until(struct AST *root)
 {
 	int status = 0;
 
-	while (!execute_node(root->children[0]))
+	while (execute_node(root->children[0]))
 		status = execute_node(root->children[1]);
 
 	return status;
@@ -231,13 +231,14 @@ int execute_until(struct AST *root)
 
 int execute_for(struct AST *root)
 {
-	int exit_code =0;
-	for(int i=1;i<root->count_children-1;i++){ // on va de deuxieme fils a l avant dernier 
-											   // set value  variable : root->children[0]= root->children[i];
-		exit_code = execute_node(root->children[root->count_children-1]);
-	}
+    int exit_code =0;
+    for(int i=1;i<root->count_children-1;i++){ // on va de deuxieme fils a l avant dernier 
+        bool updated=1;
+        hash_map_insert(env->variables, root->children[0]->content,root->children[i]->content, &updated);
+        exit_code = execute_node(root->children[root->count_children-1]);
+    }
 
-	return exit_code;
+    return exit_code;
 }
 
 //#################
