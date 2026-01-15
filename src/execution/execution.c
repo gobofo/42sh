@@ -276,6 +276,12 @@ static pid_t exec_fork(struct AST *root , int intput_pipe,int output_pipe){
 
 int execute_pipeline(struct AST *root)
 {
+    if(root->count_children==1){
+      if(root->is_neg){
+        return !execute_node(root);
+      }
+      return execute_node(root);
+    }
 	int last_output=-1;
 
 	pid_t* tab_pid= malloc(root->count_children*sizeof(pid_t));
