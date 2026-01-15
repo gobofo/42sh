@@ -1,10 +1,27 @@
 #include "execution.h"
 
+extern struct env *env;
+
 int execute_node(struct AST *root);
 int execute_list(struct AST *root);
 int execute_cmd(char **command);
 
 int do_redir(struct AST *root, struct AST **redir);
+
+//#############
+//#   UTILS   #
+//#############
+
+int variable_assignation(struct AST *root)
+{
+	char *key = strtok(root->content, "=");
+	char *value = strtok(NULL, "=");
+
+	bool updated;
+	hash_map_insert(env->variables, key, value, &updated);	
+
+	return 0;
+}
 
 /**
  * @brief 		Creates the command with children from a node
@@ -146,6 +163,10 @@ int execute_cmd(char **command)
 int execute_simple_cmd(struct AST *root)
 {
 	struct AST **redir = create_redir(root);
+
+	if (root->count_children == 1 &&
+			root->children[0]->rule == AST_ASSIGNEMENT)
+		return variable_assignation(root->children[0]);
 
 	int status = do_redir(root, redir);
 
