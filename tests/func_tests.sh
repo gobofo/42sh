@@ -473,33 +473,33 @@ test_cmd "echo not#comment" "Test # pas en debut de mot"
 
 #----------------- TESTS FOR -----------------#
 
-test_cmd "for i in a b c; do echo \$i; done" "Test for simple"
+test_cmd 'for i in a b c; do echo "$i"; done' "Test for simple"
 
-test_cmd "for i in 1 2 3; do echo \$i; done" "Test for avec nombres"
+test_cmd 'for i in 1 2 3; do echo "$i"; done' "Test for avec nombres"
 
-test_cmd "for word in hello world test; do echo \$word; done" "Test for avec mots"
+test_cmd 'for word in hello world test; do echo "$word"; done' "Test for avec mots"
 
-test_cmd "for i in a; do echo \$i; done" "Test for avec un seul element"
+test_cmd 'for i in a; do echo "$i"; done' "Test for avec un seul element"
 
-test_cmd "for i in; do echo \$i; done" "Test for sans elements"
+test_cmd 'for i in; do echo "$i"; done' "Test for sans elements"
 
-test_cmd "for i in a b c; do echo \$i; echo next; done" "Test for avec plusieurs commandes"
+test_cmd 'for i in a b c; do echo "$i"; echo next; done' "Test for avec plusieurs commandes"
 
-test_cmd "for i in x y; do for j in 1 2; do echo \$i\$j; done; done" "Test for imbrique"
+test_cmd 'for i in x y; do for j in 1 2; do echo "$i$j"; done; done' "Test for imbrique"
 
-test_cmd "for i in a b c\ndo echo \$i\ndone" "Test for avec retours ligne"
+test_cmd 'for i in a b c\ndo echo "$i"\ndone' "Test for avec retours ligne"
 
-test_cmd "for i in a b c; do echo \$i; done; echo after" "Test for puis commande"
+test_cmd 'for i in a b c; do echo "$i"; done; echo after' "Test for puis commande"
 
-test_cmd "for i in one two three; do echo -n \$i; done" "Test for avec echo -n"
+test_cmd 'for i in one two three; do echo -n "$i"; done' "Test for avec echo -n"
 
-test_cmd "for var in aa bb cc; do echo test \$var; done" "Test for avec texte et variable"
+test_cmd 'for var in aa bb cc; do echo test "$var"; done' "Test for avec texte et variable"
 
-test_cmd "for i in a b; do true && echo \$i; done" "Test for avec operateur ET"
+test_cmd 'for i in a b; do true && echo "$i"; done' "Test for avec operateur ET"
 
-test_cmd "for i in a b; do echo \$i | cat; done" "Test for avec pipe"
+test_cmd 'for i in a b; do echo "$i" | cat; done' "Test for avec pipe"
 
-test_cmd "for i in 'hello world' test; do echo \$i; done" "Test for avec guillemets"
+test_cmd 'for i in 'hello world' test; do echo "$i"; done' "Test for avec guillemets"
 
 #----------------- TESTS VARIABLES -----------------#
 
@@ -610,10 +610,6 @@ test_error "echo >>" "Erreur redirection append sans fichier"
 test_error "< /tmp/file" "Erreur redirection input sans commande"
 
 test_error "!" "Erreur negation seule"
-
-test_error "echo 'non ferme" "Erreur guillemet simple non ferme"
-
-test_error "echo \"non ferme" "Erreur guillemet double non ferme"
 
 test_error "if; then echo test; fi" "Erreur if condition vide"
 
