@@ -146,6 +146,9 @@ int execute_simple_cmd(struct AST *root)
 {
     struct AST **redir = create_redir(root);
 
+	if (root->count_children == 1 && root->children[0]->rule == AST_ASSIGEMENT)
+		return variable_assignation(root->children[0], struct env *env);
+
     int status = do_redir(root, redir);
 
     free(redir);
@@ -216,6 +219,21 @@ int execute_for(struct AST *root)
     }
 
     return exit_code;
+}
+
+//#################
+//#   VARIABLES   #
+//#################
+
+int variable_assignation(struct AST *root, struct *env env)
+{
+	char *key = strtok(root->content, "=");
+	char *value = strtok(NULL, "=");
+
+	bool updated;
+	hash_map_insert(env->variables, key, value, &updated);	
+
+	return 0;
 }
 
 // #################

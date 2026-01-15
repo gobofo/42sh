@@ -27,7 +27,7 @@ struct hash_map *hash_map_init(size_t size)
     return map;
 }
 
-bool hash_map_insert(struct hash_map *hash_map, const char *key, char *value,
+bool hash_map_insert(struct hash_map *hash_map, char *key, char *value,
                      bool *updated)
 {
     if (!hash_map || hash_map->size == 0 || !key)
@@ -39,8 +39,8 @@ bool hash_map_insert(struct hash_map *hash_map, const char *key, char *value,
     if (!new_pair)
         return false;
 
-    new_pair->key = key;
-    new_pair->value = value;
+    new_pair->key = strdup(key);
+    new_pair->value = strdup(value);
 
     // No key in the table
     if (!hash_map->data[h])
@@ -61,7 +61,10 @@ bool hash_map_insert(struct hash_map *hash_map, const char *key, char *value,
         }
         else
         {
-            hash_map->data[h]->value = value;
+            hash_map->data[h]->value = strdup(value);
+
+			free(new_pair->value);
+			free(new_pair->key);
             free(new_pair);
 
             if (updated)
@@ -92,6 +95,9 @@ void hash_map_free(struct hash_map *hash_map)
             while (node)
             {
                 struct pair_list *temp = node;
+				
+				free(temp->key);
+				free(temp->data);
 
                 node = node->next;
                 free(temp);
@@ -184,12 +190,18 @@ bool hash_map_remove(struct hash_map *hash_map, const char *key)
         if (!prev)
         {
             hash_map->data[h] = node->next;
+
+			free(node->key);
+			free(node->value);
             free(node);
             return true;
         }
 
         prev->next = node->next;
-        free(node);
+
+		free(node->key);
+		free(node->value);
+		free(node);
     }
     else // Key does not exist at the current hash value
         return false;

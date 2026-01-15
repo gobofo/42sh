@@ -4,7 +4,7 @@
 /*
 ** Hash the key using FNV-1a 32 bits hash algorithm.
 */
-size_t hash(const char *key)
+size_t hash(char *key)
 {
     if (!key)
         return 0;
