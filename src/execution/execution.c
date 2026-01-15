@@ -4,7 +4,7 @@ int execute_node(struct AST *root);
 int execute_list(struct AST *root);
 int execute_cmd(char **command);
 
-int do_redir(char **command, struct AST **redir);
+int do_redir(struct AST *root, struct AST **redir);
 
 /**
  * @brief 		Creates the command with children from a node
@@ -68,7 +68,7 @@ struct AST **create_redir(struct AST *root)
 // #   REDIRECTIONS   #
 // ####################
 
-int execute_redir(char **command, struct AST **redir)
+int execute_redir(struct AST * root, struct AST **redir)
 {
 	int fd = -1;
 
@@ -86,29 +86,40 @@ int execute_redir(char **command, struct AST **redir)
 
 	// IF FOR EACH REDIR
 	if (strcmp(content, ">") == 0 || strcmp(content, ">|") == 0)
-		status = redir_replace_in(command, redir, fd == -1 ? 1 : fd);
+		status = redir_replace_in(root, redir, fd == -1 ? 1 : fd);
 	else if (strcmp(content, ">>") == 0)
-		status = redir_append_in(command, redir, fd == -1 ? 1 : fd);
+		status = redir_append_in(root, redir, fd == -1 ? 1 : fd);
 	else if (strcmp(content, "<") == 0)
-		status = redir_read(command, redir, fd == -1 ? 0 : fd);
+		status = redir_read(root, redir, fd == -1 ? 0 : fd);
 	else if (strcmp(content, ">&") == 0)
-		status = redir_dup(command, redir, fd == -1 ? 1 : fd);
+		status = redir_dup(root, redir, fd == -1 ? 1 : fd);
 	else if (strcmp(content, "<&") == 0)
-		status = redir_dup(command, redir, fd == -1 ? 0 : fd);
+		status = redir_dup(root, redir, fd == -1 ? 0 : fd);
 	else if (strcmp(content, "<>") == 0)
-		status = redir_open(command, redir, fd == -1 ? 0 : fd);
+		status = redir_open(root, redir, fd == -1 ? 0 : fd);
 
 	free(tofree);
 
 	return status;
 }
 
-int do_redir(char **command, struct AST **redir)
+int do_redir(struct AST *root, struct AST **redir)
 {
 	if (*redir)
-		return execute_redir(command, redir);
+		return execute_redir(root, redir);
 
-	return execute_cmd(command);
+
+	if(root->rule==AST_SIMPLE_CMD){
+
+		char **command = create_command(root);
+		int status = execute_cmd(command);
+		free(command);
+		return status;
+	}
+
+	// root->rule == AST_SHELL_COMMAND
+	
+	return execute_node(root);
 }
 
 //###############################
@@ -134,13 +145,10 @@ int execute_cmd(char **command)
 
 int execute_simple_cmd(struct AST *root)
 {
-	char **command = create_command(root);
-
 	struct AST **redir = create_redir(root);
 
-	int status = do_redir(command, redir);
+	int status = do_redir(root, redir);
 
-	free(command);
 	free(redir);
 
 	return status;
@@ -148,7 +156,14 @@ int execute_simple_cmd(struct AST *root)
 
 int execute_shell_cmd(struct AST *root)
 {
-	return execute_node(root->children[0]);
+
+	struct AST **redir = create_redir(root);
+
+	int status = do_redir(root->children[0], redir);
+
+	free(redir);
+
+	return status;
 }
 
 //##################
