@@ -4,7 +4,7 @@
 
 extern struct env *env;
 
-int expand(char **value)
+char *expand(char **value)
 {
 	size_t size;
 
@@ -27,6 +27,8 @@ int expand(char **value)
 
 			if (str[i] == '\'')
 				i++;
+
+			continue;
 		}
 		else if (str[i] == '"')
 		{
@@ -79,6 +81,8 @@ int expand(char **value)
 
 			if (str[i] == '"')
 				i++;
+
+			continue;
 		}
 		else
 		{
@@ -89,9 +93,6 @@ int expand(char **value)
 	}
 
     fclose(stream);
-    free(*value);
 
-    *value = buffer;
-
-    return 0;
+    return buffer;
 }
