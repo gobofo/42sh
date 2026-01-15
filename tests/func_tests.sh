@@ -11,11 +11,16 @@ TIMEOUT=5
 TOTAL=0
 SUCES=0
 
+if [ -z "$BIN_PATH" ]; then
+    echo "Error: BIN_PATH not set"
+    exit 1
+fi
+
 test_cmd() {
     TOTAL=$((TOTAL + 1))
     
     local expected=$(timeout $TIMEOUT bash --posix -c "$1" 2>&1)
-    local actual=$(timeout $TIMEOUT ./src/42sh -c "$1" 2>&1)
+    local actual=$(timeout $TIMEOUT "$BIN_PATH" -c "$1" 2>&1)
 
 	if [ "$expected" = "$actual" ]; then
 		echo -e "${GRN}$2${WHT}"
@@ -28,6 +33,12 @@ test_cmd() {
 
 }
 
+if [ "$COVERAGE" = "yes" ]; then
+    #test unitaires
+fi
+
+#test fonctionels
+
 test_cmd "echo a;" "Test echo super simple"
 
 PERCENT=$(($SUCES * 100 / TOTAL))
@@ -38,3 +49,5 @@ echo -e "${BBLU}Results:${BYEL} $PERCENT%${WHT}"
 if [ -n "$OUTPUT_FILE" ]; then
     echo "$PERCENT" > "$OUTPUT_FILE"
 fi
+
+exit(0)
