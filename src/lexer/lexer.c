@@ -155,7 +155,7 @@ void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
 {
     fflush(*stream);
 
-    if (size == 0)
+    if (*size == 0)
     {
         while ((*c = fgetc(file)) != EOF && *c != '\n')
             ;
