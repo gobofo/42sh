@@ -1,5 +1,7 @@
 #include "my_redir.h"
 
+int do_redir(char **command, struct AST **redir);
+
 /**
  * @brief			Mimics the redirections > and >|
  *
