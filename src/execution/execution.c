@@ -339,11 +339,13 @@ int execute_until(struct AST *root)
 
 int execute_for(struct AST *root)
 {
-	// TODO - Implement the function
-	if (root)
-		return 0;
+    int exit_code =0;
+    for(int i=1;i<root->count_children-1;i++){ // on va de deuxieme fils a l avant dernier 
+        // set value  variable : root->children[0]= root->children[i];
+        exit_code = execute_node(root->children[root->count_children-1]);
+    }
 
-	return 1;
+	return exit_code;
 }
 
 // #################
@@ -446,6 +448,10 @@ int execute_pipeline(struct AST *root)
   int res=  WEXITSTATUS(wstatus);
   free(tab_pid);
   return res;
+}
+int execute_shell_cmd(struct AST *root){
+  return execute_node(root->children[0]);
+  // redir a gere ici !!!
 }
 
 int execute_node(struct AST *root)
