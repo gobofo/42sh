@@ -15,7 +15,13 @@ int do_redir(struct AST *root, struct AST **redir);
 int variable_assignation(struct AST *root)
 {
 	char *key = strtok(root->content, "=");
-	char *value = strtok(NULL, "=");
+	char *value = strtok(NULL, "= ");
+
+	if (value == NULL){
+
+		value = "";
+
+	}
 
 	bool updated;
 	hash_map_insert(env->variables, key, value, &updated);	
@@ -213,7 +219,7 @@ int execute_while(struct AST *root)
 {
 	int status = 0;
 
-	while (execute_node(root->children[0]))
+	while (!execute_node(root->children[0]))
 		status = execute_node(root->children[1]);
 
 	return status;
@@ -223,7 +229,7 @@ int execute_until(struct AST *root)
 {
 	int status = 0;
 
-	while (!execute_node(root->children[0]))
+	while (execute_node(root->children[0]))
 		status = execute_node(root->children[1]);
 
 	return status;
