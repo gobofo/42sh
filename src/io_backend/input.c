@@ -4,7 +4,7 @@
 
 #include <string.h>
 
-FILE *getInputFile(int argc, char *argv[])
+FILE *get_input_file(int argc, char *argv[])
 {
     if (argc == 1)
         return stdin;

@@ -2,36 +2,87 @@
 
 #include "expansion.h"
 
-int expand(char **value)
+int expand(char **value, struct env *env)
 {
-    char *p = *value;
-    char *buff;
+	size_t size;
 
-    size_t size;
+	char *str = *value;
+	char *buffer;
 
-    FILE *stream = open_memstream(&buff, &size);
+	FILE *stream = open_memstream(&buffer, &size);
 
-    while (*p)
-    {
-        if (*p != '\'')
-            fputc(*p, stream);
+	for (size_t i = 0; str[i] != '\0'; i++)
+	{
+		if (str[i] == '\'')
+		{
+			// Pass the opening quote
+			i++;
 
-        if (*p == 0)
-            goto error;
+			while (str[i] != '\0' && str[i] != '\'')
+				fputc(str[i++], stream);
+		}
+		else if (str[i] == '"')
+		{
+			// Pass the opening quote
+			i++;
 
-        p++;
-    }
+			printf("%c\n", str[i]);
+
+			while (str[i] != '\0' && str[i] != '"')
+			{
+				if (str[i] == '$')
+				{
+					// Pass the $ and get to nect character
+					i++;
+
+					char *var_name;
+					size_t var_len;
+
+					FILE *var = open_memstream(&var_name, &var_len);	
+
+					if (str[i] == '{')
+					{
+						// Pass the {
+						i++;
+
+						while (str[i] != '\0' && str[i] != '}')
+							fputc(str[i++], var);
+
+						if (str[i] == '}')
+							i++;
+					}
+					else
+					{
+						while(str[i] != '\0'
+								&& (isalnum(str[i]) || str[i] == '_'))
+							fputc(str[i++], var);
+					}
+
+					fclose(var);
+					char *var_value = hash_map_get(env->variables, var_name);
+
+					if (var_value)
+						fputs(var_value, stream);
+					printf("\nVAR VALUE: %s\n\n", var_value);
+
+					free(var_name);
+				}
+				else
+				{
+					fputc(str[i++], stream);
+				}
+			}
+		}
+		else
+		{
+			fputc(str[i], stream);
+		}
+	}
 
     fclose(stream);
     free(*value);
 
-    *value = buff;
+    *value = buffer;
 
     return 0;
-
-error:
-    fclose(stream);
-    free(buff);
-
-    return 1;
 }

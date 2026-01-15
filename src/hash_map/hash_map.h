@@ -1,6 +1,8 @@
 #ifndef HASH_MAP_H
 #define HASH_MAP_H
 
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -26,7 +28,7 @@ bool hash_map_insert(struct hash_map *hash_map, char *key, char *value,
 void hash_map_free(struct hash_map *hash_map);
 void hash_map_dump(struct hash_map *hash_map);
 
-const char *hash_map_get(const struct hash_map *hash_map, char *key);
+char *hash_map_get(const struct hash_map *hash_map, char *key);
 
 bool hash_map_remove(struct hash_map *hash_map, char *key);
 
