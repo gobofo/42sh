@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <time.h>
 
 #include "ast/ast.h"
 #include "execution/execution.h"
@@ -12,6 +13,10 @@ struct env *env;
 
 int main(int argc, char *argv[])
 {
+	// Ensure random numbers for $RANDOM for two shells launched at the same
+	// time
+	srand(time(NULL) ^ getpid());
+
     // PRETTY PRINT A ACTIVER AVEC PRETTY_PRINT=1 dans le terminal
     int pretty_print = 0;
 
@@ -28,9 +33,7 @@ int main(int argc, char *argv[])
         return 2;
     }
 
-	env = init_env();
-
-    int exit_code = 0;
+	env = init_env(argc, argv);
 
     struct token *tok = get_token(file);
     while (1)
@@ -38,9 +41,7 @@ int main(int argc, char *argv[])
         struct AST *ast;
 
         if (tok == NULL)
-        {
             ast = create_ast(AST_LIST, NULL);
-        }
 
         else
         {
@@ -52,10 +53,11 @@ int main(int argc, char *argv[])
                 return 2;
             }
         }
+
         if (pretty_print)
             parser_print(ast);
 
-        exit_code = execute_ast(ast);
+        env->last_exit_code = execute_ast(ast);
 
         destroy_AST(ast);
 
@@ -65,5 +67,5 @@ int main(int argc, char *argv[])
         tok = get_token(NULL);
     }
 
-    return exit_code;
+    return env->last_exit_code;
 }
