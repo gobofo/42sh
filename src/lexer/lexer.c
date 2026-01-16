@@ -77,7 +77,8 @@ static struct token *flush_stream(FILE *stream, char **buffer)
  * @return			The token before the delim
  */
 
-struct token *empty_stream(FILE *file, FILE **stream, char **buffer, char c)
+static struct token *empty_stream(FILE *file, FILE **stream, char **buffer,
+                                  char c)
 {
     ungetc(c, file);
 
@@ -99,42 +100,42 @@ struct token *empty_stream(FILE *file, FILE **stream, char **buffer, char c)
  * @param c			The start of the quoting token
  */
 
-void handle_quotes(FILE *file, FILE **stream, int *c)
+static void handle_quotes(FILE *file, FILE **stream, int *c)
 {
     int open_quote = *c;
 
     fputc(*c, *stream);
 
     while ((*c = fgetc(file)) != EOF && *c != open_quote)
-	{
-		if (*c == '\\' && open_quote == '"')
-		{
-			int next = fgetc(file);
+    {
+        if (*c == '\\' && open_quote == '"')
+        {
+            int next = fgetc(file);
 
-			if (next != EOF)
-			{
-				if (next == '$' || next == '`' || next == '"' || next == '\\'
-						|| next == '\n')
-				{
-					fputc('\\', *stream);
-					fputc(next, *stream);
-				}
-				else
-				{
-					fputc('\\', *stream);
-					ungetc(next, file);
-				}
-			}
-		}
+            if (next != EOF)
+            {
+                if (next == '$' || next == '`' || next == '"' || next == '\\'
+                    || next == '\n')
+                {
+                    fputc('\\', *stream);
+                    fputc(next, *stream);
+                }
+                else
+                {
+                    fputc('\\', *stream);
+                    ungetc(next, file);
+                }
+            }
+        }
 
         fputc(*c, *stream);
 
-		if (*c == open_quote)
-		{
-			*c = -2;
-			return;
-		}
-	}
+        if (*c == open_quote)
+        {
+            *c = -2;
+            return;
+        }
+    }
 }
 
 /**
@@ -151,7 +152,7 @@ void handle_quotes(FILE *file, FILE **stream, int *c)
  * @param c			The start of the quoting token
  */
 
-void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
+static void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
 {
     fflush(*stream);
 
@@ -179,7 +180,8 @@ void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
  * redirection
  */
 
-struct token *handle_redir(FILE *file, FILE **stream, char **buffer, int c)
+static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
+                                  int c)
 {
     char buff[4] = { 0 };
 
@@ -230,7 +232,7 @@ struct token *handle_redir(FILE *file, FILE **stream, char **buffer, int c)
  * @return			The next valid token in the stream
  */
 
-struct token *read_input(FILE *file)
+static struct token *read_input(FILE *file)
 {
     int c;
 
@@ -321,12 +323,12 @@ struct token *read_input(FILE *file)
         }
 
         if (c == '\'' || c == '"')
-		{
+        {
             handle_quotes(file, &stream, &c);
-			
-			if (c == -2)
-				continue;
-		}
+
+            if (c == -2)
+                continue;
+        }
 
         if (c == '#')
             hanlde_comments(file, &stream, &size, &c);

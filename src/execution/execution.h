@@ -9,11 +9,10 @@
 #include <string.h>
 
 #include "../ast/ast.h"
-#include "../expansion/expansion.h"
-#include "../parser/parser.h"
 #include "../environment/environment.h"
+#include "../expansion/expansion.h"
 #include "../hash_map/hash_map.h"
-
+#include "../parser/parser.h"
 #include "execute_command/execute_command.h"
 #include "my_echo/my_echo.h"
 #include "my_pipe.h"
