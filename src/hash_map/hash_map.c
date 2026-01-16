@@ -63,8 +63,8 @@ bool hash_map_insert(struct hash_map *hash_map, char *key, char *value,
         {
             hash_map->data[h]->value = strdup(value);
 
-			free(new_pair->value);
-			free(new_pair->key);
+            free(new_pair->value);
+            free(new_pair->key);
             free(new_pair);
 
             if (updated)
@@ -95,9 +95,9 @@ void hash_map_free(struct hash_map *hash_map)
             while (node)
             {
                 struct pair_list *temp = node;
-				
-				free(temp->key);
-				free(temp->value);
+
+                free(temp->key);
+                free(temp->value);
 
                 node = node->next;
                 free(temp);
@@ -191,17 +191,17 @@ bool hash_map_remove(struct hash_map *hash_map, char *key)
         {
             hash_map->data[h] = node->next;
 
-			free(node->key);
-			free(node->value);
+            free(node->key);
+            free(node->value);
             free(node);
             return true;
         }
 
         prev->next = node->next;
 
-		free(node->key);
-		free(node->value);
-		free(node);
+        free(node->key);
+        free(node->value);
+        free(node);
     }
     else // Key does not exist at the current hash value
         return false;

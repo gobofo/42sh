@@ -3,17 +3,16 @@
 
 #define _POSIX_C_SOURCE 200809L
 
+#include <ctype.h>
 #include <regex.h>
 #include <stdio.h>
-#include <string.h>
-#include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "utils.h"
 #include "../token.h"
+#include "utils.h"
 
 struct token *get_token(FILE *input);
-struct token *read_input(FILE *file);
 
 void free_token(struct token *token);
 
