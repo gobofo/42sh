@@ -17,11 +17,8 @@ int variable_assignation(struct AST *root)
 	char *key = strtok(root->content, "=");
 	char *value = strtok(NULL, "= ");
 
-	if (value == NULL){
-
+	if (value == NULL)
 		value = "";
-
-	}
 
 	bool updated;
 	hash_map_insert(env->variables, key, value, &updated);	
@@ -97,7 +94,7 @@ int execute_redir(struct AST * root, struct AST **redir)
 
 	char ionumber = redir[0]->children[0]->content[0];
 	char *content = strdup(redir[0]->children[0]->content);
-	char *tofree = content;
+	char *to_free = content;
 
 	if (ionumber >= '0' && ionumber <= '9')
 	{
@@ -121,7 +118,7 @@ int execute_redir(struct AST * root, struct AST **redir)
 	else if (strcmp(content, "<>") == 0)
 		status = redir_open(root, redir, fd == -1 ? 0 : fd);
 
-	free(tofree);
+	free(to_free);
 
 	return status;
 }
@@ -131,17 +128,15 @@ int do_redir(struct AST *root, struct AST **redir)
 	if (*redir)
 		return execute_redir(root, redir);
 
-
-	if(root->rule==AST_SIMPLE_CMD){
-
+	if(root->rule==AST_SIMPLE_CMD)
+	{
 		char **command = create_command(root);
 		int status = execute_cmd(command);
+
 		free(command);
 		return status;
 	}
 
-	// root->rule == AST_SHELL_COMMAND
-	
 	return execute_node(root);
 }
 

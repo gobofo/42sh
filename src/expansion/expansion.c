@@ -84,6 +84,42 @@ char *expand(char **value)
 
 			continue;
 		}
+		else if (str[i] == '$')
+		{
+			i++;
+			
+			char *var_name;
+			size_t var_len;
+
+			FILE *var = open_memstream(&var_name, &var_len);
+
+			if (str[i] == '{')
+			{
+				i++;
+				
+				while (str[i] != '\0' && str[i] != '}')
+					fputc(str[i++], var);
+
+				if (str[i] == '}')
+					i++;
+			}
+			else
+			{
+				while (str[i] != '\0'
+						&& (isalnum(str[i]) || str[i] == '_'))
+					fputc(str[i++], var);
+			}
+
+			fclose(var);
+			char *var_value = hash_map_get(env->variables, var_name);
+
+			hash_map_dump(env->variables);
+
+			if (var_value)
+				fputs(var_name, stream);
+
+			free(var_name);
+		}
 		else
 		{
 			fputc(str[i], stream);

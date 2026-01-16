@@ -15,9 +15,13 @@ struct env *init_env(void)
 	if (!ifs)
 		ifs = "\t\n";
 
+	// ENV Variables Predefined when the shell is launched
     hash_map_insert(env->variables, "OLDPWD", oldpwd, &update);
     hash_map_insert(env->variables, "PWD", pwd ? pwd : ".", &update);
     hash_map_insert(env->variables, "IFS", ifs, &update);
+
+	// Special Variables Predefined when the shell launches
+	hash_map_insert(env->variables, "?", "0", &update);
 
     return env;
 }
