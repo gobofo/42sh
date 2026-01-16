@@ -2,7 +2,7 @@ autoreconf --install
 ./configure
 
 make
-
+mv src/42sh 42sh
 make clean
 
 rm AST_def_node.txt
@@ -27,3 +27,4 @@ rm -rf tests/.deps
 
 rm $(find src -name "Makefile" -o -name "Makefile.in")
 rm -rf $(find src -type d -name ".deps")
+mv 42sh src/42sh

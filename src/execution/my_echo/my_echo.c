@@ -1,5 +1,5 @@
 #include "my_echo.h"
-
+#include <string.h>
 /**
  * @brief		Checks if the flags passed to the echo function are valid
  *
@@ -138,7 +138,7 @@ int my_echo(char **command)
 
         printf("%s", *command);
 
-        if (*(command + 1) != NULL)
+        if (*(command + 1) != NULL && strcmp(*(command+1),"")!=0)
             printf(" ");
 
         command++;
