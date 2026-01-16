@@ -12,6 +12,11 @@ static int is_special_char(char c)
     return c == '$' || c == '`' || c == '"' || c == '\\' || c == '\n';
 }
 
+static int is_digit(char c)
+{
+	return c >= '0' && c <= '9';
+}
+
 static int is_special_variable(FILE *stream, char *str, size_t *i)
 {
 	if (str[*i] == '?')
@@ -23,6 +28,41 @@ static int is_special_variable(FILE *stream, char *str, size_t *i)
 	else if (str[*i] == '$')
 	{
 		fprintf(stream, "%d", getpid());
+		(*i)++;
+		return 1;
+	}
+	else if (str[*i] == '#')
+	{
+		fprintf(stream, "%d", env->argc);
+		(*i)++;
+		return 1;
+	}
+	// $@ and $* act the same way, they display all the arguments passed in 
+	// parameter.
+	// The only real difference is when the expansion is done when they are 
+	// quoted:
+	// - $* -> Expands to a single string all the args
+	// - $@ -> Expands all args into a list of words
+	else if (str[*i] == '@' || str[*i] == '*')
+	{
+		for (int j = 0; j < env->argc; j++)
+		{
+			fputs(env->argv[j], stream);
+			
+			if (j < env->argc - 1)
+				fputc(' ', stream);
+		}
+
+		(*i)++;
+		return 1;
+	}
+	else if (is_digit(str[*i]))
+	{
+		int idx = str[*i] - '0';
+
+		if (idx > 0 && (idx - 1) < env->argc)
+			fputs(env->argv[idx - 1], stream);
+
 		(*i)++;
 		return 1;
 	}
@@ -61,10 +101,18 @@ static void expand_variable(FILE *stream, char *str, size_t *i)
     }
 
     fclose(var);
-    char *var_value = hash_map_get(env->variables, var_name);
 
-    if (var_value)
-        fputs(var_value, stream);
+	if (strcmp(var_name, "RANDOM") == 0)
+		fprintf(stream, "%d", rand() % 32768);
+	else if (strcmp(var_name, "UID") == 0)
+		fprintf(stream, "%d", getuid());
+	else
+	{
+		char *var_value = hash_map_get(env->variables, var_name);
+
+		if (var_value)
+			fputs(var_value, stream);
+	}
 
     free(var_name);
 }
@@ -112,8 +160,10 @@ char *expand(char **value)
             while (str[i] != '\0' && str[i] != '"')
             {
                 if (str[i] == '$')
-                    expand_variable(stream, str, &i);
-
+                {
+					expand_variable(stream, str, &i);
+					continue;
+				}
                 // When inside double quotes the \ char does not act like the
                 // normal \.
                 // It only escapes when followed by $, `, ", \, or <newline>
@@ -121,7 +171,8 @@ char *expand(char **value)
                 {
                     // We skip the \ since it is supposed to escape
                     i++;
-                    fputc(str[i], stream);
+                    fputc(str[i++], stream);
+					i++;
                 }
                 else
                     fputc(str[i++], stream);

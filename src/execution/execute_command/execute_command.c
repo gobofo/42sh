@@ -29,10 +29,8 @@ int execute_non_builtin(char **cmd)
             return 1;
         }
 
-        if (WIFEXITED(wstatus) && WEXITSTATUS(wstatus))
-        {
-            return 1;
-        }
+        if (WIFEXITED(wstatus))
+            return WEXITSTATUS(wstatus);
     }
 
     return 0;

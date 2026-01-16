@@ -15,13 +15,17 @@ int do_redir(struct AST *root, struct AST **redir);
 int variable_assignation(struct AST *root)
 {
 	char *key = strtok(root->content, "=");
-	char *value = strtok(NULL, "= ");
+	char *value_raw = strtok(NULL, "");
 
-	if (value == NULL)
-		value = "";
+	if (value_raw == NULL)
+		value_raw = "";
+
+	char *value = expand(&value_raw);
 
 	bool updated;
 	hash_map_insert(env->variables, key, value, &updated);	
+
+	free(value);
 
 	return 0;
 }
@@ -248,12 +252,20 @@ int execute_for(struct AST *root)
 
 int execute_or(struct AST *root)
 {
-	return !(!execute_node(root->children[0]) || !execute_node(root->children[1]));
+	int status = execute_node(root->children[0]);
+	if (status != 0)
+		return execute_node(root->children[1]);
+
+	return status;
 }
 
 int execute_and(struct AST *root)
 {
-	return !(!execute_node(root->children[0]) && !execute_node(root->children[1]));
+	int status = execute_node(root->children[0]);
+	if (status == 0)
+		return execute_node(root->children[1]);
+
+	return status;
 }
 
 //############
@@ -354,43 +366,59 @@ int execute_pipeline(struct AST *root)
 
 int execute_node(struct AST *root)
 {
+	int status = 0;
+
 	switch (root->rule)
 	{
 		case AST_LIST:
-			return execute_list(root);
+			status = execute_list(root);
+			break;
 
 		case AST_SIMPLE_CMD:
-			return execute_simple_cmd(root);
+			status = execute_simple_cmd(root);
+			break;
 
 		case AST_IF:
-			return execute_if(root);
+			status = execute_if(root);
+			break;
 
 		case AST_WHILE:
-			return execute_while(root);
+			status = execute_while(root);
+			break;
 
 		case AST_UNTIL:
-			return execute_until(root);
+			status = execute_until(root);
+			break;
 
 		case AST_FOR:
-			return execute_for(root);
+			status = execute_for(root);
+			break;
 
 		case AST_PIPELINE:
-			return execute_pipeline(root);
+			status = execute_pipeline(root);
+			break;
 
 		case AST_OR:
-			return execute_or(root);
+			status = execute_or(root);
+			break;
 
 		case AST_AND:
-			return execute_and(root);
+			status = execute_and(root);
+			break;
 
 		case AST_SHELL_CMD:
-			return execute_shell_cmd(root);
+			status = execute_shell_cmd(root);
+			break;
 
-			// Not supposed to get there but we never know
+		// Not supposed to get there but we never know
 		default:
 			printf("Probleme\n");
 			return 0;
 	}
+
+	env->last_exit_code = status;
+
+	return status;
 }
 
 int execute_ast(struct AST *root)
