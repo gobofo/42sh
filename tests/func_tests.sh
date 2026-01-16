@@ -85,7 +85,12 @@ fi
 
 #test fonctionels
 
+echo
+
 #----------------- TESTS SIMPLE COMMAND -----------------#
+echo "###################################################"
+echo "TESTS SIMPLE COMMAND"
+echo "###################################################"
 
 test_cmd "echo a;" "Test echo super simple"
 
@@ -106,6 +111,9 @@ test_cmd "echo 'hello world'" "Test echo avec guillemets simples"
 test_cmd 'echo "hello world"' "Test echo avec guillemets doubles"
 
 #----------------- TESTS ECHO OPTIONS -----------------#
+echo "###################################################"
+echo "TESTS ECHO OPTIONS"
+echo "###################################################"
 
 test_cmd "echo -n test" "Test echo avec option -n"
 
@@ -130,6 +138,9 @@ test_cmd "echo -e -n 'test\n'" "Test echo -e -n combines (ordre inverse)"
 test_cmd "echo -e '\t\ttabs'" "Test echo -e avec doubles tabulations"
 
 #----------------- TESTS AND_OR (&&, ||) -----------------#
+echo "###################################################"
+echo "TESTS AND_OR (&&, ||)"
+echo "###################################################"
 
 test_cmd "true && echo success" "Test ET simple reussi"
 
@@ -164,6 +175,9 @@ test_cmd "echo a && echo b && echo c" "Test ET avec tous echo"
 test_cmd "true && echo ok || echo ko" "Test ET OU sans echec"
 
 #----------------- TESTS PIPELINE -----------------#
+echo "###################################################"
+echo "TESTS PIPELINE"
+echo "###################################################"
 
 test_cmd "echo hello | cat" "Test pipe simple"
 
@@ -180,6 +194,9 @@ test_cmd "echo 'quoted text' | cat" "Test pipe avec guillemets"
 test_cmd "echo line1 | cat | cat | cat | cat | cat" "Test long pipeline"
 
 #----------------- TESTS CAT -----------------#
+echo "###################################################"
+echo "TESTS CAT"
+echo "###################################################"
 
 test_cmd "cat /etc/hostname" "Test cat simple"
 
@@ -205,6 +222,9 @@ test_cmd "cat -e /tmp/42sh_test_cat_e2.txt" "Test cat -e lignes multiples"
 test_cmd "echo hello | cat -e" "Test cat -e avec pipe"
 
 #----------------- TESTS NEGATION -----------------#
+echo "###################################################"
+echo "TESTS NEGATION"
+echo "###################################################"
 
 test_cmd "! false" "Test negation false"
 
@@ -219,6 +239,9 @@ test_cmd "! echo test | cat" "Test negation avec pipe"
 test_cmd "! false && ! false && echo double" "Test double negation"
 
 #----------------- TESTS IF -----------------#
+echo "###################################################"
+echo "TESTS IF"
+echo "###################################################"
 
 test_cmd "if true; then echo yes; fi" "Test if simple vrai"
 
@@ -251,6 +274,9 @@ test_cmd "if true; then echo -n inline; fi" "Test if avec echo -n"
 test_cmd "if true; then echo -e 'line1\\nline2'; fi" "Test if avec echo -e"
 
 #----------------- TESTS WHILE -----------------#
+echo "###################################################"
+echo "TESTS WHILE"
+echo "###################################################"
 
 test_cmd "while false; do echo loop; done" "Test while faux"
 
@@ -259,6 +285,9 @@ test_cmd "while false; do echo a; echo b; done" "Test while faux commandes multi
 test_cmd "while false; do echo never; done; echo after" "Test while puis commande apres"
 
 #----------------- TESTS UNTIL -----------------#
+echo "###################################################"
+echo "TESTS UNTIL"
+echo "###################################################"
 
 test_cmd "until true; do echo loop; done" "Test until vrai"
 
@@ -267,6 +296,9 @@ test_cmd "until true; do echo a; echo b; done" "Test until vrai commandes multip
 test_cmd "until true; do echo never; done; echo after" "Test until puis commande apres"
 
 #----------------- TESTS REDIRECTIONS -----------------#
+echo "###################################################"
+echo "TESTS REDIRECTIONS"
+echo "###################################################"
 
 test_cmd "echo test > /tmp/42sh_out; cat /tmp/42sh_out" "Test redirection sortie simple"
 
@@ -285,6 +317,9 @@ test_cmd "echo -n test > /tmp/42sh_n; cat /tmp/42sh_n" "Test redirection avec ec
 test_cmd "echo -e 'line1\\nline2' > /tmp/42sh_e; cat /tmp/42sh_e" "Test redirection avec echo -e"
 
 #----------------- TESTS COMBINAISONS COMPLEXES -----------------#
+echo "###################################################"
+echo "TESTS COMBINAISONS COMPLEXES"
+echo "###################################################"
 
 test_cmd "echo a && echo b || echo c" "Test ET OU combine"
 
@@ -327,10 +362,16 @@ test_cmd "echo a | cat && echo b | cat" "Test pipe ET pipe"
 test_cmd "if true; then echo -n a; echo b; fi" "Test if avec echo -n puis echo"
 
 #----------------- TESTS VIDE & EOF -----------------#
+echo "###################################################"
+echo "TESTS VIDE & EOF"
+echo "###################################################"
 
 test_cmd "" "Test entree vide"
 
 #----------------- TESTS COMMANDES BUILTIN -----------------#
+echo "###################################################"
+echo "TESTS BUILTINS"
+echo "###################################################"
 
 test_cmd "true" "Test true seul"
 
@@ -345,6 +386,9 @@ test_cmd "true && false && echo no" "Test true ET false ET"
 test_cmd "false || true || echo no" "Test false OU true OU"
 
 #----------------- TESTS GUILLEMETS ET ECHAPPEMENTS -----------------#
+echo "###################################################"
+echo "TESTS QUOTES ET ECHAP"
+echo "###################################################"
 
 test_cmd "echo 'a b c'" "Test guillemets simples avec espaces"
 
@@ -368,7 +412,23 @@ test_cmd "echo '' '' ''" "Test guillemets multiples vides"
 
 test_cmd "echo 'tab	inside'" "Test tabulation dans guillemets"
 
+#----------------- TESTS QUOTE NESTING -----------------#
+echo "###################################################"
+echo "TESTS QUOTES NESTING"
+echo "###################################################"
+
+test_cmd 'a=VAR; echo "$a" '\''$a'\' "Mixed quotes: double then single"
+
+test_cmd 'echo "'"'$USER'"'"' "Single quotes inside double quotes"
+
+test_cmd 'a=1; echo "\$a is $a"' "Escaped dollar inside double quotes"
+
+test_cmd "echo 'It'\''s working'" "Escaped single quote inside single quotes"
+
 #----------------- TESTS COMMANDES EXTERNES -----------------#
+echo "###################################################"
+echo "TESTS COMMANDES EXTERNES"
+echo "###################################################"
 
 test_cmd "ls /tmp > /dev/null; echo done" "Test ls avec redirection"
 
@@ -377,6 +437,9 @@ test_cmd "/bin/echo hello" "Test echo avec chemin absolu"
 test_cmd "/bin/true && echo ok" "Test true chemin absolu"
 
 #----------------- TESTS EDGE CASES -----------------#
+echo "###################################################"
+echo "TESTS EDGE CASES"
+echo "###################################################"
 
 test_cmd "echo" "Test echo sans argument"
 
@@ -409,12 +472,18 @@ test_cmd "true && true || false && echo ok" "Test complexe ET OU"
 test_cmd "echo a && echo b && echo c && echo d && echo e" "Test longue chaîne echo ET"
 
 #----------------- TESTS REDIRECTIONS AVANCEES -----------------#
+echo "###################################################"
+echo "TESTS REDIRECTIONS AVANCEES"
+echo "###################################################"
 
 test_cmd "echo test > /tmp/42sh_pipe | cat /tmp/42sh_pipe" "Test redirection avec pipe (apres ecriture)"
 
 test_cmd "echo hello > /tmp/42sh_h; echo world >> /tmp/42sh_h; cat /tmp/42sh_h | cat" "Test append puis pipe"
 
 #----------------- TESTS WHILE/UNTIL AVEC CONDITIONS -----------------#
+echo "###################################################"
+echo "TESTS WHILE/UNTIL AVEC CONDITIONS"
+echo "###################################################"
 
 test_cmd "while false && false; do echo no; done; echo after" "Test while condition ET"
 
@@ -425,6 +494,9 @@ test_cmd "until true && true; do echo no; done; echo after" "Test until conditio
 test_cmd "until true || false; do echo no; done; echo after" "Test until condition OU"
 
 #----------------- TESTS COMBINAISONS ECHO OPTIONS -----------------#
+echo "###################################################"
+echo "TESTS COMBINAISONS ECHO OPTIONS"
+echo "###################################################"
 
 test_cmd "echo -e 'a\nb' | cat" "Test echo -e pipe cat"
 
@@ -439,6 +511,9 @@ test_cmd "echo -e 'a\tb\tc'" "Test echo -e tabulations multiples"
 test_cmd "echo -e '\\\\test'" "Test echo -e echappement backslash"
 
 #----------------- TESTS IF COMPLEXES -----------------#
+echo "###################################################"
+echo "TESTS IF COMPLEXES"
+echo "###################################################"
 
 test_cmd "if echo test > /tmp/42sh_if; then cat /tmp/42sh_if; fi" "Test if avec redirection condition"
 
@@ -451,6 +526,9 @@ test_cmd "if false; then echo no; elif false || true; then echo yes; fi" "Test i
 test_cmd "if ! true; then echo no; else echo yes; fi" "Test if negation else"
 
 #----------------- TESTS PIPES AVEC REDIRECTIONS -----------------#
+echo "###################################################"
+echo "TESTS PIPES AVEC REDIR"
+echo "###################################################"
 
 test_cmd "echo test > /tmp/42sh_pr; cat /tmp/42sh_pr | cat" "Test fichier puis pipe"
 
@@ -459,6 +537,9 @@ test_cmd "echo a | cat > /tmp/42sh_pc; cat /tmp/42sh_pc" "Test pipe puis redirec
 test_cmd "echo hello | cat | cat > /tmp/42sh_ppc; cat /tmp/42sh_ppc" "Test pipes multiples puis redirection"
 
 #----------------- TESTS COMMENTS -----------------#
+echo "###################################################"
+echo "TESTS COMMENTS"
+echo "###################################################"
 
 test_cmd "echo test # this is a comment" "Test commentaire simple"
 
@@ -472,6 +553,9 @@ echo b" "Test commentaire apres point-virgule"
 test_cmd "echo not#comment" "Test # pas en debut de mot"
 
 #----------------- TESTS FOR -----------------#
+echo "###################################################"
+echo "TESTS FOR"
+echo "###################################################"
 
 test_cmd 'for i in a b c; do echo "$i"; done' "Test for simple"
 
@@ -502,6 +586,9 @@ test_cmd 'for i in a b; do echo "$i" | cat; done' "Test for avec pipe"
 test_cmd "for i in 'hello world' test; do echo \"$i\"; done" "Test for avec guillemets"
 
 #----------------- TESTS VARIABLES -----------------#
+echo "###################################################"
+echo "TESTS VARIABLES"
+echo "###################################################"
 
 test_cmd 'x=hello; echo "$x"' "Test assignation et expansion simple"
 
@@ -537,7 +624,82 @@ test_cmd 'x=val; for i in a b; do echo "$x$i"; done' "Test variable dans for"
 
 test_cmd 'x=5; y=10; echo "$x" "$y"' "Test variables numeriques"
 
+#----------------- TESTS RECURSIVE VARIABLES -----------------#
+echo "###################################################"
+echo "TESTS RECURSIVE VARIABLES"
+echo "###################################################"
+
+test_cmd 'a=1; b=$a; echo "$b"' "Test recursive simple a=1; b=\$a"
+
+test_cmd 'a=hello; b=$a; c=$b; echo "$c"' "Test triple recursive a=hello; b=\$a; c=\$b"
+
+test_cmd 'a=1; b=$a"2"; c=$b"3"; echo "$c"' "Test recursive with concatenation"
+
+test_cmd 'a=1; a=$a; echo "$a"' "Test self-reference re-assignment a=\$a"
+
+test_cmd 'a=1; b=2; c=$a$b; echo "$c"' "Test recursive multi-variable concatenation"
+
+test_cmd 'x=5; y=$x; x=10; echo "$y"' "Test variable snapshot (y should remain 5)"
+
+#----------------- TESTS VARIABLE CONCATENATION -----------------#
+echo "###################################################"
+echo "TESTS VARIABLES CONCATENATION"
+echo "###################################################"
+
+test_cmd 'a=hello; b=world; c=$a$b; echo "$c"' "Concatenation of two variables"
+
+test_cmd 'a=42; b=sh; c=$a$b" tests"; echo "$c"' "Variables mixed with literal double quotes"
+
+test_cmd 'x=1; y=$x; x=2; echo "$y"' "Variable snapshot: y should be 1"
+
+test_cmd 'a=1; b=$a; c=$b; d=$c; echo "$d"' "Deep recursive assignment"
+
+#----------------- TESTS SPECIAL VARIABLES -----------------#
+echo "###################################################"
+echo "TESTS SPECIAL VARIABLES"
+echo "###################################################"
+
+test_cmd "true; echo \$?" "Test \$? après true"
+
+test_cmd "false; echo \$?" "Test \$? après false"
+
+test_cmd "ls /nonexistent 2>/dev/null; echo \$?" "Test \$? après une erreur de commande"
+
+test_cmd 'echo $#' "Test \$# sans arguments"
+
+test_cmd 'echo $#' "Test \$# avec arguments"
+
+test_cmd 'echo $$ | grep -E "^[0-9]+$" > /dev/null && echo "is_pid"' "Test \$\$ est un nombre"
+
+test_cmd 'echo $1' "Test \$1 vide"
+
+test_cmd 'echo $RANDOM | grep -E "^[0-9]+$" > /dev/null && echo "is_num"' "Test \$RANDOM est un nombre"
+
+test_cmd 'echo $UID | grep -E "^[0-9]+$" > /dev/null && echo "is_uid"' "Test \$UID est un nombre"
+
+test_cmd 'echo $@' "Test \$@ vide"
+
+test_cmd 'echo $*' "Test \$* vide"
+
+test_cmd 'echo ${1}' "Test \${1} vide"
+
+#----------------- TESTS SPECIAL VARS EDGE CASES -----------------#
+echo "###################################################"
+echo "TESTS VARIABLES EDGE CASES"
+echo "###################################################"
+
+test_cmd 'ls /nonexistent 2>/dev/null; echo $?; true; echo $?' "Sequence of exit codes"
+
+test_cmd 'echo $# $1 $2' "Positional parameters when none are provided"
+
+test_cmd 'IFS=_; a=1; b=2; echo "$a$b"' "Variable expansion with modified IFS"
+
+test_cmd 'echo $$ | grep -E "^[0-9]+$" > /dev/null && echo "is_pid"' "PID expansion inside double quotes"
+
 #----------------- TESTS ERREURS -----------------#
+echo "###################################################"
+echo "TESTS ERREURS"
+echo "###################################################"
 
 test_error ";" "Erreur point-virgule seul"
 
@@ -617,7 +779,21 @@ test_error "while; do echo test; done" "Erreur while condition vide"
 
 test_error "until; do echo test; done" "Erreur until condition vide"
 
+#----------------- TESTS EXIT STATUS CHAINS -----------------#
+echo "###################################################"
+echo "TESTS EXIT STATUS"
+echo "###################################################"
+
+test_cmd "true && false || true; echo \$?" "Exit code of a logical chain"
+
+test_cmd "! true; echo \$?" "Exit code of a negation"
+
+test_cmd "echo hello | grep 'notfound'; echo \$?" "Exit status of a failed pipeline member"
+
 #----------------- TESTS FICHIERS -----------------#
+echo "###################################################"
+echo "TESTS FILES"
+echo "###################################################"
 
 mkdir -p /tmp/42sh_test_files
 
