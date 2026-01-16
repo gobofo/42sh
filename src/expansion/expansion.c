@@ -4,10 +4,39 @@
 
 extern struct env *env;
 
+// #############
+// #   UTILS   #
+// #############
+static int is_special_char(char c)
+{
+    return c == '$' || c == '`' || c == '"' || c == '\\' || c == '\n';
+}
+
+static int is_special_variable(FILE *stream, char *str, size_t *i)
+{
+	if (str[*i] == '?')
+	{
+		fprintf(stream, "%d", env->last_exit_code);
+		(*i)++;
+		return 1;
+	}
+	else if (str[*i] == '$')
+	{
+		fprintf(stream, "%d", getpid());
+		(*i)++;
+		return 1;
+	}
+
+	return 0;
+}
+
 static void expand_variable(FILE *stream, char *str, size_t *i)
 {
     // Pass the $ and get to nect character
     (*i)++;
+
+	if (is_special_variable(stream, str, i) == 1)
+		return;
 
     char *var_name;
     size_t var_len;
@@ -27,7 +56,7 @@ static void expand_variable(FILE *stream, char *str, size_t *i)
     }
     else
     {
-        while (str[*i] != '\0')
+        while (str[*i] != '\0' && (isalnum(str[*i]) || str[*i] == '_'))
             fputc(str[(*i)++], var);
     }
 
@@ -53,7 +82,18 @@ char *expand(char **value)
 
     while (str[i] != '\0')
     {
-        if (str[i] == '\'')
+        // When a \ character is found the next char is 'escaped', this means
+        // we take the literal value of it.
+        // For example:
+        // - \$ becomes $ instead of expanding a variable
+        // Same for quotes or the \ char
+        if (str[i] == '\\')
+        {
+            i++;
+
+            fputc(str[i++], stream);
+        }
+        else if (str[i] == '\'')
         {
             // Pass the opening quote
             i++;
@@ -63,26 +103,39 @@ char *expand(char **value)
 
             if (str[i] == '\'')
                 i++;
-
-            continue;
         }
         else if (str[i] == '"')
         {
             // Pass the opening quote
             i++;
 
-            continue;
+            while (str[i] != '\0' && str[i] != '"')
+            {
+                if (str[i] == '$')
+                    expand_variable(stream, str, &i);
+
+                // When inside double quotes the \ char does not act like the
+                // normal \.
+                // It only escapes when followed by $, `, ", \, or <newline>
+                else if (str[i] == '\\' && is_special_char(str[i + 1]) == 1)
+                {
+                    // We skip the \ since it is supposed to escape
+                    i++;
+                    fputc(str[i], stream);
+                }
+                else
+                    fputc(str[i++], stream);
+            }
+
+			if (str[i] == '"')
+				i++;
         }
         else if (str[i] == '$')
         {
             expand_variable(stream, str, &i);
-
-            continue;
         }
         else
-            fputc(str[i], stream);
-
-        i++;
+            fputc(str[i++], stream);
     }
 
     fclose(stream);
