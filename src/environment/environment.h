@@ -5,6 +5,11 @@
 
 struct env
 {
+	int last_exit_code;
+	int argc;
+
+	char **argv;
+
     struct hash_map *variables;
     // we will have to add another hash_map for functions
 };
