@@ -290,6 +290,7 @@ err:
 }
 //39
 
+//(7) pipeline = [!] command { '|' {'\n'} command }
 static struct AST *pipeline(struct token **token)
 {
     struct AST *ast = create_ast(AST_PIPELINE, NULL);
@@ -448,7 +449,7 @@ static struct AST *rule_if(struct token **token)
             struct AST *child = compound_list(token);
             if (child == NULL)
             {
-                return NULL;
+                goto err;
             }
             ast = add_children(ast, child);
 
@@ -696,100 +697,77 @@ err:
 static struct AST *rule_for(struct token **token)
 {
     struct AST *ast = create_ast(AST_FOR, NULL);
-    if ((*token)->type == FOR)
+
+    if ((*token)->type != FOR)
+        goto err;
+
+    *token = eat(*token);
+    if (*token == NULL)
+        goto err;
+
+    if (!is_valid_word(*token))
+        goto err;
+
+    struct AST *var_name = create_ast(AST_VALUE, strdup((*token)->content));
+    ast = add_children(ast, var_name);
+    *token = eat(*token);
+
+    if (*token == NULL)
+        goto err;
+
+    // Cas 1
+    if ((*token)->type == SEMICOLON)
     {
         *token = eat(*token);
-        if (*token == NULL)
-        {
-            goto err;
-        }
-
-        if (is_valid_word(*token))
-        {
-            struct AST *child =
-                create_ast(AST_VALUE, strdup((*token)->content)); // WORDS
-            ast = add_children(ast, child);
-            *token=eat(*token);
-        }
-
-        else
-        {
-            goto err;
-        }
-
-        if (*token == NULL)
-            goto err;
-
-        if ((*token)->type == SEMICOLON) // cas 1
-            *token = eat(*token);
-
-        else if ((*token)->type == NEWLINE || (*token)->type == IN)
-        { // cas 2
-            eat_newlines(token);
-            if (*token == NULL || (*token)->type != IN)
-                goto err;
-
-            *token = eat(*token);
-            while (*token != NULL && (*token)->type != SEMICOLON
-                   && (*token)->type != NEWLINE)
-            {
-                if (is_valid_word(*token))
-                {
-                    struct AST *child = create_ast(
-                        AST_VALUE, strdup((*token)->content)); // WORDS
-                    ast = add_children(ast, child);
-                    *token = eat(*token);
-                }
-
-                else
-                {
-                    goto err;
-                }
-            }
-            if (*token && ((*token)->type == NEWLINE || (*token)->type == SEMICOLON))
-            { // fin
-                *token = eat(*token);
-            }
-            else
-            {
-                goto err;
-            }
-        }
-        else{
-          goto err;
-        }
+    }
+    else // Cas 2
+    {
         eat_newlines(token);
 
-        if(parse_body_if(&ast,token)){
-          return ast;
+        if (*token != NULL && (*token)->type == IN)
+        {
+            *token = eat(*token);
+            if (*token == NULL)
+                goto err;
+            while (*token != NULL && (*token)->type != SEMICOLON && 
+                   (*token)->type != NEWLINE)
+            {
+                if (!is_valid_word(*token))
+                    goto err;
+
+                struct AST *word = create_ast(AST_VALUE, strdup((*token)->content));
+                ast = add_children(ast, word);
+                *token = eat(*token);
+            }
+
+            if (*token == NULL || 
+                ((*token)->type != SEMICOLON && (*token)->type != NEWLINE))
+                goto err;
+            *token = eat(*token);
         }
     }
+    eat_newlines(token);
+    if (*token == NULL || (*token)->type != DO)
+        goto err;
+
+    *token = eat(*token);
+    if (!first_compound_list(*token))
+        goto err;
+
+    struct AST *body = compound_list(token);
+    if (body == NULL)
+        goto err;
+
+    ast = add_children(ast, body);
+    if (*token == NULL || (*token)->type != DONE)
+        goto err;
+
+    *token = eat(*token);
+    return ast;
+
 err:
     destroy_AST(ast);
     return NULL;
-} //==40
-
-int parse_body_if(struct AST** ast,struct token **token){
-  if (*token == NULL || (*token)->type != DO)
-    return 0;
-  *token = eat(*token);
-
-  if (first_compound_list(*token))
-  {
-    struct AST *child = compound_list(token);
-
-    if (child == NULL)
-      return 0;
-
-    *ast = add_children(*ast, child);
-
-    if (*token == NULL || (*token)->type != DONE)
-      return 0;
-    *token = eat(*token);
-    return 1;
-  }
-  return 0;
-
 }
 
 
@@ -799,73 +777,44 @@ int parse_body_if(struct AST** ast,struct token **token){
 static struct AST *compound_list(struct token **token)
 {
     struct AST *ast = create_ast(AST_LIST, NULL);
+    eat_newlines(token);
 
-    while (*token != NULL && (*token)->type == NEWLINE)
+    if (*token == NULL || !first_and_or(*token))
+        goto err;
+
+    struct AST *child = and_or(token);
+    if (child == NULL)
+        goto err;
+    
+    ast = add_children(ast, child);
+    while (*token != NULL && ((*token)->type == SEMICOLON || (*token)->type == NEWLINE))
     {
         *token = eat(*token);
-    }
-    if (first_and_or(*token))
-    {
-        struct AST *child = and_or(token);
+        eat_newlines(token);
+
+        if (*token == NULL || follow_compound_list(*token))
+            break;
+
+        if (!first_and_or(*token))
+            goto err;
+
+        child = and_or(token);
         if (child == NULL)
             goto err;
-
         ast = add_children(ast, child);
     }
-    else
-    {
-        goto err;
-    }
-    if(*token==NULL) 
-      goto err;
 
-    while ((*token)->type == NEWLINE || (*token)->type == SEMICOLON)
-    {
-        if ((*token)->type == SEMICOLON)
-        {
-            *token = eat(*token);
+    if (*token != NULL && (*token)->type == SEMICOLON)
+        *token = eat(*token);
 
-            if (*token == NULL)
-                goto err;
-
-            if (follow_compound_list(*token))
-            { // follow de compound_list donc on sort
-                return ast;
-            }
-        }
-        while ((*token)->type == NEWLINE)
-        {
-            *token = eat(*token);
-
-            if (*token == NULL)
-            {
-                goto err;
-            }
-        }
-        if (first_and_or(*token))
-        {
-            struct AST *child = and_or(token);
-            if (child == NULL)
-            {
-                destroy_AST(ast);
-                return NULL;
-            }
-            ast = add_children(ast, child);
-        }
-        else
-        {
-            goto err;
-        }
-    }
-
-	eat_newlines(token);
-
+    eat_newlines(token);
     return ast;
 
 err:
     destroy_AST(ast);
     return NULL;
-} //36
+}
+
 
 //(18) simple_command =
 //         prefix {prefix}
