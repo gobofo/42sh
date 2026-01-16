@@ -1,8 +1,7 @@
 autoreconf --install
 ./configure
 
-make
-
+BIN_PATH="$(pwd)/src/42sh" OUTPUT_FILE="$(pwd)/out" make check
 make clean
 
 rm AST_def_node.txt
