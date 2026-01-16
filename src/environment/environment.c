@@ -2,11 +2,27 @@
 
 #include <stdlib.h>
 
-struct env *init_env(void)
+struct env *init_env(int argc, char **argv)
 {
     struct env *env = malloc(sizeof(struct env));
     env->variables = hash_map_init(64);
 	env->last_exit_code = 0;
+
+	if (argc > 2 && strcmp(argv[1], "-c") == 0)
+	{
+		env->argv = &argv[3];
+		env->argc = (argc > 3) ? argc - 3 : 0;
+	}
+	else if (argc > 1)
+	{
+		env->argv = &argv[2];
+		env->argc = argc - 2;
+	}
+	else
+	{
+		env->argv = NULL;
+		env->argc = 0;
+	}
 
     bool update;
 
