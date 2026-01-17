@@ -408,7 +408,7 @@ test_cmd "echo ''" "Test guillemets simples vides"
 
 test_cmd 'echo ""' "Test guillemets doubles vides"
 
-test_cmd "echo '' '' ''" "Test guillemets multiples vides"
+test_cmd "echo '' '' '' | cat -e" "Test guillemets multiples vides"
 
 test_cmd "echo 'tab	inside'" "Test tabulation dans guillemets"
 

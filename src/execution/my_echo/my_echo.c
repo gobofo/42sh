@@ -138,7 +138,7 @@ int my_echo(char **command)
 
         printf("%s", *command);
 
-        if (*(command + 1) != NULL && strcmp(*(command+1),"")!=0)
+        if (*(command + 1) != NULL)
             printf(" ");
 
         command++;

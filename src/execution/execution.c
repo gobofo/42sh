@@ -61,7 +61,21 @@ char **create_command(struct AST *root)
     {
         if (root->children[i]->rule == AST_VALUE)
         {
-            char *expanded_value = expand(&root->children[i]->content);
+        	char *expanded_value;
+
+			if (strcmp(root->children[i]->content, "\"\"") == 0 ||
+					strcmp(root->children[i]->content, "''") == 0)
+				expanded_value = expand(&root->children[i]->content);
+			else
+			{
+				expanded_value = expand(&root->children[i]->content);
+
+				if (strcmp(expanded_value, "") == 0)
+				{
+					free(expanded_value);
+					continue;	
+				}
+			}
 
             command[idx++] = expanded_value;
         }
