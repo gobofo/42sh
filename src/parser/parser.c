@@ -82,7 +82,7 @@ static struct AST *rule_for(struct token **token);
 static struct AST *rule_while(struct token **token);
 static struct AST *rule_until(struct token **token);
 
-int parse_body_if(struct AST** ast,struct token **token);
+int parse_body_if(struct AST **ast, struct token **token);
 
 static bool is_valid_word(struct token *token)
 {
@@ -109,14 +109,13 @@ static void eat_newlines(struct token **token)
         *token = eat(*token);
 }
 
-
 //    input =
 //(1)     list '\n'
 //(2)    | list EOF
 //(3)    | '\n'
 //(4)    | EOF
 
- struct AST *input(struct token **token)
+struct AST *input(struct token **token)
 {
     if (*token == NULL || (*token)->type == NEWLINE)
     {
@@ -147,7 +146,7 @@ static void eat_newlines(struct token **token)
         free_token(*token);
         return NULL;
     }
-} //17 ligne 
+} // 17 ligne
 
 //(3) list = and_or { 'w' and_or } [ ';' ]
 static struct AST *list(struct token **token)
@@ -216,11 +215,10 @@ err:
     destroy_AST(ast);
     return NULL;
 }
-//32 ligne 
+// 32 ligne
 //
 
 //(6) and_or = pipeline { ( '&&' | '||' ) {'\n'} pipeline }
-
 
 static struct AST *and_or(struct token **token)
 {
@@ -288,7 +286,7 @@ err:
     destroy_AST(ast);
     return NULL;
 }
-//39
+// 39
 
 //(7) pipeline = [!] command { '|' {'\n'} command }
 static struct AST *pipeline(struct token **token)
@@ -348,7 +346,7 @@ err:
     destroy_AST(ast);
     return NULL;
 }
-//32
+// 32
 //
 
 // command =
@@ -394,7 +392,7 @@ static struct AST *command(struct token **token)
     {
         return NULL;
     }
-}//22
+} // 22
 
 //(8) shell_command = rule_if
 
@@ -432,7 +430,7 @@ static struct AST *shell_command(struct token **token)
     {
         return NULL;
     }
-}//22
+} // 22
 
 //(9) rule_if = 'if' compound_list 'then' compound_list [else_clause] 'fi'
 
@@ -514,7 +512,7 @@ static struct AST *rule_if(struct token **token)
 err:
     destroy_AST(ast);
     return NULL;
-} //37 
+} // 37
 
 // else_clause =
 //(10)    'else' compound_list
@@ -590,7 +588,7 @@ static struct AST *else_clause(struct token **token)
 err:
     destroy_AST(ast);
     return NULL;
-} //37
+} // 37
 
 //(14) rule_while = 'while' compound_list 'do' compound_list 'done'
 static struct AST *rule_while(struct token **token)
@@ -639,7 +637,7 @@ static struct AST *rule_while(struct token **token)
 err:
     destroy_AST(ast);
     return NULL;
-}//25
+} // 25
 
 //(15) rule_until = 'until' compound_list 'do' compound_list 'done'
 static struct AST *rule_until(struct token **token)
@@ -688,7 +686,7 @@ static struct AST *rule_until(struct token **token)
 err:
     destroy_AST(ast);
     return NULL;
-}//27
+} // 27
 
 //(16) rule_for = 'for' WORD ( [';']
 //                          | [ {'\n'} 'in' { WORD } ( ';' | '\n' ) ] )
@@ -729,19 +727,20 @@ static struct AST *rule_for(struct token **token)
             *token = eat(*token);
             if (*token == NULL)
                 goto err;
-            while (*token != NULL && (*token)->type != SEMICOLON && 
-                   (*token)->type != NEWLINE)
+            while (*token != NULL && (*token)->type != SEMICOLON
+                   && (*token)->type != NEWLINE)
             {
                 if (!is_valid_word(*token))
                     goto err;
 
-                struct AST *word = create_ast(AST_VALUE, strdup((*token)->content));
+                struct AST *word =
+                    create_ast(AST_VALUE, strdup((*token)->content));
                 ast = add_children(ast, word);
                 *token = eat(*token);
             }
 
-            if (*token == NULL || 
-                ((*token)->type != SEMICOLON && (*token)->type != NEWLINE))
+            if (*token == NULL
+                || ((*token)->type != SEMICOLON && (*token)->type != NEWLINE))
                 goto err;
             *token = eat(*token);
         }
@@ -770,7 +769,6 @@ err:
     return NULL;
 }
 
-
 //(12) compound_list = {'\n'} and_or { ( ';' | '\n' ) {'\n'} and_or } [';']
 //{'\n'}
 
@@ -785,9 +783,10 @@ static struct AST *compound_list(struct token **token)
     struct AST *child = and_or(token);
     if (child == NULL)
         goto err;
-    
+
     ast = add_children(ast, child);
-    while (*token != NULL && ((*token)->type == SEMICOLON || (*token)->type == NEWLINE))
+    while (*token != NULL
+           && ((*token)->type == SEMICOLON || (*token)->type == NEWLINE))
     {
         *token = eat(*token);
         eat_newlines(token);
@@ -815,7 +814,6 @@ err:
     return NULL;
 }
 
-
 //(18) simple_command =
 //         prefix {prefix}
 //(19)    | {prefix} WORD { element }
@@ -826,7 +824,7 @@ static struct AST *simple_command(struct token **token)
 
     int pref = 0;
 
-    while (*token && first_prefix(*token) )
+    while (*token && first_prefix(*token))
     {
         pref = 1;
         struct AST *child = prefix(token);
@@ -842,12 +840,14 @@ static struct AST *simple_command(struct token **token)
 
     if (pref == 0 || (*token && is_valid_word(*token))) // regle 2
     {
-        struct AST* child;
-        if(is_valid_word(*token)){
+        struct AST *child;
+        if (is_valid_word(*token))
+        {
             child = create_ast(AST_VALUE, strdup((*token)->content));
         }
-        else{
-          goto err;
+        else
+        {
+            goto err;
         }
 
         ast = add_children(ast, child);
@@ -897,8 +897,9 @@ static struct AST *prefix(struct token **token)
 {
     if ((*token)->type == A_WORDS)
     {
-        struct AST *ast = create_ast(AST_ASSIGNEMENT, strdup((*token)->content));
-		*token = eat(*token);
+        struct AST *ast =
+            create_ast(AST_ASSIGNEMENT, strdup((*token)->content));
+        *token = eat(*token);
         return ast;
     }
 
@@ -916,7 +917,7 @@ static struct AST *prefix(struct token **token)
 }
 
 //(21) redirection = [IONUMBER] ( '>' | '<' | '>>' | '>&' | '<&' | '>|' | '<>' )
-//WORD
+// WORD
 
 static struct AST *redirection(struct token **token)
 {

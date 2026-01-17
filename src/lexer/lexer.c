@@ -162,8 +162,8 @@ static void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
             ;
     }
 
-	if (*c == '\n')
-		ungetc(*c, file);
+    if (*c == '\n')
+        ungetc(*c, file);
 }
 
 /**

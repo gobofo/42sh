@@ -1,4 +1,5 @@
 #include "my_echo.h"
+
 #include <string.h>
 /**
  * @brief		Checks if the flags passed to the echo function are valid

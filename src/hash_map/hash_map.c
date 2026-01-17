@@ -61,7 +61,7 @@ bool hash_map_insert(struct hash_map *hash_map, char *key, char *value,
         }
         else
         {
-			free(hash_map->data[h]->value);
+            free(hash_map->data[h]->value);
             hash_map->data[h]->value = strdup(value);
 
             free(new_pair->value);

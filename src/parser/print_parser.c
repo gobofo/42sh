@@ -10,17 +10,17 @@ char *get_string_of_node(struct AST *ast)
     switch (ast->rule)
     {
     case AST_SHELL_CMD:
-      return "SHELL_CMD";
+        return "SHELL_CMD";
     case AST_WHILE:
-      return "WHILE";
+        return "WHILE";
     case AST_UNTIL:
         return "UNTIL";
     case AST_FOR:
-       return "FOR";
+        return "FOR";
     case AST_AND:
-         return "AND";
+        return "AND";
     case AST_OR:
-         return "OR";
+        return "OR";
 
     case AST_PIPELINE:
         return "PIPELINE";
