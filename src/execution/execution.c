@@ -158,10 +158,10 @@ int do_redir(struct AST *root, struct AST **redir)
 
     if (root->rule == AST_SIMPLE_CMD)
     {
+        
         char **command = create_command(root);
         int status = execute_cmd(command);
 
-        free(command);
         return status;
     }
 
@@ -185,6 +185,12 @@ int execute_cmd(char **command)
         status = my_echo(command + 1);
     else
         status = execute_non_builtin(command);
+
+    for (int i = 0; command[i] != NULL; i++){
+        free(command[i]);
+    }
+
+    free(command);
 
     return status;
 }

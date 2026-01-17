@@ -67,5 +67,14 @@ int main(int argc, char *argv[])
         tok = get_token(NULL);
     }
 
-    return env->last_exit_code;
+    int return_val = env->last_exit_code;
+    hash_map_free(env->variables);
+
+    for (int i = 0; i < env->argc; i++){
+        free(env->argv[i]);
+    }
+
+    free(env);
+
+    return return_val;
 }
