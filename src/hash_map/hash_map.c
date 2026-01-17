@@ -61,6 +61,7 @@ bool hash_map_insert(struct hash_map *hash_map, char *key, char *value,
         }
         else
         {
+			free(hash_map->data[h]->value);
             hash_map->data[h]->value = strdup(value);
 
             free(new_pair->value);
@@ -208,39 +209,3 @@ bool hash_map_remove(struct hash_map *hash_map, char *key)
 
     return true;
 }
-
-// int main(void)
-//{
-//      struct hash_map *map = hash_map_init(5);
-//
-//      bool updated;
-//      hash_map_insert(map, "SKI", "winter", &updated);
-//      hash_map_insert(map, "ACU", "51", &updated);
-//      hash_map_insert(map, "C", "42", &updated);
-//      hash_map_insert(map, "42", "life", &updated);
-//      hash_map_insert(map, "SKI", "cold", &updated);
-//
-//      const char *res = hash_map_get(map, "S");
-//      if (res)
-//          printf("%s\n", res);
-//
-//      hash_map_dump(map);
-//
-//      printf("\n");
-//
-//      hash_map_insert(map, "S", "s", &updated);
-//      hash_map_insert(map, "a", "to remove", &updated);
-//      hash_map_dump(map);
-//
-//      printf("\n");
-//
-//      printf("Found: %i\n", hash_map_remove(map, "C"));
-//      printf("Found: %i\n", hash_map_remove(map, "a"));
-//      printf("Found: %i\n", hash_map_remove(map, "ACU"));
-//      printf("Found: %i\n", hash_map_remove(map, "x"));
-//      printf("Found: %i\n", hash_map_remove(map, "a"));
-//
-//      hash_map_dump(map);
-//
-//      hash_map_free(map);
-//  }
