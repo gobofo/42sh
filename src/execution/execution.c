@@ -61,21 +61,21 @@ char **create_command(struct AST *root)
     {
         if (root->children[i]->rule == AST_VALUE)
         {
-        	char *expanded_value;
+            char *expanded_value;
 
-			if (strcmp(root->children[i]->content, "\"\"") == 0 ||
-					strcmp(root->children[i]->content, "''") == 0)
-				expanded_value = expand(&root->children[i]->content);
-			else
-			{
-				expanded_value = expand(&root->children[i]->content);
+            if (strcmp(root->children[i]->content, "\"\"") == 0
+                || strcmp(root->children[i]->content, "''") == 0)
+                expanded_value = expand(&root->children[i]->content);
+            else
+            {
+                expanded_value = expand(&root->children[i]->content);
 
-				if (strcmp(expanded_value, "") == 0)
-				{
-					free(expanded_value);
-					continue;	
-				}
-			}
+                if (strcmp(expanded_value, "") == 0)
+                {
+                    free(expanded_value);
+                    continue;
+                }
+            }
 
             command[idx++] = expanded_value;
         }
@@ -172,7 +172,6 @@ int do_redir(struct AST *root, struct AST **redir)
 
     if (root->rule == AST_SIMPLE_CMD)
     {
-        
         char **command = create_command(root);
         int status = execute_cmd(command);
 
@@ -200,7 +199,8 @@ int execute_cmd(char **command)
     else
         status = execute_non_builtin(command);
 
-    for (int i = 0; command[i] != NULL; i++){
+    for (int i = 0; command[i] != NULL; i++)
+    {
         free(command[i]);
     }
 
@@ -214,10 +214,10 @@ int execute_simple_cmd(struct AST *root)
     struct AST **redir = create_redir(root);
 
     if (root->count_children == 1 && root->children[0]->rule == AST_ASSIGNEMENT)
-	{
-		free(redir);
+    {
+        free(redir);
         return variable_assignation(root->children[0]);
-	}
+    }
 
     int status = do_redir(root, redir);
 

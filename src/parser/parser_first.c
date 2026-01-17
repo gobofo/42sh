@@ -1,7 +1,6 @@
 
 
 #include "../token.h"
-
 #include "parser.h"
 
 bool first_list(struct token *token)
@@ -10,7 +9,7 @@ bool first_list(struct token *token)
         return false;
     enum types type = token->type;
     return type == IF || type == WHILE || type == UNTIL || type == FOR
-        || type == NEG || type == REDIR || type == WORDS || type ==A_WORDS;
+        || type == NEG || type == REDIR || type == WORDS || type == A_WORDS;
 }
 
 bool first_and_or(struct token *token)
@@ -19,7 +18,7 @@ bool first_and_or(struct token *token)
         return false;
     enum types type = token->type;
     return type == IF || type == WHILE || type == UNTIL || type == FOR
-        || type == NEG || type == REDIR || type == WORDS || type== A_WORDS;
+        || type == NEG || type == REDIR || type == WORDS || type == A_WORDS;
 }
 
 bool first_pipeline(struct token *token)
@@ -28,7 +27,7 @@ bool first_pipeline(struct token *token)
         return false;
     enum types type = token->type;
     return type == NEG || type == IF || type == WHILE || type == UNTIL
-        || type == FOR || type == REDIR || type == WORDS || type ==A_WORDS;
+        || type == FOR || type == REDIR || type == WORDS || type == A_WORDS;
 }
 
 bool first_command(struct token *token)
@@ -37,8 +36,7 @@ bool first_command(struct token *token)
         return false;
     enum types type = token->type;
     return type == IF || type == WHILE || type == UNTIL || type == FOR
-        || type == REDIR || type == WORDS  || type ==A_WORDS;
-
+        || type == REDIR || type == WORDS || type == A_WORDS;
 }
 
 bool first_shell_command(struct token *token)
@@ -83,8 +81,8 @@ bool first_compound_list(struct token *token)
         return false;
     enum types type = token->type;
     return type == NEWLINE || type == IF || type == WHILE || type == UNTIL
-        || type == FOR || type == NEG || type == REDIR || type == WORDS  || type ==A_WORDS;
-
+        || type == FOR || type == NEG || type == REDIR || type == WORDS
+        || type == A_WORDS;
 }
 
 bool first_simple_command(struct token *token)
@@ -92,8 +90,7 @@ bool first_simple_command(struct token *token)
     if (!token)
         return false;
     enum types type = token->type;
-    return type == WORDS || type == REDIR  || type ==A_WORDS;
-
+    return type == WORDS || type == REDIR || type == A_WORDS;
 }
 
 bool first_prefix(struct token *token)
@@ -209,7 +206,7 @@ bool follow_prefix(struct token *token)
     if (token == NULL)
         return true;
     enum types type = token->type;
-    return type == WORDS || type == A_WORDS|| type == REDIR ;
+    return type == WORDS || type == A_WORDS || type == REDIR;
 }
 
 bool follow_redirection(struct token *token)
@@ -225,5 +222,5 @@ bool follow_element(struct token *token)
     return type == REDIR || type == WORDS || type == PIPE || type == AND
         || type == OR || type == SEMICOLON || type == NEWLINE || type == THEN
         || type == DO || type == DONE || type == ELSE || type == ELIF
-        || type == FI ;
+        || type == FI;
 }
