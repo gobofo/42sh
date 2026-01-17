@@ -161,6 +161,9 @@ static void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
         while ((*c = fgetc(file)) != EOF && *c != '\n')
             ;
     }
+
+	if (*c == '\n')
+		ungetc(*c, file);
 }
 
 /**
@@ -205,6 +208,7 @@ static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
             fprintf(*stream, "%s", buff);
             return flush_stream(*stream, buffer);
         }
+
         if (idx > 0)
             ungetc(buff[idx], file);
         buff[idx] = '\0';
@@ -232,7 +236,7 @@ static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
  * @return			The next valid token in the stream
  */
 
-static struct token *read_input(FILE *file)
+struct token *read_input(FILE *file)
 {
     int c;
 
