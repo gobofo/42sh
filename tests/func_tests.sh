@@ -137,6 +137,17 @@ test_cmd "echo -e -n 'test\n'" "Test echo -e -n combines (ordre inverse)"
 
 test_cmd "echo -e '\t\ttabs'" "Test echo -e avec doubles tabulations"
 
+#--------------- TESTS ECHO ESCAPE CHAR ---------------#
+echo "###################################################"
+echo "TESTS ECHO WITH OPTIONS AND ESCAPED CHARACTERS"
+echo "###################################################"
+
+test_cmd 'echo -e "a\nb"' "Test newline in middle"
+
+test_cmd 'echo -E "a\nb"' "Test newline to print"
+
+test_cmd 'echo -e "tab:\tend"' "Test tabulation in echo"
+
 #----------------- TESTS AND_OR (&&, ||) -----------------#
 echo "###################################################"
 echo "TESTS AND_OR (&&, ||)"
