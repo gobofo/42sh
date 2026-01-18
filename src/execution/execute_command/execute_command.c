@@ -15,7 +15,7 @@ int execute_non_builtin(char **cmd)
         if (execvp(cmd[0], cmd) == -1)
         {
             fprintf(stderr, "Error: command not found: %s\n", cmd[0]);
-            return 127;
+            _exit(127);
         }
     }
     else
@@ -33,5 +33,5 @@ int execute_non_builtin(char **cmd)
             return WEXITSTATUS(wstatus);
     }
 
-    return 0;
+    _exit(0);
 }
