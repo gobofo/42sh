@@ -226,7 +226,15 @@ char *expand(char **value)
         {
             i++;
 
-            fputc(str[i++], stream);
+            // We want to skip the \n after an escape char
+            if (str[i] == '\n')
+            {
+                i++;
+                continue;
+            }
+
+            if (str[i] != '\0')
+                fputc(str[i++], stream);
         }
         // Single quote is found, so we take the literal value inside
         else if (str[i] == '\'')

@@ -423,6 +423,9 @@ test_cmd "echo '' '' '' | cat -e" "Test guillemets multiples vides"
 
 test_cmd "echo 'tab	inside'" "Test tabulation dans guillemets"
 
+test_cmd 'echo hello \
+	world' "Test line continuation"
+
 #----------------- TESTS QUOTE NESTING -----------------#
 echo "###################################################"
 echo "TESTS QUOTES NESTING"
