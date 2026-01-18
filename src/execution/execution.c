@@ -193,6 +193,11 @@ int do_redir(struct AST *root, struct AST **redir)
 int execute_cmd(char **command)
 {
     int status = 0;
+    
+    if(!command || command[0]==NULL){
+      free(command);
+      return 0; // a fix peut etre 
+    }
 
     // We consider the quote expansion has been done
     if (strcmp(command[0], "true") == 0)
