@@ -635,6 +635,8 @@ test_cmd 'x=val; for i in a b; do echo "$x$i"; done' "Test variable dans for"
 
 test_cmd 'x=5; y=10; echo "$x" "$y"' "Test variables numeriques"
 
+test_cmd 'a=1 b=2; echo $a $b' "Test multiple variable assignation in same command"
+
 #----------------- TESTS RECURSIVE VARIABLES -----------------#
 echo "###################################################"
 echo "TESTS RECURSIVE VARIABLES"
