@@ -267,8 +267,10 @@ char *expand(char **value)
                     i++;
                 }
                 else
+				{
                     fputc(str[i++], stream);
-            }
+				}
+			}
 
             if (str[i] == '"')
                 i++;

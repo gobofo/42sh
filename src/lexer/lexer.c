@@ -108,6 +108,9 @@ static void handle_quotes(FILE *file, FILE **stream, int *c)
 
     while ((*c = fgetc(file)) != EOF && *c != open_quote)
     {
+		// In double quotes, some characters can be escaped with the \ so when
+		// one is found we have to take a particular action
+
         if (*c == '\\' && open_quote == '"')
         {
             int next = fgetc(file);
@@ -122,7 +125,6 @@ static void handle_quotes(FILE *file, FILE **stream, int *c)
                 }
                 else
                 {
-                    fputc('\\', *stream);
                     ungetc(next, file);
                 }
             }
