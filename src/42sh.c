@@ -40,8 +40,9 @@ int main(int argc, char *argv[])
     {
         struct AST *ast;
 
-        if (tok == NULL)
-            ast = create_ast(AST_LIST, NULL);
+        if (tok == NULL){
+          break;
+        }
 
         else
         {
