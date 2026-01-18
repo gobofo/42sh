@@ -211,14 +211,37 @@ int execute_cmd(char **command)
 
 int execute_simple_cmd(struct AST *root)
 {
-    struct AST **redir = create_redir(root);
+    // In a command, some variables can be assigned but only with some specific
+    // conditions: THERE CAN BE ONLY ASSIGNMENTS IN THE COMMAND
 
-    if (root->count_children == 1 && root->children[0]->rule == AST_ASSIGNEMENT)
+    int is_assignment = 1;
+    for (int i = 0; i < root->count_children; i++)
     {
-        free(redir);
-        return variable_assignation(root->children[0]);
+        if (root->children[i]->rule != AST_ASSIGNEMENT)
+        {
+            is_assignment = 0;
+            break;
+        }
     }
 
+    // We have only assignments to execute
+    if (is_assignment == 1)
+    {
+        int status = 0;
+        for (int i = 0; i < root->count_children; i++)
+            status = variable_assignation(root->children[i]);
+
+        return status;
+    }
+
+    //    if (root->count_children == 1 && root->children[0]->rule ==
+    //    AST_ASSIGNEMENT)
+    //    {
+    //        free(redir);
+    //        return variable_assignation(root->children[0]);
+    //    }
+
+    struct AST **redir = create_redir(root);
     int status = do_redir(root, redir);
 
     free(redir);
