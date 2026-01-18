@@ -357,7 +357,7 @@ static pid_t exec_fork(struct AST *root, int intput_pipe, int output_pipe)
         }
         close(output_pipe);
     }
-    exit(execute_node(root));
+    _exit(execute_node(root));
 }
 
 int execute_pipeline(struct AST *root)
