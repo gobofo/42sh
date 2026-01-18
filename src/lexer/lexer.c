@@ -185,6 +185,11 @@ static void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
  * redirection
  */
 
+static int is_redir_c(char c)
+{
+	return c == '>' || c == '<' || c == '|' || c == '&';
+}
+
 static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
                                   int c)
 {
@@ -192,8 +197,14 @@ static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
 
     buff[0] = c;
     buff[1] = fgetc(file);
-    buff[2] = fgetc(file);
+	if (is_redir_c(buff[1]) == 0)
+	{
+		ungetc(buff[1], file);
+		return NULL;
+	}
 
+    buff[2] = fgetc(file);
+	
     int idx = 2;
 
     while (idx >= 0)
