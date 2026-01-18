@@ -40,9 +40,8 @@ int main(int argc, char *argv[])
     {
         struct AST *ast;
 
-        if (tok == NULL){
-          break;
-        }
+        if (tok == NULL)
+            break;
 
         else
         {
@@ -59,7 +58,6 @@ int main(int argc, char *argv[])
             parser_print(ast);
 
         env->last_exit_code = execute_ast(ast);
-
         destroy_AST(ast);
 
         if (tok == NULL)
@@ -72,11 +70,9 @@ int main(int argc, char *argv[])
     hash_map_free(env->variables);
 
     for (int i = 0; i < env->argc; i++)
-    {
         free(env->argv[i]);
-    }
-
     free(env);
+
     fclose(file);
 
     return return_val;
