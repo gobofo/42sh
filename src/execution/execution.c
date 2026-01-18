@@ -161,13 +161,16 @@ int execute_redir(struct AST *root, struct AST **redir)
 
     free(to_free);
 
+	if (status != 0)
+		return status;
+
     return status;
 }
 
 // The recursiv function to execute the various REDIR
 int do_redir(struct AST *root, struct AST **redir)
 {
-    if (*redir)
+    if (redir && *redir)
         return execute_redir(root, redir);
 
     if (root->rule == AST_SIMPLE_CMD)
@@ -178,7 +181,9 @@ int do_redir(struct AST *root, struct AST **redir)
         return status;
     }
 
-    return execute_node(root);
+	int status = execute_node(root);
+
+    return status;
 }
 
 // ###############################
