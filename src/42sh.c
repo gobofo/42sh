@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     }
 
     free(env);
-	fclose(file);
+    fclose(file);
 
     return return_val;
 }
