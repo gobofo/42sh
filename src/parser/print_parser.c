@@ -39,6 +39,8 @@ char *get_string_of_node(struct AST *ast)
 
     case AST_ASSIGNEMENT:
         return ast->content;
+    case AST_FUNC:
+        return ast->content;
     default:
         return "";
     }
@@ -73,6 +75,8 @@ char *get_color_of_node(struct AST *ast)
     case AST_FOR:
         return "#1ABC9C";
     case AST_SHELL_CMD:
+        return "#E74C3C";
+    case AST_FUNC:
         return "#E74C3C";
 
     default:
