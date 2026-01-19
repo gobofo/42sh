@@ -378,7 +378,7 @@ static struct AST *command(struct token **token)
     else if((*token)->type==WORDS){
       struct token *look_ahead=next_token(NULL);
 
-      if(look_ahead->type==L_PAREN){
+      if(look_ahead && look_ahead->type==L_PAREN){
 
         _redir=1;
         ast = create_ast(AST_FUNC, NULL);
