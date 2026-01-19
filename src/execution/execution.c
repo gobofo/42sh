@@ -161,8 +161,8 @@ int execute_redir(struct AST *root, struct AST **redir)
 
     free(to_free);
 
-	if (status != 0)
-		return status;
+    if (status != 0)
+        return status;
 
     return status;
 }
@@ -181,7 +181,7 @@ int do_redir(struct AST *root, struct AST **redir)
         return status;
     }
 
-	int status = execute_node(root);
+    int status = execute_node(root);
 
     return status;
 }
@@ -193,10 +193,11 @@ int do_redir(struct AST *root, struct AST **redir)
 int execute_cmd(char **command)
 {
     int status = 0;
-    
-    if(!command || command[0]==NULL){
-      free(command);
-      return 0; // a fix peut etre 
+
+    if (!command || command[0] == NULL)
+    {
+        free(command);
+        return 0; // a fix peut etre
     }
 
     // We consider the quote expansion has been done

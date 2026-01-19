@@ -18,7 +18,8 @@ FILE *get_input_file(int argc, char *argv[])
     if (argc > 1)
     {
         FILE *f = fopen(argv[1], "r");
-        if (!f) return NULL; 
+        if (!f)
+            return NULL;
         return f;
     }
 
