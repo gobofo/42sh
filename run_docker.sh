@@ -37,6 +37,8 @@ docker run $INTERACTIVE_FLAGS --rm -v "$(pwd):$CONTAINER_APP_DIR" $IMAGE_NAME ba
     ./src/42sh "$@"
 ' -- "$@"
 
+sudo git clean -fdx > /dev/null
+
 if [ "$1" == "check" ] && [ -f "out" ]; then
     echo "--- Test Results: \$(cat out)% ---"
     rm out
