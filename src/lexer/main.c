@@ -54,6 +54,14 @@ const char *get_type_name(enum types type)
         return "WORDS";
     case A_WORDS:
         return "A_WORDS";
+	case L_BRACE:
+		return "L_BRACE";
+	case R_BRACE:
+		return "R_BRACE";
+	case L_PAREN:
+		return "L_PAREN";
+	case R_PAREN:
+		return "R_PAREN";
     default:
         return "UNKNOWN";
     }
