@@ -13,6 +13,7 @@
 #include "utils.h"
 
 struct token *get_token(FILE *input);
+struct token *next_token(FILE *input);
 struct token *read_input(FILE *file);
 
 void free_token(struct token *token);
