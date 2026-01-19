@@ -47,10 +47,11 @@ struct env *init_env(int argc, char **argv)
     if (!ifs)
         ifs = "\t\n";
 
-    // ENV Variables Predefined when the shell is launched
-    hash_map_insert(env->variables, "OLDPWD", oldpwd, &update);
-    hash_map_insert(env->variables, "PWD", pwd ? pwd : ".", &update);
-    hash_map_insert(env->variables, "IFS", ifs, &update);
+	// ENV Variables Predefined when the shell is launched
+	if(oldpwd)
+		hash_map_insert(env->variables, "OLDPWD", oldpwd, &update);
+	hash_map_insert(env->variables, "PWD", pwd ? pwd : ".", &update);
+	hash_map_insert(env->variables, "IFS", ifs, &update);
 
-    return env;
+	return env;
 }
