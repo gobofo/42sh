@@ -26,6 +26,7 @@ bool first_simple_command(struct token *token);
 bool first_prefix(struct token *token);
 bool first_redirection(struct token *token);
 bool first_element(struct token *token);
+bool first_funcdec(struct token *token);
 
 bool follow_input(struct token *token);
 bool follow_list(struct token *token);

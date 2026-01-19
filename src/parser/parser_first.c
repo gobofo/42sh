@@ -31,9 +31,9 @@ bool first_command(struct token *token)
 {
     if (!token)
         return false;
-    enum types type = token->type;
     return first_simple_command(token) || first_shell_command(token) || first_funcdec(token);
 }
+
 bool first_funcdec(struct token *token){
     if (!token)
         return false;
