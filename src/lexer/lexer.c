@@ -4,6 +4,34 @@
 // #   MAIN FUNCTION   #
 // #####################
 
+
+struct token *intermediate(FILE *input, bool eat)
+{
+    static FILE *file = NULL;
+
+    if (input)
+        file = input;
+
+    if (!file)
+        file = input;
+
+
+	static struct token* next_token = NULL;
+
+	if(!next_token){
+		next_token = read_input(file);
+	}
+
+	if(!eat)
+		return next_token;
+
+	struct token *token = next_token;
+	next_token = read_input(file);
+
+	return token;
+}
+
+
 /**
  * @brief 			Function to return the next token
  *
@@ -16,18 +44,15 @@
 
 struct token *get_token(FILE *input)
 {
-    static FILE *stream = NULL;
-
-    if (input)
-        stream = input;
-
-    if (!stream)
-        stream = input;
-
-    struct token *token = read_input(stream);
-
-    return token;
+    return intermediate(input, 1);
 }
+
+struct token *next_token(FILE *input)
+{
+	return intermediate(input, 0);
+}
+
+
 
 // ##############
 // #   STREAM   #
