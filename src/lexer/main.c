@@ -81,14 +81,22 @@ int main(int argc, char **argv)
     }
 
     struct token *tok = get_token(stream);
-
+	struct token* next = next_token(NULL);
     while (tok != NULL)
     {
-        printf("[%s](%s)\n", tok->content, get_type_name(tok->type));
 
-        free_token(tok);
+		printf("token : [%s](%s)\n", tok->content, get_type_name(tok->type));
+		
+		if(next)
+        	printf("next token : [%s](%s)\n", next->content, get_type_name(next->type));
+		else
+			printf("pas de next token\n");
+		printf("============================\n");
+
+		free_token(tok);
 
         tok = get_token(NULL);
+		next = next_token(NULL);
     }
 
     printf("\n");
