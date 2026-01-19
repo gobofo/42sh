@@ -94,7 +94,7 @@ static int bracet(struct token **token, char *str)
     else if (strcmp(str, "{") == 0)
         (*token)->type = L_BRACE;
     else if (strcmp(str, "}") == 0)
-        (*token)->type = R_PAREN;
+        (*token)->type = R_BRACE;
     else
         return 0;
 
