@@ -1,5 +1,5 @@
 #include "lexer.h"
-
+#include <stdbool.h>
 // #####################
 // #   MAIN FUNCTION   #
 // #####################
@@ -9,11 +9,13 @@ struct token *intermediate(FILE *input, bool eat)
 {
     static FILE *file = NULL;
 
-    if (input)
+    if (input){
         file = input;
+	}
 
-    if (!file)
+    if (!file){
         file = input;
+	}
 
 
 	static struct token* next_token = NULL;
