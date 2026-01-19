@@ -57,5 +57,17 @@ dkms.conf
 # debug information files
 *.dwo
 
-# Docker files
+# Docker files create by Autotools
 autom4te.cache
+src/.deps/
+src/ast/.deps/
+src/environment/.deps/
+src/execution/.deps/
+src/execution/execute_command/.deps/
+src/execution/my_echo/.deps/
+src/execution/my_redir/.deps/
+src/expansion/.deps/
+src/hash_map/.deps/
+src/io_backend/.deps/
+src/lexer/.deps/
+src/parser/.deps/
