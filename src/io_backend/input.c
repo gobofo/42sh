@@ -2,21 +2,25 @@
 
 #include "input.h"
 
-#include <string.h>
-
 FILE *get_input_file(int argc, char *argv[])
 {
-    if (argc == 1)
-        return stdin;
+    for (int i = 1; i < argc; i++)
+    {
+        if (strcmp(argv[i], "-c") == 0)
+        {
+            if (i + 1 < argc)
+                return fmemopen(argv[i + 1], strlen(argv[i + 1]), "r");
+            else
+                return NULL;
+        }
+    }
 
-    if (argc == 2)
-        return fopen(argv[1], "r");
+    if (argc > 1)
+    {
+        FILE *f = fopen(argv[1], "r");
+        if (!f) return NULL; 
+        return f;
+    }
 
-    if (argc != 3)
-        return NULL;
-
-    if (strcmp(argv[1], "-c") == 0)
-        return fmemopen(argv[2], strlen(argv[2]), "r");
-
-    return NULL;
+    return stdin;
 }
