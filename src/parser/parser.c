@@ -381,7 +381,7 @@ static struct AST *command(struct token **token)
       if(look_ahead && look_ahead->type==L_PAREN){
 
         _redir=1;
-        ast = create_ast(AST_FUNC, NULL);
+        ast = create_ast(AST_FUNC, strdup((*token)->content));
         struct AST *ast_func = funcdec(token);
 
         if (ast_func == NULL)
@@ -488,45 +488,27 @@ err:
 
 static struct AST *funcdec(struct token **token){
 
-    struct AST *ast = create_ast(AST_FUNC, NULL);
-
     if (!is_valid_word(*token)){
-        goto err;
+        return NULL;
     }
 
-    ast->content = strdup((*token)->content);
     *token = eat(*token);
 
     if (*token == NULL || (*token)->type != L_PAREN){
-        goto err;
+        return NULL;
     }
 
     *token = eat(*token);
 
     if (*token == NULL || (*token)->type != R_PAREN){
-        goto err;
+        return NULL;
     }
 
     *token = eat(*token);
 
     eat_newlines(token);
 
-    if (!first_shell_command(*token)){
-        goto err;
-    }
-
-    struct AST *children = shell_command(token);
-    if (children == NULL){
-        goto err;
-    }
-
-    ast = add_children(ast, children);
-
-    return ast;
-
-err:
-    destroy_AST(ast);
-    return NULL;
+    return shell_command(token);
 
 }
 
