@@ -27,6 +27,7 @@
     command =
 (8)    simple_command
 (9)    | shell_command {redirection}
+        | funcdec {redirection}
 
 (10) shell_command =
         rule_if
@@ -81,6 +82,7 @@ static struct AST *prefix(struct token **token);
 static struct AST *rule_for(struct token **token);
 static struct AST *rule_while(struct token **token);
 static struct AST *rule_until(struct token **token);
+static struct AST *funcdec(struct token **token);
 
 int parse_body_if(struct AST **ast, struct token **token);
 
@@ -349,49 +351,64 @@ err:
 // 32
 //
 
-// command =
-//(6)    simple_command
-//(7)    | shell_command
+//         command =
+//(8)    simple_command
+//(9)    | shell_command {redirection}
+//       | funcdec {redirection} 
+
 // entation de la fonction libre indique explicitement qu'il est possible de
 // lui passer un pointeur n
 
 static struct AST *command(struct token **token)
 {
-    if (first_simple_command(*token))
+    struct AST *ast=NULL;
+
+    int _redir=0;
+    if (first_shell_command(*token))
     {
-        struct AST *ast = simple_command(token);
-        return ast;
-    }
-    else if (first_shell_command(*token))
-    {
-        struct AST *ast = create_ast(AST_SHELL_CMD, NULL);
+        _redir=1;
+        ast = create_ast(AST_SHELL_CMD, NULL);
+
         struct AST *ast_shell = shell_command(token);
         if (ast_shell == NULL)
-        {
-            destroy_AST(ast);
-            return NULL;
-        }
-        ast = add_children(ast, ast_shell);
-        while (first_redirection(*token))
-        {
-            struct AST *ast_redir = redirection(token);
-            if (ast_redir == NULL)
-            {
-                destroy_AST(ast);
-                return NULL;
-            }
-            ast = add_children(ast, ast_redir);
-        }
-        if (follow_command(*token))
-            return ast;
+          goto err;
 
-        destroy_AST(ast);
-        return NULL;
+        ast = add_children(ast, ast_shell);
     }
-    else
+    else if((*token)->type==WORDS){
+      struct token *look_ahead=next_token(NULL);
+
+      if(look_ahead->type==L_PAREN){
+
+        _redir=1;
+        ast = create_ast(AST_FUNC, NULL);
+        struct AST *ast_func = funcdec(token);
+
+        if (ast_func == NULL)
+          goto err;
+
+        ast = add_children(ast, ast_func);
+      }
+    }
+    if(_redir==0){
+      if(!first_simple_command(*token))
+        goto err;
+      return simple_command(token);
+    }
+    while (first_redirection(*token))
     {
-        return NULL;
+      struct AST *ast_redir = redirection(token);
+      if (ast_redir == NULL)
+        goto err;
+      ast = add_children(ast, ast_redir);
     }
+
+    if (follow_command(*token))
+      return ast;
+
+err:
+    destroy_AST(ast);
+  return NULL;
 } // 22
 
 //(8) shell_command = rule_if
@@ -426,13 +443,92 @@ static struct AST *shell_command(struct token **token)
             return NULL;
         return ast;
     }
+    if (*token != NULL && ((*token)->type == L_BRACE || (*token)->type == L_PAREN)){
+
+        bool is_paren = (*token)->type == L_PAREN;
+
+        *token = eat(*token);
+
+        if (!first_compound_list(*token)){
+            return NULL;
+        }
+
+        struct AST *ast = compound_list(token);
+
+        if (ast == NULL){
+            return NULL;
+        }
+
+        if (*token == NULL || ((*token)->type != R_BRACE && (*token)->type != R_PAREN)){
+            goto err;
+        }
+
+        if (((*token)->type == R_PAREN && !is_paren) || ((*token)->type == R_BRACE && is_paren)){
+            goto err;
+        }
+
+        *token = eat(*token);
+
+        return ast;
+
+err:
+        destroy_AST(ast);
+        return NULL;
+
+    }
     else
     {
         return NULL;
     }
 } // 22
-
 //(9) rule_if = 'if' compound_list 'then' compound_list [else_clause] 'fi'
+
+
+//funcdec = WORD '(' ')' {'\n'} shell_command ;
+
+static struct AST *funcdec(struct token **token){
+
+    struct AST *ast = create_ast(AST_FUNC, NULL);
+
+    if (!is_valid_word(*token)){
+        goto err;
+    }
+
+    ast->content = strdup((*token)->content);
+    *token = eat(*token);
+
+    if (*token == NULL || (*token)->type != L_PAREN){
+        goto err;
+    }
+
+    *token = eat(*token);
+
+    if (*token == NULL || (*token)->type != R_PAREN){
+        goto err;
+    }
+
+    *token = eat(*token);
+
+    eat_newlines(token);
+
+    if (!first_shell_command(*token)){
+        goto err;
+    }
+
+    struct AST *children = shell_command(token);
+    if (children == NULL){
+        goto err;
+    }
+
+    ast = add_children(ast, children);
+
+    return ast;
+
+err:
+    destroy_AST(ast);
+    return NULL;
+
+}
 
 static struct AST *rule_if(struct token **token)
 {
