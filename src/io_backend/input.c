@@ -17,10 +17,11 @@ FILE *get_input_file(int argc, char *argv[])
 
     if (argc > 1)
     {
-        FILE *f = fopen(argv[1], "r");
-        if (!f)
+        FILE *file = fopen(argv[1], "r");
+        if (!file)
             return NULL;
-        return f;
+
+        return file;
     }
 
     return stdin;

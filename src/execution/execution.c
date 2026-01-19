@@ -207,6 +207,8 @@ int execute_cmd(char **command)
         status = 1;
     else if (strcmp(command[0], "echo") == 0)
         status = my_echo(command + 1);
+	else if (strcmp(command[0], "cd") == 0)
+		status = my_cd(command + 1);
     else
         status = execute_non_builtin(command);
 
