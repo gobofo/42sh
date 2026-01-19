@@ -84,6 +84,23 @@ static int misc(struct token **token, char *str)
     return 1;
 }
 
+static int bracet(struct token **token, char *str)
+{
+	
+    if (strcmp(str, "(") == 0)
+        (*token)->type = L_PAREN;
+    else if (strcmp(str, ")") == 0)
+        (*token)->type = R_PAREN;
+    else if (strcmp(str, "[") == 0)
+        (*token)->type = L_BRACE;
+    else if (strcmp(str, "]") == 0)
+        (*token)->type = R_PAREN;
+    else
+        return 0;
+
+    return 1;
+} 
+
 struct token *create_token(char *str)
 {
     if (!str || strcmp(str, "") == 0)
@@ -100,6 +117,8 @@ struct token *create_token(char *str)
         return token;
     else if (misc(&token, str) == 1)
         return token;
+	else if (bracet(&token, str) == 1)
+		return token;
     else if (strcmp(str, ";") == 0)
         token->type = SEMICOLON;
     else if (strcmp(str, "\n") == 0)
