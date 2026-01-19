@@ -69,8 +69,6 @@ int main(int argc, char *argv[])
     int return_val = env->last_exit_code;
     hash_map_free(env->variables);
 
-    for (int i = 0; i < env->argc; i++)
-        free(env->argv[i]);
     free(env);
 
     fclose(file);

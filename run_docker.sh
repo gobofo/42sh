@@ -24,21 +24,18 @@ else
     INTERACTIVE_FLAGS="-it"
 fi
 
-docker run $INTERACTIVE_FLAGS --rm -v "$(pwd):$CONTAINER_APP_DIR" $IMAGE_NAME bash -c "
+docker run $INTERACTIVE_FLAGS --rm -v "$(pwd):$CONTAINER_APP_DIR" $IMAGE_NAME bash -c '
+    find . -name ".deps" -type d -exec rm -rf {} + > /dev/null 2>&1
+    rm -rf autom4te.cache > /dev/null 2>&1
     
     autoreconf -i > /dev/null 2>&1 && \
-    ./configure CFLAGS='-std=c99 -pedantic -Werror -Wall -Wextra -Wvla -g -O0 -fsanitize=address' \
-                LDFLAGS='-fsanitize=address' > /dev/null 2>&1 && \
+    ./configure CFLAGS="-std=c99 -pedantic -Werror -Wall -Wextra -Wvla -g -O0 -fsanitize=address" \
+                LDFLAGS="-fsanitize=address" > /dev/null 2>&1 && \
 
-	echo '--- Autotools Configuration Done ---' && \
+    make -s > /dev/null 2>&1 || exit 1
     
-    if ! make -s > /dev/null 2>&1; then
-        echo 'Error: Compilation failed!'
-        exit 1
-    fi
-    
-    $CMD_TO_RUN
-"
+    ./src/42sh "$@"
+' -- "$@"
 
 if [ "$1" == "check" ] && [ -f "out" ]; then
     echo "--- Test Results: \$(cat out)% ---"
