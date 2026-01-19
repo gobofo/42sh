@@ -11,6 +11,7 @@
  *
  * @return		The new environment
  */
+
 struct env *init_env(int argc, char **argv)
 {
     struct env *env = malloc(sizeof(struct env));
@@ -44,15 +45,16 @@ struct env *init_env(int argc, char **argv)
     char *oldpwd = getenv("OLDPWD");
     char *pwd = getenv("PWD");
     char *ifs = getenv("IFS");
-    if (!ifs){
-        ifs = "\t\n";
-	}
-	// ENV Variables Predefined when the shell is launched
-	if(oldpwd){
-		hash_map_insert(env->variables, "OLDPWD", oldpwd, &update);
-	}
-	hash_map_insert(env->variables, "PWD", pwd ? pwd : ".", &update);
-	hash_map_insert(env->variables, "IFS", ifs, &update);
 
-	return env;
+    if (!ifs)
+        ifs = "\t\n";
+
+    // ENV Variables Predefined when the shell is launched
+    if (oldpwd)
+        hash_map_insert(env->variables, "OLDPWD", oldpwd, &update);
+
+    hash_map_insert(env->variables, "PWD", pwd ? pwd : ".", &update);
+    hash_map_insert(env->variables, "IFS", ifs, &update);
+
+    return env;
 }
