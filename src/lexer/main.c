@@ -61,14 +61,20 @@ const char *get_type_name(enum types type)
 
 int main(int argc, char **argv)
 {
-    if (argc != 2)
-    {
-        fprintf(stderr, "Usage: %s <string_to_lex>\n", argv[0]);
-        return 1;
-    }
+	FILE *stream;
+	if(argc==1)
+		stream = stdin;
 
-    FILE *stream = fmemopen(argv[1], strlen(argv[1]), "r");
-    if (!stream)
+	else if(argc==2)
+    	stream = fmemopen(argv[1], strlen(argv[1]), "r");
+    
+	else if(argc==3)
+		stream = fopen(argv[2], "r");
+
+	else
+		return 1;
+
+	if (!stream)
     {
         perror("fmemopen failed");
         return 1;
