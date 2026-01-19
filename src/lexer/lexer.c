@@ -311,7 +311,7 @@ struct token *read_input(FILE *file)
         }
 
         // Same as before but those charcacters need to be safed as tokens
-        if (c == ';' || c == '\n' || c == '!' || c=='(' || c==')' || c=='[' || c==']')
+        if (c == ';' || c == '\n' || c == '!' || c=='(' || c==')' || c=='{' || c=='}')
         {
             // Sync the stream
             fflush(stream);

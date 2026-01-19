@@ -86,14 +86,14 @@ static int misc(struct token **token, char *str)
 
 static int bracet(struct token **token, char *str)
 {
-	
+
     if (strcmp(str, "(") == 0)
         (*token)->type = L_PAREN;
     else if (strcmp(str, ")") == 0)
         (*token)->type = R_PAREN;
-    else if (strcmp(str, "[") == 0)
+    else if (strcmp(str, "{") == 0)
         (*token)->type = L_BRACE;
-    else if (strcmp(str, "]") == 0)
+    else if (strcmp(str, "}") == 0)
         (*token)->type = R_PAREN;
     else
         return 0;
