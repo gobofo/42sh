@@ -19,12 +19,18 @@
     command =
 (8)    simple_command
 (9)    | shell_command {redirection}
+       |funcdec { redirection }
 
-(10) shell_command =
-        rule_if
-        | rule_while
-        | rule_until
-        | rule_for
+
+(10) shell_c
+    '{' compound_list '}'
+   |'(' compound_list ')'
+   | rule_if
+   | rule_while
+   | rule_until
+   | rule_for
+
+funcdec = WORD '(' ')' {'\n'} shell_command ;
 
 (11) rule_if = 'if' compound_list 'then' compound_list [else_clause] 'fi'
 

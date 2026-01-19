@@ -36,7 +36,14 @@ enum types
 
     // OTHER
     WORDS,
-    A_WORDS
+    A_WORDS,
+    
+    // PARENTHESE ET BRACKET
+    L_BRACE,
+    R_BRACE,
+
+    L_PAREN,
+    R_PAREN
 };
 
 struct token
