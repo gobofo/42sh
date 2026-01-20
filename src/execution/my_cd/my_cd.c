@@ -17,7 +17,7 @@ char *create_path(char *cur_path)
 
 	// If the path starts with a / is an absolute path and we do nothing
 	if (cur_path[0] == '/')
-		return cur_path;
+		return strdup(cur_path);
 
 	// If it is not an absolute path we must do a concatenation:
 	// '/'PWD'/'path
@@ -48,16 +48,14 @@ char *create_path(char *cur_path)
  * @brief			Reconstructs a path from a stack
  *
  * @param stack		The stack with all the components
+ * @param top		The index of the top element of the stack, representing
+ * 					the size
  *
  * @return			The path
  */
 
-char *reconstruct_path(char **stack)
+char *reconstruct_path(char **stack, size_t top)
 {
-	// Stack is empty nothing to do
-	if (stack == NULL || stack[0] == NULL)	
-		return NULL;
-
 	char *path;
 	size_t len = 0;
 
@@ -65,12 +63,14 @@ char *reconstruct_path(char **stack)
 
 	fputc('/', stream);
 
-	for (int i = 0; stack[i] != NULL; i++)
+	for (int i = 0; stack[i] != NULL && top > 0; i++)
 	{
 		fputs(stack[i], stream);
 
 		if (stack[i + 1] != NULL)
 			fputc('/', stream);
+
+		top--;
 	}
 
 	fclose(stream);
@@ -121,7 +121,7 @@ char *canonical_form(char *cur_path)
 		token = strtok(NULL, "/");
 	}
 
-	char *path = reconstruct_path(stack);
+	char *path = reconstruct_path(stack, top);
 	if (path == NULL)
 		return NULL;
 
