@@ -8,12 +8,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "../token.h"
 #include "utils.h"
 
-struct token *get_token(FILE *input);
-struct token *next_token(FILE *input);
+struct lexer
+{
+	FILE *input;
+
+	struct token *current;
+	struct token *next;
+};
+
+struct lexer *init_lexer(FILE *input);
+void free_lexer(struct lexer *lexer);
+
+struct lexer *get_token(struct lexer *lexer);
+void next_token(struct lexer *lexer);
+
 struct token *read_input(FILE *file);
 
 void free_token(struct token *token);

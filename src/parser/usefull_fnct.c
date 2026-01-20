@@ -17,16 +17,26 @@ bool is_valid_word(struct token *token)
 
 //free le token actuelle et renvoi le suivant
 
-struct token *eat(struct token *token)
+struct lexer *eat(struct lexer *lexer)
 {
     free_token(token);
-    return get_token(NULL);
+    return get_token(lexer);
 }
 
 //mange les {/n}
 
-void eat_newlines(struct token **token)
+void eat_newlines(struct lexer **lexer)
 {
-    while (*token && (*token)->type == NEWLINE)
-        *token = eat(*token);
+    while (*lexer->current && (*lexer)->current->type == NEWLINE)
+        *lexer = eat(*lexer);
+}
+
+struct token *donne_token(struct lexer *lexer){
+
+    return lexer->current;
+
+}
+
+enum type donne_type(struct lexer *lexer){
+    return lexer->current->type;
 }
