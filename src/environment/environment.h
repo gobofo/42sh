@@ -10,6 +10,7 @@ struct env
 {
     // Stores the last exit code of the shell
     int last_exit_code;
+	int should_exit;
 
     // Stores the number of args passed to the shell
     int argc;
