@@ -216,7 +216,10 @@ int execute_cmd(char **command)
     }
     else if (strcmp(command[0],"break")==0){
         status=my_break(command+1);
-    }
+	}
+    else if (strcmp(command[0],"continue")==0){
+        status=my_continue(command+1);
+	}
     else
         status = execute_non_builtin(command);
 
@@ -312,8 +315,15 @@ int execute_while(struct AST *root)
 
     int status = 0;
 
-    while (!execute_node(root->children[0]) && env->break_count==0)
-        status = execute_node(root->children[1]);
+	while (!execute_node(root->children[0]) && env->break_count==0)
+	{
+        if(env->continue_count==0)
+			status = execute_node(root->children[1]);
+		else
+			env->continue_count--;
+	}
+	env->continue_count = 0;
+
     if(env->break_count)
       env->break_count--;
 
@@ -328,8 +338,13 @@ int execute_until(struct AST *root)
     int status = 0;
 
     while (execute_node(root->children[0]) && env->break_count==0)
-        status = execute_node(root->children[1]);
-
+	{
+        if(env->continue_count==0)
+			status = execute_node(root->children[1]);
+		else
+			env->continue_count--;
+	}
+	env->continue_count = 0;
     if(env->break_count)
       env->break_count--;
 
@@ -349,6 +364,10 @@ int execute_for(struct AST *root)
         hash_map_insert(env->variables, root->children[0]->content,
                         root->children[i]->content, &updated);
         exit_code = execute_node(root->children[root->count_children - 1]);
+		if(env->continue_count!=0){
+			i+=env->continue_count;
+			env->continue_count = 0;
+		}
     }
     if(env->break_count)
       env->break_count--;
@@ -395,7 +414,7 @@ int execute_list(struct AST *root)
 
     int status = 0;
 
-    for (int i = 0; i < root->count_children && env->break_count==0; i++)
+    for (int i = 0; i < root->count_children && env->break_count==0 && env->continue_count==0; i++)
         status = execute_node(root->children[i]);
 
     return status;
@@ -549,5 +568,6 @@ int execute_ast(struct AST *root)
     if (!root)
         return 1;
     env->break_count=0;
+	env->continue_count=0;
     return execute_node(root);
 }

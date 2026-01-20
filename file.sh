@@ -1,12 +1,5 @@
-#!/bin/sh
-
-break 2
-while true; do
-  while true; do
-    echo "coucou"
-    break a
-  done
-  echo "bise"
-  break 2
+for i in 1 2 3 4 5 6 7 8 9; do
+echo $i;
+continue 2;
 done
-echo end
+
