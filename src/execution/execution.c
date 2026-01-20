@@ -330,16 +330,29 @@ int execute_until(struct AST *root)
 
 int execute_for(struct AST *root)
 {
+	char *var = root->children[0]->content;
+
+	if (is_valid_name(var) == 0)
+	{
+		fprintf(stderr, "Error: %s: not a valid identifier\n", var);
+
+		env->should_exit = 1;
+		env->last_exit_code = 1;
+	}
+
     if (env->should_exit == 1)
         return env->last_exit_code;
 
     int exit_code = 0;
 
+	// The first children is name of the identifier so we go from the second to
+	// the before last child, the last beeing the command to execute inside
     for (int i = 1; i < root->count_children - 1; i++)
-    { // on va de deuxieme fils a l avant dernier
+    {
         bool updated = 1;
-        hash_map_insert(env->variables, root->children[0]->content,
-                        root->children[i]->content, &updated);
+        hash_map_insert(env->variables, var, root->children[i]->content,
+						&updated);
+
         exit_code = execute_node(root->children[root->count_children - 1]);
     }
 
