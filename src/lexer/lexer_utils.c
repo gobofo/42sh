@@ -109,6 +109,8 @@ struct token *create_token(char *str)
     struct token *token = malloc(sizeof(struct token));
     token->content = str;
 
+	char *c;
+
     if (clause_if(&token, str) == 1)
         return token;
     else if (clause_loop(&token, str) == 1)
@@ -123,10 +125,18 @@ struct token *create_token(char *str)
         token->type = SEMICOLON;
     else if (strcmp(str, "\n") == 0)
         token->type = NEWLINE;
-    // OTHER
-    else if (strchr(str, '=') != NULL)
-        token->type = A_WORDS;
-    else
+    else if ((c = strchr(str, '=')) != NULL)
+	{
+		*c = '\0';
+
+		if (is_valid_name(str) == 1)
+			token->type = A_WORDS;
+		else
+			token->type = WORDS;
+
+		*c = '=';
+	}
+	else
         token->type = WORDS;
 
     return token;
