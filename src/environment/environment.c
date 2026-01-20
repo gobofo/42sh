@@ -23,6 +23,9 @@ struct env *init_env(int argc, char **argv)
     // code is 0
     env->last_exit_code = 0;
 
+	// Keep track if the use calls the exit command
+	env->should_exit = 0;
+
     // Init the args of the shell
     if (argc > 2 && strcmp(argv[1], "-c") == 0)
     {
