@@ -151,6 +151,7 @@ int my_cd(char **command)
 
 	// Since the subject does not require to handle the -L and -P flags, cd
 	// must have exactly one single argument
+	// To remove when HOME var is added
 	if (command == NULL || command[0] == NULL) 
 	{
 		fprintf(stderr, "Error: cd: not enough arguments\n");
@@ -160,7 +161,7 @@ int my_cd(char **command)
 	if (command[1] != NULL)
 	{
 		fprintf(stderr, "Error: cd: too many arguments\n");
-		return 1;
+		return 2;
 	}
 
 	if (strcmp(command[0], "-") == 0)
