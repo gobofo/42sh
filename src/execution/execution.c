@@ -207,8 +207,8 @@ int execute_cmd(char **command)
         status = 1;
     else if (strcmp(command[0], "echo") == 0)
         status = my_echo(command + 1);
-	else if (strcmp(command[0], "cd") == 0)
-		status = my_cd(command + 1);
+    else if (strcmp(command[0], "cd") == 0)
+        status = my_cd(command + 1);
     else
         status = execute_non_builtin(command);
 
@@ -246,13 +246,6 @@ int execute_simple_cmd(struct AST *root)
 
         return status;
     }
-
-    //    if (root->count_children == 1 && root->children[0]->rule ==
-    //    AST_ASSIGNEMENT)
-    //    {
-    //        free(redir);
-    //        return variable_assignation(root->children[0]);
-    //    }
 
     struct AST **redir = create_redir(root);
     int status = do_redir(root, redir);
@@ -361,6 +354,7 @@ int execute_list(struct AST *root)
 
     for (int i = 0; i < root->count_children; i++)
         status = execute_node(root->children[i]);
+
     return status;
 }
 
@@ -371,10 +365,10 @@ int execute_list(struct AST *root)
 static pid_t exec_fork(struct AST *root, int intput_pipe, int output_pipe)
 {
     pid_t pid = fork();
+
     if (pid != 0)
-    {
         return pid;
-    }
+
     if (intput_pipe != -1)
     {
         if (dup2(intput_pipe, STDIN_FILENO) == -1)
@@ -382,8 +376,10 @@ static pid_t exec_fork(struct AST *root, int intput_pipe, int output_pipe)
             fprintf(stderr, "Error: dup2\n");
             return 1;
         }
+
         close(intput_pipe);
     }
+
     if (output_pipe != -1)
     {
         if (dup2(output_pipe, STDOUT_FILENO) == -1)
@@ -391,8 +387,10 @@ static pid_t exec_fork(struct AST *root, int intput_pipe, int output_pipe)
             fprintf(stderr, "Error: dup2\n");
             return 1;
         }
+
         close(output_pipe);
     }
+
     _exit(execute_node(root));
 }
 
@@ -401,11 +399,11 @@ int execute_pipeline(struct AST *root)
     if (root->count_children == 1)
     {
         if (root->is_neg)
-        {
             return !execute_node(root->children[0]);
-        }
+
         return execute_node(root->children[0]);
     }
+
     int last_output = -1;
 
     pid_t *tab_pid = malloc(root->count_children * sizeof(pid_t));
@@ -413,6 +411,7 @@ int execute_pipeline(struct AST *root)
     for (int i = 0; i < root->count_children; i++)
     {
         int fd[2];
+
         if (i < root->count_children - 1)
         {
             if (pipe(fd) == -1)
@@ -422,17 +421,15 @@ int execute_pipeline(struct AST *root)
                 return 1;
             }
         }
+
         int intput_pipe = -1;
         int output_pipe = -1;
 
         if (i != 0)
-        {
             intput_pipe = last_output;
-        }
+
         if (i != root->count_children - 1)
-        {
             output_pipe = fd[1];
-        }
 
         tab_pid[i] = exec_fork(root->children[i], intput_pipe, output_pipe);
         if (last_output != -1)
@@ -444,71 +441,48 @@ int execute_pipeline(struct AST *root)
             last_output = fd[0];
         }
     }
+
     int wstatus;
+
     for (int i = 0; i < root->count_children; i++)
-    {
         waitpid(tab_pid[i], &wstatus, 0);
-    }
+
     int res = WEXITSTATUS(wstatus);
+
     free(tab_pid);
+
     if (root->is_neg)
-    {
         return !res;
-    }
+
     return res;
 }
 
+// ####################
+// #   GENERAL NODE   #
+// ####################
+
+// LOOKUP TABLE
+// Execute the function corresponding to the rule of the node
+int (*execute_node_table[])(struct AST *) = {
+    [AST_LIST] = execute_list,
+    [AST_SIMPLE_CMD] = execute_simple_cmd,
+    [AST_SHELL_CMD] = execute_shell_cmd,
+    [AST_IF] = execute_if,
+    [AST_WHILE] = execute_while,
+    [AST_UNTIL] = execute_until,
+    [AST_FOR] = execute_for,
+    [AST_AND] = execute_and,
+    [AST_OR] = execute_or,
+    [AST_PIPELINE] = execute_pipeline
+    // AST_FUNC
+};
+
 int execute_node(struct AST *root)
 {
-    int status = 0;
-
-    switch (root->rule)
-    {
-    case AST_LIST:
-        status = execute_list(root);
-        break;
-
-    case AST_SIMPLE_CMD:
-        status = execute_simple_cmd(root);
-        break;
-
-    case AST_IF:
-        status = execute_if(root);
-        break;
-
-    case AST_WHILE:
-        status = execute_while(root);
-        break;
-
-    case AST_UNTIL:
-        status = execute_until(root);
-        break;
-
-    case AST_FOR:
-        status = execute_for(root);
-        break;
-
-    case AST_PIPELINE:
-        status = execute_pipeline(root);
-        break;
-
-    case AST_OR:
-        status = execute_or(root);
-        break;
-
-    case AST_AND:
-        status = execute_and(root);
-        break;
-
-    case AST_SHELL_CMD:
-        status = execute_shell_cmd(root);
-        break;
-
-    // Not supposed to get there but we never know
-    default:
-        printf("Probleme\n");
+    if (!root)
         return 0;
-    }
+
+    int status = execute_node_table[root->rule](root);
 
     env->last_exit_code = status;
 
