@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef LEXER_UTILS_H
+#define LEXER_UTILS_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,4 +25,4 @@ int is_redir(char *str);
 
 void unget_str(const char *str, FILE *stream);
 
-#endif /* ! UTILS_H */
+#endif /* ! LEXER_UTILS_H */
