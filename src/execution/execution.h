@@ -13,11 +13,10 @@
 #include "../expansion/expansion.h"
 #include "../hash_map/hash_map.h"
 #include "../parser/parser.h"
-
 #include "execute_command/execute_command.h"
+#include "my_cd/my_cd.h"
 #include "my_echo/my_echo.h"
 #include "my_redir/my_redir.h"
-#include "my_cd/my_cd.h"
 
 int execute_ast(struct AST *root);
 
