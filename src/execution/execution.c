@@ -214,6 +214,12 @@ int execute_cmd(char **command)
         status = my_exit(command + 1);
         env->should_exit = 1;
     }
+    else if (strcmp(command[0],"break")==0){
+        status=my_break(command+1);
+	}
+    else if (strcmp(command[0],"continue")==0){
+        status=my_continue(command+1);
+	}
     else
         status = execute_non_builtin(command);
 
@@ -223,7 +229,7 @@ int execute_cmd(char **command)
     }
 
     free(command);
-
+    env->last_exit_code=status;
     return status;
 }
 
@@ -309,8 +315,17 @@ int execute_while(struct AST *root)
 
     int status = 0;
 
-    while (!execute_node(root->children[0]))
-        status = execute_node(root->children[1]);
+	while (!execute_node(root->children[0]) && env->break_count==0)
+	{
+        if(env->continue_count==0)
+			status = execute_node(root->children[1]);
+		else
+			env->continue_count--;
+	}
+	env->continue_count = 0;
+
+    if(env->break_count)
+      env->break_count--;
 
     return status;
 }
@@ -322,8 +337,16 @@ int execute_until(struct AST *root)
 
     int status = 0;
 
-    while (execute_node(root->children[0]))
-        status = execute_node(root->children[1]);
+    while (execute_node(root->children[0]) && env->break_count==0)
+	{
+        if(env->continue_count==0)
+			status = execute_node(root->children[1]);
+		else
+			env->continue_count--;
+	}
+	env->continue_count = 0;
+    if(env->break_count)
+      env->break_count--;
 
     return status;
 }
@@ -354,7 +377,13 @@ int execute_for(struct AST *root)
 						&updated);
 
         exit_code = execute_node(root->children[root->count_children - 1]);
+		if(env->continue_count!=0){
+			i+=env->continue_count;
+			env->continue_count = 0;
+		}
     }
+    if(env->break_count)
+      env->break_count--;
 
     return exit_code;
 }
@@ -398,7 +427,7 @@ int execute_list(struct AST *root)
 
     int status = 0;
 
-    for (int i = 0; i < root->count_children; i++)
+    for (int i = 0; i < root->count_children && env->break_count==0 && env->continue_count==0; i++)
         status = execute_node(root->children[i]);
 
     return status;
@@ -551,6 +580,7 @@ int execute_ast(struct AST *root)
 {
     if (!root)
         return 1;
-
+    env->break_count=0;
+	env->continue_count=0;
     return execute_node(root);
 }
