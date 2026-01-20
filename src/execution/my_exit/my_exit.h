@@ -2,6 +2,7 @@
 #define MY_EXIT_H
 
 #include <string.h>
+#include <stdio.h>
 
 #include "../../environment/environment.h"
 

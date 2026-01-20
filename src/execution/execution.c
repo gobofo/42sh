@@ -209,12 +209,12 @@ int execute_cmd(char **command)
         status = my_echo(command + 1);
     else if (strcmp(command[0], "cd") == 0)
         status = my_cd(command + 1);
-	else if (strcmp(command[0], "exit") == 0)
-	{
-		status = my_exit(command + 1);
-		env->should_exit = 1;
-	}
-	else
+    else if (strcmp(command[0], "exit") == 0)
+    {
+        status = my_exit(command + 1);
+        env->should_exit = 1;
+    }
+    else
         status = execute_non_builtin(command);
 
     for (int i = 0; command[i] != NULL; i++)
@@ -228,9 +228,9 @@ int execute_cmd(char **command)
 }
 
 int execute_simple_cmd(struct AST *root)
-{	
-	if (env->should_exit == 1)
-		return env->last_exit_code;
+{
+    if (env->should_exit == 1)
+        return env->last_exit_code;
 
     // In a command, some variables can be assigned but only with some specific
     // conditions: THERE CAN BE ONLY ASSIGNMENTS IN THE COMMAND
@@ -265,8 +265,8 @@ int execute_simple_cmd(struct AST *root)
 
 int execute_shell_cmd(struct AST *root)
 {
-	if (env->should_exit == 1)
-		return env->last_exit_code;
+    if (env->should_exit == 1)
+        return env->last_exit_code;
 
     struct AST **redir = create_redir(root);
 
@@ -283,8 +283,8 @@ int execute_shell_cmd(struct AST *root)
 
 int execute_if(struct AST *root)
 {
-	if (env->should_exit == 1)
-		return env->last_exit_code;
+    if (env->should_exit == 1)
+        return env->last_exit_code;
 
     int condition = execute_node(root->children[0]);
 
@@ -304,8 +304,8 @@ int execute_if(struct AST *root)
 
 int execute_while(struct AST *root)
 {
-	if (env->should_exit == 1)
-		return env->last_exit_code;
+    if (env->should_exit == 1)
+        return env->last_exit_code;
 
     int status = 0;
 
@@ -317,8 +317,8 @@ int execute_while(struct AST *root)
 
 int execute_until(struct AST *root)
 {
-	if (env->should_exit == 1)
-		return env->last_exit_code;
+    if (env->should_exit == 1)
+        return env->last_exit_code;
 
     int status = 0;
 
@@ -330,8 +330,8 @@ int execute_until(struct AST *root)
 
 int execute_for(struct AST *root)
 {
-	if (env->should_exit == 1)
-		return env->last_exit_code;
+    if (env->should_exit == 1)
+        return env->last_exit_code;
 
     int exit_code = 0;
 
@@ -351,11 +351,11 @@ int execute_for(struct AST *root)
 // #################
 
 int execute_or(struct AST *root)
-{ 
-	if (env->should_exit == 1)
-		return env->last_exit_code;
+{
+    if (env->should_exit == 1)
+        return env->last_exit_code;
 
-   int status = execute_node(root->children[0]);
+    int status = execute_node(root->children[0]);
     if (status != 0)
         return execute_node(root->children[1]);
 
@@ -363,11 +363,11 @@ int execute_or(struct AST *root)
 }
 
 int execute_and(struct AST *root)
-{ 
-	if (env->should_exit == 1)
-		return env->last_exit_code;
+{
+    if (env->should_exit == 1)
+        return env->last_exit_code;
 
-   int status = execute_node(root->children[0]);
+    int status = execute_node(root->children[0]);
     if (status == 0)
         return execute_node(root->children[1]);
 
@@ -380,8 +380,8 @@ int execute_and(struct AST *root)
 
 int execute_list(struct AST *root)
 {
-	if (env->should_exit == 1)
-		return env->last_exit_code;
+    if (env->should_exit == 1)
+        return env->last_exit_code;
 
     int status = 0;
 
@@ -429,10 +429,10 @@ static pid_t exec_fork(struct AST *root, int intput_pipe, int output_pipe)
 
 int execute_pipeline(struct AST *root)
 {
-	if (env->should_exit == 1)
-		return env->last_exit_code;
+    if (env->should_exit == 1)
+        return env->last_exit_code;
 
-   if (root->count_children == 1)
+    if (root->count_children == 1)
     {
         if (root->is_neg)
             return !execute_node(root->children[0]);
@@ -518,21 +518,20 @@ int execute_node(struct AST *root)
     if (!root)
         return 0;
 
-	if (env->should_exit == 1)
-		return env->last_exit_code;
+    if (env->should_exit == 1)
+        return env->last_exit_code;
 
-	if (root->rule != AST_VALUE &&
-			root->rule != AST_REDIR &&
-			root->rule != AST_ASSIGNEMENT)
-	{
-		int status = execute_node_table[root->rule](root);
+    if (root->rule != AST_VALUE && root->rule != AST_REDIR
+        && root->rule != AST_ASSIGNEMENT)
+    {
+        int status = execute_node_table[root->rule](root);
 
-		env->last_exit_code = status;
+        env->last_exit_code = status;
 
-		return status;
-	}
+        return status;
+    }
 
-	return 0;
+    return 0;
 }
 
 int execute_ast(struct AST *root)
