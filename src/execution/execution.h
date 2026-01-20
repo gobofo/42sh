@@ -18,6 +18,7 @@
 #include "my_echo/my_echo.h"
 #include "my_exit/my_exit.h"
 #include "my_redir/my_redir.h"
+#include "my_break/my_break.h"
 
 int execute_ast(struct AST *root);
 
