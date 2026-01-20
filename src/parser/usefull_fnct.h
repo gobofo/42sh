@@ -1,6 +1,11 @@
 #ifndef USEFULL_FNCT_H
 #define USEFULL_FNCT_H
 
+#include <stdbool.h>
+#include <stddef.h>
+#include "../token.h"
+#include "../lexer/lexer.h"
+
 /* ============= USEFULL FONCTION ============= */
 
 void eat_newlines(struct token **token);

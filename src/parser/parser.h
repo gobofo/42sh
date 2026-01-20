@@ -11,6 +11,10 @@
 
 #include "print_parser.h"
 
+/* ============= USEFULL FONCTION ============= */
+
+#include "usefull_fnct.h"
+
 /* ============= FIRST ============= */
 
 #include "parser_first.h"
@@ -103,11 +107,5 @@ struct AST *rule_for(struct token **token);
 struct AST *rule_while(struct token **token);
 struct AST *rule_until(struct token **token);
 struct AST *funcdec(struct token **token);
-
-/* ============= USEFULL FONCTION ============= */
-
-void eat_newlines(struct token **token);
-struct token *eat(struct token *token);
-bool is_valid_word(struct token *token);
 
 #endif /* ! PARSER_H */
