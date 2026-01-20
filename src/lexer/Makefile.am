@@ -1,7 +1,8 @@
 #lib_LIBRARIES = liblexer.a
 
 liblexer_a_SOURCES = lexer.c lexer.h \
-					 lexer_utils.c lexer_utils.h
+					 lexer_utils.c lexer_utils.h \
+					 ../utils.c ../utils.h
 
 liblexer_a_CPPFLAGS = -I$(top_srcdir)/src
 

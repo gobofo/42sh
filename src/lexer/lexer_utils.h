@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "../token.h"
+#include "../utils.h"
 
 // #############
 // #   TOKEN   #
