@@ -10,7 +10,7 @@
 #include <string.h>
 
 #include "../token.h"
-#include "utils.h"
+#include "lexer_utils.h"
 
 struct token *get_token(FILE *input);
 struct token *next_token(FILE *input);

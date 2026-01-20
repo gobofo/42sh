@@ -10,7 +10,7 @@ SUBDIRS = \
 
 bin_PROGRAMS = 42sh
 
-42sh_SOURCES = 42sh.c
+42sh_SOURCES = 42sh.c utils.c
 
 # %D% is the current dir
 42sh_CPPFLAGS = -I%D%
