@@ -20,7 +20,7 @@ int is_valid_name(char *name)
 	size_t idx = 1;
 
 	while (name[idx] != '\0' &&
-			name[idx] == '_' && is_char(name[idx]) && is_digit(name[idx]))
+			(name[idx] == '_' || is_char(name[idx]) || is_digit(name[idx])))
 	{
 		idx++;
 	}
