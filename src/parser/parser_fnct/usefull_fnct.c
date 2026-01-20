@@ -4,7 +4,7 @@
 
 //renvoi true si le mot est un valid word
 
-static bool is_valid_word(struct token *token)
+bool is_valid_word(struct token *token)
 {
     if (token == NULL)
     {
@@ -19,7 +19,7 @@ static bool is_valid_word(struct token *token)
 
 //free le token actuelle et renvoi le suivant
 
-static struct token *eat(struct token *token)
+struct token *eat(struct token *token)
 {
     free_token(token);
     return get_token(NULL);
@@ -27,7 +27,7 @@ static struct token *eat(struct token *token)
 
 //mange les {/n}
 
-static void eat_newlines(struct token **token)
+void eat_newlines(struct token **token)
 {
     while (*token && (*token)->type == NEWLINE)
         *token = eat(*token);
