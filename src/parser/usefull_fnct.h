@@ -9,7 +9,9 @@
 /* ============= USEFULL FONCTION ============= */
 
 void eat_newlines(struct token **token);
-struct token *eat(struct token *token);
-bool is_valid_word(struct token *token);
+struct lexer *eat(struct lexer *lexer);
+void eat_newlines(struct lexer **lexer);
+struct token *donne_token(struct lexer *lexer);
+enum type donne_type(struct lexer *lexer);
 
 #endif /* ! USEFULL_FNCT_H */
