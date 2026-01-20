@@ -12,6 +12,7 @@ struct env
     int last_exit_code;
 	int should_exit;
 
+    int break_count;
     // Stores the number of args passed to the shell
     int argc;
 

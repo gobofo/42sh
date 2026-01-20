@@ -5,7 +5,8 @@ libexecution_a_SOURCES = execution.c execution.h \
 						 execute_command/execute_command.c execute_command/execute_command.h \
 						 my_redir/my_redir.c my_redir/my_redir.h \
 						 my_cd/my_cd.c my_cd/my_cd.h \
-						 my_exit/my_exit.c my_exit/my_exit.h
+						 my_exit/my_exit.c my_exit/my_exit.h\
+						 my_break/my_break.c my_break/my_break.h
 
 libexecution_a_CPPFLAGS = -I$(top_srcdir)/src
 
