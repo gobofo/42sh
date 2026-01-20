@@ -8,6 +8,13 @@
 #include "../token.h"
 #include "../utils.h"
 
+
+struct token_map
+{
+	char *str;
+	enum types token_type;
+};
+
 // #############
 // #   TOKEN   #
 // #############
