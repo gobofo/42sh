@@ -498,7 +498,7 @@ err:
 
 static struct AST *funcdec(struct token **token){
 
-    if (!is_valid_word(*token)){ //pas un bon mot
+    if (*token == NULL || (*token)->type != WORDS){ //pas un bon mot
         return NULL;
     }
 
