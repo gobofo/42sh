@@ -23,7 +23,7 @@ int my_export(char **command){
         return 2;
     }
 
-    char* value=malloc(sizeof(char)* strlen(command[0]+i+1)-1);// pointeur apres le = dans strlen
+    char* value=malloc(sizeof(char)* strlen(command[0]+i+1)+1);// pointeur apres le = dans strlen
     int j=i+1;
     int k=0;
     
@@ -34,7 +34,8 @@ int my_export(char **command){
 
 
     bool updated=0;
-    hash_map_insert(env->variables,strdup(command[0]), value,&updated);
+    hash_map_insert(env->variables,command[0], value,&updated);
+    free(value);
 
   }
   export_add_variable(env->export_variables,strdup(command[0]));
