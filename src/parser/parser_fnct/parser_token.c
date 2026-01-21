@@ -4,19 +4,19 @@
 //        redirection
 //        | ASSIGNEMENT_WORD
 
-struct AST *prefix(struct token **token)
+struct AST *prefix(struct lexer **lexer)
 {
-    if ((*token)->type == A_WORDS)//cas 2
+    if (donne_type(*lexer) == A_WORDS)//cas 2
     {
         struct AST *ast =
-            create_ast(AST_ASSIGNEMENT, strdup((*token)->content));//recup la valeur du a_word
-        *token = eat(*token);
+            create_ast(AST_ASSIGNEMENT, strdup(donne_content(*lexer)));//recup la valeur du a_word
+        *lexer = eat(*lexer);
         return ast;
     }
 
-    else if (first_redirection(*token))//cas 1
+    else if (first_redirection(donne_token(*lexer)))//cas 1
     {
-        struct AST *ast = redirection(token);
+        struct AST *ast = redirection(lexer);
         if (ast == NULL)//remonte l'erreur
         {
             return NULL;
@@ -30,28 +30,28 @@ struct AST *prefix(struct token **token)
 //(21) redirection = [IONUMBER] ( '>' | '<' | '>>' | '>&' | '<&' | '>|' | '<>' )
 // WORD
 
-struct AST *redirection(struct token **token)
+struct AST *redirection(struct lexer **lexer)
 {
     struct AST *ast = NULL;
 
-    if (*token == NULL || (*token)->type != REDIR){ //pas une redirection
+    if (donne_token(*lexer) == NULL || donne_type(*lexer) != REDIR){ //pas une redirection
         goto err;
     }
 
     ast = create_ast(AST_REDIR, NULL);
-    struct AST *ast_val = create_ast(AST_VALUE, strdup((*token)->content));//prend la valeur du redir
+    struct AST *ast_val = create_ast(AST_VALUE, strdup(donne_content(*lexer)));//prend la valeur du redir
     ast = add_children(ast, ast_val);
 
-    *token = eat(*token);
+    *lexer = eat(*lexer);
 
-    if (!is_valid_word(*token)){//pas un valid word
+    if (!is_valid_word(*lexer)){//pas un valid word
         goto err;
     }
 
-    struct AST *ast_val2 = create_ast(AST_VALUE, strdup((*token)->content));//recup la valeur du word
+    struct AST *ast_val2 = create_ast(AST_VALUE, strdup(donne_content(*lexer)));//recup la valeur du word
     ast = add_children(ast, ast_val2);
 
-    *token = eat(*token); //mange le word
+    *lexer = eat(*lexer); //mange le word
     
     return ast;
 
@@ -64,18 +64,18 @@ err:
 //        WORD
 //        | redirection
 
-struct AST *element(struct token **token)
+struct AST *element(struct lexer **lexer)
 {
-    if (is_valid_word(*token))//cas 1
+    if (is_valid_word(*lexer))//cas 1
     {
-        struct AST *ast = create_ast(AST_VALUE, strdup((*token)->content));//recup la valeur du word
-        *token = eat(*token);//mange le word
+        struct AST *ast = create_ast(AST_VALUE, strdup(donne_content(*lexer)));//recup la valeur du word
+        *lexer = eat(*lexer);//mange le word
         return ast;
     }
 
-    if ((*token)->type == REDIR)//cas 2
+    if (donne_type(*lexer) == REDIR)//cas 2
     {
-        struct AST *ast = redirection(token);
+        struct AST *ast = redirection(lexer);
         if (ast == NULL)//remonte l'erreur
         {
             return NULL;
