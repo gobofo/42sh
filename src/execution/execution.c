@@ -220,6 +220,9 @@ int execute_cmd(char **command)
     else if (strcmp(command[0],"continue")==0){
         status=my_continue(command+1);
 	}
+    else if (strcmp(command[0],"export")==0){
+      status=my_export(command+1);
+    }
     else
         status = execute_non_builtin(command);
 

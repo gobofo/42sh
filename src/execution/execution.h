@@ -20,6 +20,8 @@
 #include "my_redir/my_redir.h"
 #include "my_break/my_break.h"
 #include "my_continue/my_continue.h"
+#include "my_export/my_export.h"
+
 
 int execute_ast(struct AST *root);
 
