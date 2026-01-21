@@ -170,25 +170,30 @@ int my_cd(char **command)
 
         char *pwd = hash_map_get(env->variables, "PWD");
         char *old = hash_map_get(env->variables, "OLDPWD");
-        char *oldpwd = strdup(old);
+		
+		if (old == NULL)
+		{
+			fprintf(stderr, "Error: cd : OLDPWD not set\n");
+			return 1;
+		}
+
+        char *target = strdup(old);
 
 		// Swap the pwd
         hash_map_insert(env->variables, "OLDPWD", pwd, &update);
-        hash_map_insert(env->variables, "PWD", oldpwd, &update);
-
-		// Print the new pwd
-		printf("%s\n", pwd);
-
-        free(oldpwd);
+        hash_map_insert(env->variables, "PWD", target, &update);
 
 		// Check if paths exists
-		if (chdir(pwd) != 0)
+		if (chdir(target) != 0)
 		{
 			fprintf(stderr, "Error: cd: no such file or directory: %s\n",
 					command[0]);
 
 			return 1;
 		}
+
+		printf("%s\n", target);
+        free(target);
 
 		return 0;
     }
