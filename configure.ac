@@ -11,7 +11,6 @@ AC_PROG_RANLIB
 AC_PROG_CC
 
 CFLAGS="$CFLAGS -std=c99 -pedantic -Werror -Wall -Wextra -Wvla"
-#"-g -O0 -fno-omit-frame-pointer"
 
 AC_CONFIG_FILES([
 				 Makefile
