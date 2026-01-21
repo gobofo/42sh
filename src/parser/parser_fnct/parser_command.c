@@ -134,13 +134,16 @@ struct AST *shell_command(struct lexer **lexer)
         }
 
         *lexer = eat(*lexer);
+        if(is_paren)//subshell
+        {
+            struct AST *ast_sub_shell=create_ast(AST_SUB,NULL);
+            ast=add_children(ast_sub_shell,ast);
+        }
 
         return ast;
-
 err:
         destroy_AST(ast);
         return NULL;
-
     }
     else
     {
