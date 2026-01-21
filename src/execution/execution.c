@@ -31,21 +31,21 @@ int variable_assignation(struct AST *root)
 
     char **expanded = expand(value_raw);
 
-	char *value = "";
+    char *value = "";
 
-	if (expanded != NULL && expanded[0] != NULL)
-		value = expanded[0];
+    if (expanded != NULL && expanded[0] != NULL)
+        value = expanded[0];
 
     bool updated;
     hash_map_insert(env->variables, key, value, &updated);
 
-	if (expanded)
-	{
-		for (int i = 0; expanded[i] != NULL; i++)
-			free(expanded[i]);
+    if (expanded)
+    {
+        for (int i = 0; expanded[i] != NULL; i++)
+            free(expanded[i]);
 
-		free(expanded);
-	}
+        free(expanded);
+    }
 
     return 0;
 }
@@ -74,23 +74,23 @@ char **create_command(struct AST *root)
         {
             char **expanded_values = expand(root->children[i]->content);
 
-			for (int j = 0; expanded_values[j] != NULL; j++)
-			{
-				if (expanded_values[j][0] != '\0' || 
-						strcmp(root->children[i]->content, "''") == 0 ||
-						strcmp(root->children[i]->content, "\"\"") == 0)
-				{
-					command = realloc(command, sizeof(char *) * (idx + 2));
-					command[idx++] = expanded_values[j];
-					command[idx] = NULL;
-				}
-				else
-				{
-					free(expanded_values[j]);
-				}
-			}
-			
-			free(expanded_values);
+            for (int j = 0; expanded_values[j] != NULL; j++)
+            {
+                if (expanded_values[j][0] != '\0'
+                    || strcmp(root->children[i]->content, "''") == 0
+                    || strcmp(root->children[i]->content, "\"\"") == 0)
+                {
+                    command = realloc(command, sizeof(char *) * (idx + 2));
+                    command[idx++] = expanded_values[j];
+                    command[idx] = NULL;
+                }
+                else
+                {
+                    free(expanded_values[j]);
+                }
+            }
+
+            free(expanded_values);
         }
     }
 
@@ -224,22 +224,22 @@ int execute_cmd(char **command)
     else if (strcmp(command[0], "cd") == 0)
         status = my_cd(command + 1);
     else if (strcmp(command[0], "exit") == 0)
+    {
         status = my_exit(command + 1);
         env->should_exit = 1;
     }
-    else if (strcmp(command[0], "break")==0){
-        status=my_break(command+1);
-	}
-    else if (strcmp(command[0], "continue")==0){
-        status=my_continue(command+1);
-	}
-	else if (strcmp(command[0], "unset") == 0){
-		status = my_unset(command+1);
-	}
     else if (strcmp(command[0], "break") == 0)
+    {
         status = my_break(command + 1);
+    }
     else if (strcmp(command[0], "continue") == 0)
+    {
         status = my_continue(command + 1);
+    }
+    else if (strcmp(command[0], "unset") == 0)
+    {
+        status = my_unset(command + 1);
+    }
     else if (strcmp(command[0], "export") == 0)
         status = my_export(command + 1);
     else
@@ -374,43 +374,43 @@ static int execute_until(struct AST *root)
 
 static char **create_for_args(struct AST *root)
 {
-	char **args = calloc(1, sizeof(char *));
+    char **args = calloc(1, sizeof(char *));
 
-	size_t idx = 0;
+    size_t idx = 0;
 
-	for (int i = 1; i < root->count_children - 1; i++)
-	{
-		char **expanded_values = expand(root->children[i]->content);
-		if (expanded_values == NULL)
-			continue;
+    for (int i = 1; i < root->count_children - 1; i++)
+    {
+        char **expanded_values = expand(root->children[i]->content);
+        if (expanded_values == NULL)
+            continue;
 
-		for (int j = 0; expanded_values[j] != NULL; j++)
-		{
-			if (expanded_values[j][0] != '\0' || 
-					strcmp(root->children[i]->content, "''") == 0 ||
-					strcmp(root->children[i]->content, "\"\"") == 0)
-			{
-				args = realloc(args, sizeof(char *) * (idx + 2));
-				args[idx++] = expanded_values[j];
-				args[idx] = NULL;
-			}
-			else
-			{
-				free(expanded_values[j]);
-			}
-		}
+        for (int j = 0; expanded_values[j] != NULL; j++)
+        {
+            if (expanded_values[j][0] != '\0'
+                || strcmp(root->children[i]->content, "''") == 0
+                || strcmp(root->children[i]->content, "\"\"") == 0)
+            {
+                args = realloc(args, sizeof(char *) * (idx + 2));
+                args[idx++] = expanded_values[j];
+                args[idx] = NULL;
+            }
+            else
+            {
+                free(expanded_values[j]);
+            }
+        }
 
-		free(expanded_values);
-	}
+        free(expanded_values);
+    }
 
-	return args;
+    return args;
 }
 
 static int execute_for(struct AST *root)
 {
     char *var = root->children[0]->content;
 
-	// Check if the identifier as a valid name
+    // Check if the identifier as a valid name
     if (is_valid_name(var) == 0)
     {
         fprintf(stderr, "Error: %s: not a valid identifier\n", var);
@@ -424,11 +424,11 @@ static int execute_for(struct AST *root)
 
     int exit_code = 0;
 
-	char **args = create_for_args(root);
+    char **args = create_for_args(root);
 
     // The first children is name of the identifier so we go from the second to
     // the before last child, the last beeing the command to execute inside
-	for (int i = 0; args[i] != NULL; i++)
+    for (int i = 0; args[i] != NULL; i++)
     {
         bool updated = true;
         hash_map_insert(env->variables, var, args[i], &updated);
@@ -440,15 +440,15 @@ static int execute_for(struct AST *root)
             i += env->continue_count;
             env->continue_count = 0;
         }
-	}
+    }
 
-	if (args)
-	{
-		for (int i = 0; args[i] != NULL; i++)
-			free(args[i]);
+    if (args)
+    {
+        for (int i = 0; args[i] != NULL; i++)
+            free(args[i]);
 
-		free(args);
-	}
+        free(args);
+    }
 
     if (env->break_count > 0)
         env->break_count--;
@@ -611,8 +611,7 @@ int execute_pipeline(struct AST *root)
 
 // LOOKUP TABLE
 // Execute the function corresponding to the rule of the node
-int (*execute_node_table[])(struct AST *) =
-{
+int (*execute_node_table[])(struct AST *) = {
     [AST_LIST] = execute_list,
     [AST_SIMPLE_CMD] = execute_simple_cmd,
     [AST_SHELL_CMD] = execute_shell_cmd,
