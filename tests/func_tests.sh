@@ -790,9 +790,9 @@ test_cmd "echo test \# this is a comment" "Test commentaire simple"
 
 test_cmd "echo test \# this is a comment\necho world" "Test commentaire puis commande"
 
-test_cmd "\# full line comment\necho visible" "Test ligne commentaire complete"
+test_cmd "# full line comment\necho visible" "Test ligne commentaire complete"
 
-test_cmd "echo a; \# comment
+test_cmd "echo a; # comment
 echo b" "Test commentaire apres point-virgule"
 
 test_cmd "echo not#comment" "Test \# pas en debut de mot"
