@@ -8,9 +8,16 @@
 
 struct AST *input(struct lexer **lexer)
 {
-    if (donne_token(*lexer) == NULL || donne_type(*lexer) == NEWLINE)  //regle 3 et 4
+    if (donne_token(*lexer) == NULL)  //regle 4
     {
         return create_ast(AST_LIST, NULL);
+    }
+
+    if (donne_type(*lexer) == NEWLINE){ //regle 3
+
+        *lexer = eat(*lexer);
+        return create_ast(AST_LIST, NULL);
+
     }
 
     if (!first_list(donne_token(*lexer))){ //si c pas une liste = erreur

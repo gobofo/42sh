@@ -19,7 +19,7 @@ bool is_valid_word(struct lexer *lexer)
 
 struct lexer *eat(struct lexer *lexer)
 {
-    free(lexer->current);
+    free_token(lexer->current);
     return get_token(lexer);
 }
 
