@@ -87,25 +87,25 @@ WORD
 
 /* ============= FONCTION DE DEPART ============= */
 
-struct AST *input(struct token **token);
+struct AST *input(struct lexer **lexer);
 
 /* ============= PARSER ============= */
 
-struct AST *list(struct token **token);
-struct AST *and_or(struct token **token);
-struct AST *pipeline(struct token **token);
-struct AST *command(struct token **token);
-struct AST *shell_command(struct token **token);
-struct AST *rule_if(struct token **token);
-struct AST *else_clause(struct token **token);
-struct AST *compound_list(struct token **token);
-struct AST *simple_command(struct token **token);
-struct AST *element(struct token **token);
-struct AST *redirection(struct token **token);
-struct AST *prefix(struct token **token);
-struct AST *rule_for(struct token **token);
-struct AST *rule_while(struct token **token);
-struct AST *rule_until(struct token **token);
-struct AST *funcdec(struct token **token);
+struct AST *list(struct lexer **lexer);
+struct AST *and_or(struct lexer **lexer);
+struct AST *pipeline(struct lexer **lexer);
+struct AST *command(struct lexer **lexer);
+struct AST *shell_command(struct lexer **lexer);
+struct AST *rule_if(struct lexer **lexer);
+struct AST *else_clause(struct lexer **lexer);
+struct AST *compound_list(struct lexer **lexer);
+struct AST *simple_command(struct lexer **lexer);
+struct AST *element(struct lexer **lexer);
+struct AST *redirection(struct lexer **lexer);
+struct AST *prefix(struct lexer **lexer);
+struct AST *rule_for(struct lexer **lexer);
+struct AST *rule_while(struct lexer **lexer);
+struct AST *rule_until(struct lexer **lexer);
+struct AST *funcdec(struct lexer **lexer);
 
 #endif /* ! PARSER_H */

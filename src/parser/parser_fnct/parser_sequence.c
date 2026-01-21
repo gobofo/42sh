@@ -15,7 +15,6 @@ struct AST *input(struct lexer **lexer)
 
     if (donne_type(*lexer) == NEWLINE){ //regle 3
 
-        *lexer = eat(*lexer);
         return create_ast(AST_LIST, NULL);
 
     }
@@ -35,8 +34,6 @@ struct AST *input(struct lexer **lexer)
         destroy_AST(ast);
         return NULL;
     }
-
-    *lexer = eat(*lexer);
 
     return ast;
 }
