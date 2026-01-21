@@ -11,7 +11,8 @@ extern struct env *env;
  *
  * @return			The new absolute path
  */
-char *create_path(char *cur_path)
+
+static char *create_path(char *cur_path)
 {
     // Check if the current path is an absolute or no
 
@@ -54,7 +55,7 @@ char *create_path(char *cur_path)
  * @return			The path
  */
 
-char *reconstruct_path(char **stack, size_t top)
+static char *reconstruct_path(char **stack, size_t top)
 {
     char *path;
     size_t len = 0;
@@ -91,7 +92,7 @@ char *reconstruct_path(char **stack, size_t top)
  * @return			The canonical form of the path
  */
 
-char *canonical_form(char *cur_path)
+static char *canonical_form(char *cur_path)
 {
     char *path_copy = strdup(cur_path);
 
@@ -180,7 +181,16 @@ int my_cd(char **command)
 
         free(oldpwd);
 
-        return 0;
+		// Check if paths exists
+		if (chdir(pwd) != 0)
+		{
+			fprintf(stderr, "Error: cd: no such file or directory: %s\n",
+					command[0]);
+
+			return 1;
+		}
+
+		return 0;
     }
 
     char *cur_path = create_path(command[0]);
