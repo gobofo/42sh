@@ -1,38 +1,39 @@
 #include "lexer.h"
+
 #include <stdbool.h>
 // #####################
 // #   MAIN FUNCTION   #
 // #####################
 
-
 struct token *intermediate(FILE *input, bool eat)
 {
     static FILE *file = NULL;
 
-    if (input){
+    if (input)
+    {
         file = input;
-	}
+    }
 
-    if (!file){
+    if (!file)
+    {
         file = input;
-	}
+    }
 
+    static struct token *next_token = NULL;
 
-	static struct token* next_token = NULL;
+    if (!next_token)
+    {
+        next_token = read_input(file);
+    }
 
-	if(!next_token){
-		next_token = read_input(file);
-	}
+    if (!eat)
+        return next_token;
 
-	if(!eat)
-		return next_token;
+    struct token *token = next_token;
+    next_token = read_input(file);
 
-	struct token *token = next_token;
-	next_token = read_input(file);
-
-	return token;
+    return token;
 }
-
 
 /**
  * @brief 			Function to return the next token
@@ -51,10 +52,8 @@ struct token *get_token(FILE *input)
 
 struct token *next_token(FILE *input)
 {
-	return intermediate(input, 0);
+    return intermediate(input, 0);
 }
-
-
 
 // ##############
 // #   STREAM   #
@@ -135,8 +134,8 @@ static void handle_quotes(FILE *file, FILE **stream, int *c)
 
     while ((*c = fgetc(file)) != EOF && *c != open_quote)
     {
-		// In double quotes, some characters can be escaped with the \ so when
-		// one is found we have to take a particular action
+        // In double quotes, some characters can be escaped with the \ so when
+        // one is found we have to take a particular action
 
         if (*c == '\\' && open_quote == '"')
         {
@@ -214,7 +213,7 @@ static void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
 
 static int is_redir_c(char c)
 {
-	return c == '>' || c == '<' || c == '|' || c == '&';
+    return c == '>' || c == '<' || c == '|' || c == '&';
 }
 
 static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
@@ -224,14 +223,14 @@ static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
 
     buff[0] = c;
     buff[1] = fgetc(file);
-	if (is_redir_c(buff[1]) == 0)
-	{
-		ungetc(buff[1], file);
-		return NULL;
-	}
+    if (is_redir_c(buff[1]) == 0)
+    {
+        ungetc(buff[1], file);
+        return NULL;
+    }
 
     buff[2] = fgetc(file);
-	
+
     int idx = 2;
 
     while (idx >= 0)
@@ -311,7 +310,8 @@ struct token *read_input(FILE *file)
         }
 
         // Same as before but those charcacters need to be safed as tokens
-        if (c == ';' || c == '\n' || c == '!' || c=='(' || c==')' || c=='{' || c=='}')
+        if (c == ';' || c == '\n' || c == '!' || c == '(' || c == ')'
+            || c == '{' || c == '}')
         {
             // Sync the stream
             fflush(stream);
