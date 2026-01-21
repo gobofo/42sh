@@ -5,6 +5,19 @@
 #include <string.h>
 
 #include "../hash_map/hash_map.h"
+//STRUCT export to manage all the export variables
+struct export
+{
+  char** list_variables;
+  int nb_variables;
+  int max_variables;
+};
+
+// functions of export:
+struct export* create_export();
+void export_add_variable(struct export *export,char* variables);
+void free_export(struct export *export);
+
 
 struct env
 {
@@ -19,11 +32,15 @@ struct env
 
     // Stores all args passed to the shell
     char **argv;
+    
+    // Store all exported variables
+    struct export *export_variables;
 
     struct hash_map *variables;
     // we will have to add another hash_map for functions
 };
 
 struct env *init_env(int argc, char **argv);
+
 
 #endif // ! ENVIRONMENT_H
