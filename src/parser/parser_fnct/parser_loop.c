@@ -2,21 +2,21 @@
 
 //(14) rule_while = 'while' compound_list 'do' compound_list 'done'
 
-struct AST *rule_while(struct token **token)
+struct AST *rule_while(struct lexer **lexer)
 {
     struct AST *ast = create_ast(AST_WHILE, NULL);
 
-    if ((*token)->type != WHILE){//pas de while au debut
+    if (donne_type(*lexer) != WHILE){//pas de while au debut
         goto err;
     }
 
-    *token = eat(*token);///mange le while
+    *lexer = eat(*lexer);///mange le while
 
-    if (!first_compound_list(*token)){//pas un first de compound list
+    if (!first_compound_list(donne_token(*lexer))){//pas un first de compound list
         goto err;
     }
 
-    struct AST *child = compound_list(token);
+    struct AST *child = compound_list(lexer);
 
     if (child == NULL){//remonte l'erreur
         goto err;
@@ -24,16 +24,16 @@ struct AST *rule_while(struct token **token)
 
     ast = add_children(ast, child);
 
-    if (*token == NULL || (*token)->type != DO) // pas de DO
+    if (donne_token(*lexer) == NULL || donne_type(*lexer) != DO) // pas de DO
         goto err;
 
-    *token = eat(*token);
+    *lexer = eat(*lexer);
 
-    if (!first_compound_list(*token)){//pas un first de compound list
+    if (!first_compound_list(donne_token(*lexer))){//pas un first de compound list
         goto err;
     }
 
-    struct AST *child_second = compound_list(token);
+    struct AST *child_second = compound_list(lexer);
 
     if (child_second == NULL){//remonte l'erreur
         goto err;
@@ -41,10 +41,10 @@ struct AST *rule_while(struct token **token)
 
     ast = add_children(ast, child_second);
 
-    if (*token == NULL || (*token)->type != DONE) // pas de done
+    if (donne_token(*lexer) == NULL || donne_type(*lexer) != DONE) // pas de done
         goto err;
 
-    *token = eat(*token);
+    *lexer = eat(*lexer);
 
     return ast;
 
@@ -55,21 +55,21 @@ err:
 
 //(15) rule_until = 'until' compound_list 'do' compound_list 'done'
 
-struct AST *rule_until(struct token **token)
+struct AST *rule_until(struct lexer **lexer)
 {
     struct AST *ast = create_ast(AST_UNTIL, NULL);
 
-    if ((*token)->type != UNTIL){//pas de unitl au debut
+    if (donne_type(*lexer) != UNTIL){//pas de unitl au debut
         goto err;
     }
 
-    *token = eat(*token);///mange le until
+    *lexer = eat(*lexer);///mange le until
 
-    if (!first_compound_list(*token)){//pas un first de compound list
+    if (!first_compound_list(donne_token(*lexer))){//pas un first de compound list
         goto err;
     }
 
-    struct AST *child = compound_list(token);
+    struct AST *child = compound_list(lexer);
 
     if (child == NULL){//remonte l'erreur
         goto err;
@@ -77,16 +77,16 @@ struct AST *rule_until(struct token **token)
 
     ast = add_children(ast, child);
 
-    if (*token == NULL || (*token)->type != DO) // pas de DO
+    if (donne_token(*lexer) == NULL || donne_type(*lexer) != DO) // pas de DO
         goto err;
 
-    *token = eat(*token);
+    *lexer = eat(*lexer);
 
-    if (!first_compound_list(*token)){//pas un first de compound list
+    if (!first_compound_list(donne_token(*lexer))){//pas un first de compound list
         goto err;
     }
 
-    struct AST *child_second = compound_list(token);
+    struct AST *child_second = compound_list(lexer);
 
     if (child_second == NULL){//remonte l'erreur
         goto err;
@@ -94,10 +94,10 @@ struct AST *rule_until(struct token **token)
 
     ast = add_children(ast, child_second);
 
-    if (*token == NULL || (*token)->type != DONE) // pas de done
+    if (donne_token(*lexer) == NULL || donne_type(*lexer) != DONE) // pas de done
         goto err;
 
-    *token = eat(*token);
+    *lexer = eat(*lexer);
 
     return ast;
 
@@ -110,82 +110,82 @@ err:
 //                          | [ {'\n'} 'in' { WORD } ( ';' | '\n' ) ] )
 //{'\n'} 'do' compound_list 'done'
 
-struct AST *rule_for(struct token **token)
+struct AST *rule_for(struct lexer **lexer)
 {
     struct AST *ast = create_ast(AST_FOR, NULL);
 
-    if ((*token)->type != FOR) //pas de for au debut
+    if (donne_type(*lexer) != FOR) //pas de for au debut
         goto err;
 
-    *token = eat(*token); //mange le for
+    *lexer = eat(*lexer); //mange le for
 
-    if (!is_valid_word(*token)) //pas bon word mais peut etre if, do (voir fonction is_valid_word)
+    if (!is_valid_word(*lexer)) //pas bon word mais peut etre if, do (voir fonction is_valid_word)
         goto err;
 
-    struct AST *var_name = create_ast(AST_VALUE, strdup((*token)->content)); //nom de la variable
+    struct AST *var_name = create_ast(AST_VALUE, strdup(donne_content(*lexer))); //nom de la variable
     ast = add_children(ast, var_name);
-    *token = eat(*token);
+    *lexer = eat(*lexer);
 
-    if (*token == NULL)//si ya rien c erreur
+    if (donne_token(*lexer) == NULL)//si ya rien c erreur
         goto err;
 
     // Cas 1
-    if ((*token)->type == SEMICOLON)
+    if (donne_type(*lexer) == SEMICOLON)
     {
-        *token = eat(*token);
+        *lexer = eat(*lexer);
     }
     else // Cas 2
     {
-        eat_newlines(token); //enleve le {\n}
+        eat_newlines(lexer); //enleve le {\n}
 
-        if (*token != NULL && (*token)->type == IN) //cas avec le in
+        if (donne_token(*lexer) != NULL && donne_type(*lexer) == IN) //cas avec le in
         {
-            *token = eat(*token);
+            *lexer = eat(*lexer);
 
-            if (*token == NULL)//eviter pb
+            if (donne_token(*lexer) == NULL)//eviter pb
                 goto err;
 
-            while (*token != NULL && (*token)->type != SEMICOLON
-                   && (*token)->type != NEWLINE) //va mager tous les words
+            while (donne_token(*lexer) != NULL && donne_type(*lexer) != SEMICOLON
+                   && donne_type(*lexer) != NEWLINE) //va mager tous les words
             {
 
-                if (!is_valid_word(*token)) //c pas un mots alors c une err
+                if (!is_valid_word(*lexer)) //c pas un mots alors c une err
                     goto err;
 
                 struct AST *word =
-                    create_ast(AST_VALUE, strdup((*token)->content)); //prend la valeur du mot
+                    create_ast(AST_VALUE, strdup(donne_content(*lexer))); //prend la valeur du mot
                 ast = add_children(ast, word);
 
-                *token = eat(*token);
+                *lexer = eat(*lexer);
             }
 
-            if (*token == NULL
-                || ((*token)->type != SEMICOLON && (*token)->type != NEWLINE)) //problem de grammaire
+            if (donne_token(*lexer) == NULL
+                || (donne_type(*lexer) != SEMICOLON && donne_type(*lexer) != NEWLINE)) //problem de grammaire
                 goto err;
 
-            *token = eat(*token);//on eat le ; ou le \n
+            *lexer = eat(*lexer);//on eat le ; ou le \n
         }
     }
 
-    eat_newlines(token);//enleve le {\n}
-    if (*token == NULL || (*token)->type != DO) //pas de do
+    eat_newlines(lexer);//enleve le {\n}
+    if (donne_token(*lexer) == NULL || donne_type(*lexer) != DO) //pas de do
         goto err;
 
-    *token = eat(*token);//mange le do
+    *lexer = eat(*lexer);//mange le do
 
-    if (!first_compound_list(*token))//pas first de compound lst
+    if (!first_compound_list(donne_token(*lexer)))//pas first de compound lst
         goto err;
 
-    struct AST *body = compound_list(token);
+    struct AST *body = compound_list(lexer);
     if (body == NULL)//remonte l'erreur
         goto err;
 
     ast = add_children(ast, body);
 
-    if (*token == NULL || (*token)->type != DONE) //pas de done
+    if (donne_token(*lexer) == NULL || donne_type(*lexer) != DONE) //pas de done
         goto err;
 
-    *token = eat(*token); //mange le done
+    *lexer = eat(*lexer); //mange le done
 
     return ast;
 

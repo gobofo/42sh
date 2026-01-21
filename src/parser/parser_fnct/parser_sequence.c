@@ -6,48 +6,43 @@
 //(3)    | '\n'
 //(4)    | EOF
 
-struct AST *input(struct token **token)
+struct AST *input(struct lexer **lexer)
 {
-    if (*token == NULL || (*token)->type == NEWLINE)  //regle 3 et 4
+    if (donne_token(*lexer) == NULL || donne_type(*lexer) == NEWLINE)  //regle 3 et 4
     {
-        free_token(*token);
         return create_ast(AST_LIST, NULL);
     }
 
-    if (!first_list(*token)){ //si c pas une liste = erreur
-        free_token(*token);
+    if (!first_list(donne_token(*lexer))){ //si c pas une liste = erreur
         return NULL;
     }
 
-    struct AST *ast = list(token); //creer la list
+    struct AST *ast = list(lexer); //creer la list
     if (ast == NULL) //pb dans la list
     {
-        free_token(*token);
         return NULL;
     }
 
-    if (!follow_list(*token)) //pas \n ou EOF
+    if (!follow_list(donne_token(*lexer))) //pas \n ou EOF
     {
-        free_token(*token);
         destroy_AST(ast);
         return NULL;
     }
 
-    free_token(*token); // si \NEWLINE
     return ast;
 }
 
 //(3) list = and_or { ';' and_or } [ ';' ]
 
-struct AST *list(struct token **token)
+struct AST *list(struct lexer **lexer)
 {
     struct AST *ast = create_ast(AST_LIST, NULL);
 
-    if (!first_and_or(*token)){//pas debut du and_or
+    if (!first_and_or(donne_token(*lexer))){//pas debut du and_or
         goto err;
     }
 
-    struct AST *child = and_or(token);
+    struct AST *child = and_or(lexer);
 
     if (child == NULL){//remonte le pb
         goto err;
@@ -55,14 +50,14 @@ struct AST *list(struct token **token)
 
     ast = add_children(ast, child);
 
-    if (follow_list(*token)){//pas de ;
+    if (follow_list(donne_token(*lexer))){//pas de ;
         return ast;
     }
 
-    if ((*token)->type == SEMICOLON){
-        *token = eat(*token);
+    if (donne_type(*lexer) == SEMICOLON){
+        *lexer = eat(*lexer);
 
-        if (follow_list(*token)){ // cas [ ; ]
+        if (follow_list(donne_token(*lexer))){ // cas [ ; ]
             return ast;
         }
     }
@@ -71,26 +66,26 @@ struct AST *list(struct token **token)
         goto err;
     }
 
-    while (first_and_or(*token)){ //first de and_or
+    while (first_and_or(donne_token(*lexer))){ //first de and_or
 
-        struct AST *child = and_or(token);
+        struct AST *child = and_or(lexer);
         if (child == NULL) //err remonter
         {
             goto err;
         }
         ast = add_children(ast, child);
 
-        if (follow_list(*token))//fin de la liste
+        if (follow_list(donne_token(*lexer)))//fin de la liste
         {
             return ast;
         }
 
-        if ((*token)->type == SEMICOLON)//si ya ;
+        if (donne_type(*lexer) == SEMICOLON)//si ya ;
         {
-            *token = eat(*token);
+            *lexer = eat(*lexer);
         }
 
-        if (follow_list(*token))//fin de la liste
+        if (follow_list(donne_token(*lexer)))//fin de la liste
         {
             return ast;
         }
@@ -104,26 +99,26 @@ err:
 
 //(6) and_or = pipeline { ( '&&' | '||' ) {'\n'} pipeline }
 
-struct AST *and_or(struct token **token)
+struct AST *and_or(struct lexer **lexer)
 {
     
     struct AST *ast = NULL;
 
-    if (!first_pipeline(*token)){//pas un pipeline
+    if (!first_pipeline(donne_token(*lexer))){//pas un pipeline
         goto err;
     }
 
-    ast = pipeline(token);
+    ast = pipeline(lexer);
 
     if (ast == NULL){//remonte l'erreur
         goto err;
     }
 
-    while (*token && ((*token)->type == AND || (*token)->type == OR)){
+    while (donne_token(*lexer) && (donne_type(*lexer) == AND || donne_type(*lexer) == OR)){
 
         struct AST *ast_op;
 
-        if ((*token)->type == AND)
+        if (donne_type(*lexer) == AND)
         {
             ast_op = create_ast(AST_AND, NULL); //le AND 
         }
@@ -132,17 +127,17 @@ struct AST *and_or(struct token **token)
             ast_op = create_ast(AST_OR, NULL); //le OR
         }
 
-        *token = eat(*token);
+        *lexer = eat(*lexer);
 
-        eat_newlines(token); //pour {\n}
+        eat_newlines(lexer); //pour {\n}
 
-        if (!first_pipeline(*token)){
+        if (!first_pipeline(donne_token(*lexer))){
             destroy_AST(ast_op);
             goto err;
         }
 
         ast_op = add_children(ast_op, ast);
-        ast = pipeline(token);
+        ast = pipeline(lexer);
 
         if (ast == NULL) //remonte l'erreur
         {
@@ -155,7 +150,7 @@ struct AST *and_or(struct token **token)
 
     }
 
-    if (follow_and_or(*token)){
+    if (follow_and_or(donne_token(*lexer))){
         return ast;
     }
 
@@ -166,20 +161,20 @@ err:
 
 //(7) pipeline = [!] command { '|' {'\n'} command }
 
-struct AST *pipeline(struct token **token)
+struct AST *pipeline(struct lexer **lexer)
 {
     struct AST *ast = create_ast(AST_PIPELINE, NULL);
-    if ((*token)->type == NEG)
+    if (donne_type(*lexer) == NEG)
     {
         ast->is_neg = 1;
-        *token = eat(*token);
+        *lexer = eat(*lexer);
     }
 
-    if (!first_command(*token)){ //pas une commande
+    if (!first_command(donne_token(*lexer))){ //pas une commande
         goto err;
     }
 
-    struct AST *children = command(token);
+    struct AST *children = command(lexer);
 
     if (children == NULL) //remonte l'erreur 
     {
@@ -188,23 +183,23 @@ struct AST *pipeline(struct token **token)
 
     ast = add_children(ast, children);
 
-    if (follow_pipeline(*token)){
+    if (follow_pipeline(donne_token(*lexer))){
         return ast;
     }
 
-    while ((*token)->type == PIPE)
+    while (donne_type(*lexer) == PIPE)
     {
-        *token = eat(*token);
-        if (*token == NULL)
+        *lexer = eat(*lexer);
+        if (donne_token(*lexer) == NULL)
             goto err;
 
-        eat_newlines(token);
+        eat_newlines(lexer);
 
-        if (!first_command(*token)){
+        if (!first_command(donne_token(*lexer))){
             goto err;
         }
 
-        struct AST *children = command(token);
+        struct AST *children = command(lexer);
 
         if (children == NULL) //remonte l'erreur
         {
@@ -213,7 +208,7 @@ struct AST *pipeline(struct token **token)
 
         ast = add_children(ast, children);
 
-        if (follow_pipeline(*token)){
+        if (follow_pipeline(donne_token(*lexer))){
             return ast;
         }
     }
@@ -225,34 +220,34 @@ err:
 
 //(17) compound_list = {'\n'} and_or { ( ';' | '\n' ) {'\n'} and_or } [';'] {'\n'}
 
-struct AST *compound_list(struct token **token)
+struct AST *compound_list(struct lexer **lexer)
 {
     struct AST *ast = create_ast(AST_LIST, NULL);
 
-    eat_newlines(token);//pour les {\n}
+    eat_newlines(lexer);//pour les {\n}
 
-    if (!first_and_or(*token)) //pas un and or
+    if (!first_and_or(donne_token(*lexer))) //pas un and or
         goto err;
 
-    struct AST *child = and_or(token);
+    struct AST *child = and_or(lexer);
     if (child == NULL)//remonte l'err
         goto err;
 
     ast = add_children(ast, child);
     
-    while (*token != NULL
-           && ((*token)->type == SEMICOLON || (*token)->type == NEWLINE))
+    while (donne_token(*lexer) != NULL
+           && (donne_type(*lexer) == SEMICOLON || donne_type(*lexer) == NEWLINE))
     {
-        *token = eat(*token); //mange le /n ou le ;
-        eat_newlines(token); //pour le {\n}
+        *lexer = eat(*lexer); //mange le /n ou le ;
+        eat_newlines(lexer); //pour le {\n}
 
-        if (*token == NULL || follow_compound_list(*token))//c la fin
+        if (donne_token(*lexer) == NULL || follow_compound_list(donne_token(*lexer)))//c la fin
             break;
 
-        if (!first_and_or(*token)) //c pas un and or
+        if (!first_and_or(donne_token(*lexer))) //c pas un and or
             goto err;
 
-        child = and_or(token);
+        child = and_or(lexer);
         if (child == NULL)//remonte l'err
             goto err;
         ast = add_children(ast, child);
@@ -260,10 +255,10 @@ struct AST *compound_list(struct token **token)
 
     //==================== PAS UTILE =========================
 
-    if (*token != NULL && (*token)->type == SEMICOLON)
-        *token = eat(*token);
+    if (donne_token(*lexer) != NULL && donne_type(*lexer) == SEMICOLON)
+        *lexer = eat(*lexer);
 
-    eat_newlines(token);
+    eat_newlines(lexer);
 
     //==================== PAS UTILE =========================
 

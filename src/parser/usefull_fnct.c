@@ -2,14 +2,14 @@
 
 //renvoi true si le mot est un valid word
 
-bool is_valid_word(struct token *token)
+bool is_valid_word(struct lexer *lexer)
 {
-    if (token == NULL)
+    if (lexer->current == NULL)
     {
         return false;
     }
 
-    enum types type = token->type;
+    enum types type = lexer->current->type;
 
     return type != NEWLINE && type != AND && type != OR && type != SEMICOLON
         && type != PIPE && type != REDIR;
@@ -19,7 +19,7 @@ bool is_valid_word(struct token *token)
 
 struct lexer *eat(struct lexer *lexer)
 {
-    free_token(token);
+    free(lexer->current);
     return get_token(lexer);
 }
 
@@ -27,7 +27,7 @@ struct lexer *eat(struct lexer *lexer)
 
 void eat_newlines(struct lexer **lexer)
 {
-    while (*lexer->current && (*lexer)->current->type == NEWLINE)
+    while ((*lexer)->current && (*lexer)->current->type == NEWLINE)
         *lexer = eat(*lexer);
 }
 
@@ -37,6 +37,10 @@ struct token *donne_token(struct lexer *lexer){
 
 }
 
-enum type donne_type(struct lexer *lexer){
+enum types donne_type(struct lexer *lexer){
     return lexer->current->type;
+}
+
+char *donne_content(struct lexer *lexer){
+    return lexer->current->content;
 }

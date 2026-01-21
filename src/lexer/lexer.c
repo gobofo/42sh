@@ -47,7 +47,7 @@ struct lexer *get_token(struct lexer *lexer)
 		lexer->current = read_input(lexer->input);
 	else
 	{
-		lexer->current = next;
+		lexer->current = lexer->next;
 		lexer->next = NULL;
 	}
 
@@ -62,9 +62,9 @@ struct lexer *get_token(struct lexer *lexer)
  *
  * @return			The next token in stream
  */
-void next_token(struct lexer *lexer)
+void next_token(struct lexer **lexer)
 {
-	lexer->next = read_input(lexer->input);
+	(*lexer)->next = read_input((*lexer)->input);
 }
 
 
