@@ -5,81 +5,66 @@
 
 #include "../../src/lexer/lexer.h"
 
+struct type_string_map {
+    enum types type;
+    const char *name;
+};
+
+static const struct type_string_map type_names[] = {
+    { IF, "IF" }, { THEN, "THEN" }, { ELIF, "ELIF" }, { ELSE, "ELSE" },
+	{ FI, "FI" },
+
+    { WHILE, "WHILE" }, { UNTIL, "UNTIL" }, { FOR, "FOR" }, { DO, "DO" },
+	{ DONE, "DONE" }, { IN, "IN" },
+
+	{ S_QUOTE, "S_QUOTE" }, { D_QUOTE, "D_QUOTE" },
+
+	{ PIPE, "PIPE" }, { OR, "OR" }, { AND, "AND" },
+
+	{ NEG, "NEG" }, { SEMICOLON, "SEMICOLON" }, { NEWLINE, "NEWLINE" },
+
+	{ REDIR, "REDIR" },
+
+	{ WORDS, "WORDS" }, { A_WORDS, "ASSIGNMENT_WORD" },
+
+	{ 0, NULL }
+};
+
 const char *get_type(enum types type)
 {
-	switch (type)
-	{
-		case IF:
-			return "IF";
-		case THEN:
-			return "THEN";
-		case ELIF:
-			return "ELIF";
-		case ELSE:
-			return "ELSE";
-		case FI:
-			return "FI";
-
-		case SEMICOLON:
-			return "SEMICOLON";
-		case NEWLINE:
-			return "NEWLINE";
-
-		case S_QUOTE:
-			return "S_QUOTE";
-		case D_QUOTE:
-			return "D_QUOTE";
-
-		case REDIR:
-			return "REDIR";
-		case PIPE:
-			return "PIPE";
-		case OR:
-			return "OR";
-		case AND:
-			return "AND";
-		case NEG:
-			return "NEG";
-
-		case WHILE:
-			return "WHILE";
-		case UNTIL:
-			return "UNTIL";
-		case DO:
-			return "DO";
-		case DONE:
-			return "DONE";
-
-		case FOR:
-			return "FOR";
-		case IN:
-			return "IN";
-
-		case WORDS:
-			return "WORDS";
-		default:
-			return "UNKNOWN";
-	}
+    for (int i = 0; type_names[i].name != NULL; i++)
+    {
+        if (type_names[i].type == type)
+            return type_names[i].name;
+    }
+    return "UNKNOWN";
 }
 
 void print_lexing(const char *input)
 {
-	if (!input) return;
+    if (!input) return;
 
-	FILE *stream = fmemopen((void *)input, strlen(input), "r");
-	if (!stream) return;
+    FILE *stream = fmemopen((void *)input, strlen(input), "r");
+    if (!stream) return;
 
-	struct token *tok = get_token(stream);
+    struct lexer *lexer = init_lexer(stream);
+    if (!lexer) {
+        fclose(stream);
+        return;
+    }
 
-	while (tok != NULL)
-	{
-		printf("[%s](%s)\n", tok->content, get_type(tok->type));
-		free_token(tok);
-		tok = get_token(stream);
-	}
+    while (lexer->current != NULL)
+    {
+        printf("[%s](%s)\n", lexer->current->content, get_type(lexer->current->type));
+        
+        if (get_token(lexer) == NULL || lexer->current == NULL)
+            break;
+    }
 
-	fclose(stream);
+    free_lexer(lexer);
+    fclose(stream);
 }
+
 
 void setup_stdout(void)
 {
