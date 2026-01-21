@@ -45,6 +45,10 @@ static void expand_at_quoted(struct expansion_context *context)
 	if (*(context->size) > 0)
 		add_word(context->words, strdup(*(context->buffer)));
 
+	free(*(context->buffer));
+	*(context)->buffer = NULL;
+	*(context)->size = 0;
+
 	// We add each argument as a separate word
 	for (int i = 0; i < env->argc; i++)
 		add_word(context->words, strdup(env->argv[i]));
@@ -101,7 +105,9 @@ static int is_special_variable(struct expansion_context *context,
     {
 		// Handle the case where the @ is quoted
 		if (str[*i] == '@' && context->quoted == 1)
+		{
 			expand_at_quoted(context);
+		}
 		else
 		{
 			for (int j = 0; j < env->argc; j++)
@@ -279,6 +285,8 @@ char **expand(char *str)
         {
             // Pass the opening quote
             i++;
+
+			context.quoted = 1;
 
             while (str[i] != '\0' && str[i] != '"')
             {
