@@ -160,7 +160,7 @@ int redir_dup(struct AST *root, struct AST **redir, int fd)
                 fprintf(stderr, "Error: Could not dup\n");
                 return 1;
             }
-            //close(fd_file);
+            // close(fd_file);
         }
     }
 
