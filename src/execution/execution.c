@@ -29,12 +29,23 @@ int variable_assignation(struct AST *root)
     if (value_raw == NULL)
         value_raw = "";
 
-    char *value = expand(&value_raw);
+    char **expanded = expand(value_raw);
+
+	char *value = "";
+
+	if (expanded != NULL && expanded[0] != NULL)
+		value = expanded[0];
 
     bool updated;
     hash_map_insert(env->variables, key, value, &updated);
 
-    free(value);
+	if (expanded)
+	{
+		for (int i = 0; expanded[i] != NULL; i++)
+			free(expanded[i]);
+
+		free(expanded);
+	}
 
     return 0;
 }
@@ -61,23 +72,25 @@ char **create_command(struct AST *root)
     {
         if (root->children[i]->rule == AST_VALUE)
         {
-            char *expanded_value;
+            char **expanded_values = expand(root->children[i]->content);
 
-            if (strcmp(root->children[i]->content, "\"\"") == 0
-                || strcmp(root->children[i]->content, "''") == 0)
-                expanded_value = expand(&root->children[i]->content);
-            else
-            {
-                expanded_value = expand(&root->children[i]->content);
-
-                if (strcmp(expanded_value, "") == 0)
-                {
-                    free(expanded_value);
-                    continue;
-                }
-            }
-
-            command[idx++] = expanded_value;
+			for (int j = 0; expanded_values[j] != NULL; j++)
+			{
+				if (expanded_values[j][0] != '\0' || 
+						strcmp(root->children[i]->content, "''") == 0 ||
+						strcmp(root->children[i]->content, "\"\"") == 0)
+				{
+					command = realloc(command, sizeof(char *) * (idx + 2));
+					command[idx++] = expanded_values[j];
+					command[idx] = NULL;
+				}
+				else
+				{
+					free(expanded_values[j]);
+				}
+			}
+			
+			free(expanded_values);
         }
     }
 
