@@ -36,6 +36,8 @@ struct AST *input(struct lexer **lexer)
         return NULL;
     }
 
+    *lexer = eat(*lexer);
+
     return ast;
 }
 
