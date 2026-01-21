@@ -10,32 +10,35 @@ struct type_string_map {
     const char *name;
 };
 
-static const struct type_string_map type_names[] = {
+static const struct type_string_map debug_names[] = {
     { IF, "IF" }, { THEN, "THEN" }, { ELIF, "ELIF" }, { ELSE, "ELSE" },
 	{ FI, "FI" },
 
-    { WHILE, "WHILE" }, { UNTIL, "UNTIL" }, { FOR, "FOR" }, { DO, "DO" },
-	{ DONE, "DONE" }, { IN, "IN" },
+    { SEMICOLON, "SEMICOLON" }, { NEWLINE, "NEWLINE" },
 
-	{ S_QUOTE, "S_QUOTE" }, { D_QUOTE, "D_QUOTE" },
+    { S_QUOTE, "S_QUOTE" }, { D_QUOTE, "D_QUOTE" },
 
-	{ PIPE, "PIPE" }, { OR, "OR" }, { AND, "AND" },
+    { REDIR, "REDIR" }, { PIPE, "PIPE" }, { AND, "AND" }, { OR, "OR" },
 
-	{ NEG, "NEG" }, { SEMICOLON, "SEMICOLON" }, { NEWLINE, "NEWLINE" },
+    { ESC, "ESC" }, { NEG, "NEG" },
 
-	{ REDIR, "REDIR" },
+    { WHILE, "WHILE" }, { UNTIL, "UNTIL" }, { DO, "DO" }, { DONE, "DONE" },
+    { FOR, "FOR" }, { IN, "IN" },
 
-	{ WORDS, "WORDS" }, { A_WORDS, "ASSIGNMENT_WORD" },
+    { WORDS, "WORDS" }, { A_WORDS, "ASSIGNMENT_WORD" },
 
-	{ 0, NULL }
+    { L_BRACE, "L_BRACE" }, { R_BRACE, "R_BRACE" },
+
+    { L_PAREN, "L_PAREN" }, { R_PAREN, "R_PAREN" },
+
+    { 0, NULL }
 };
 
 const char *get_type(enum types type)
 {
-    for (int i = 0; type_names[i].name != NULL; i++)
-    {
-        if (type_names[i].type == type)
-            return type_names[i].name;
+    for (int i = 0; debug_names[i].name != NULL; i++) {
+        if (debug_names[i].type == type)
+            return debug_names[i].name;
     }
     return "UNKNOWN";
 }
@@ -372,6 +375,50 @@ Test(single_token, redir_token_7, .init = setup_stdout)
 	cr_assert_stdout_eq_str("[<>](REDIR)\n");
 }
 
+Test(single_token, neg_token, .init = setup_stdout)
+{
+    print_lexing("!");
+	fflush(stdout);
+    cr_assert_stdout_eq_str("[!](NEG)\n");
+}
+
+Test(single_token, l_brace_token, .init = setup_stdout)
+{
+    print_lexing("{");
+	fflush(stdout);
+    cr_assert_stdout_eq_str("[{](L_BRACE)\n");
+}
+
+Test(single_token, r_brace_token, .init = setup_stdout)
+{
+    print_lexing("}");
+	fflush(stdout);
+    cr_assert_stdout_eq_str("[}](R_BRACE)\n");
+}
+
+Test(single_token, l_paren_token, .init = setup_stdout)
+{
+    print_lexing("(");
+	fflush(stdout);
+    cr_assert_stdout_eq_str("[(](L_PAREN)\n");
+}
+
+Test(single_token, r_paren_token, .init = setup_stdout)
+{
+    print_lexing(")");
+	fflush(stdout);
+    cr_assert_stdout_eq_str("[)](R_PAREN)\n");
+}
+
+Test(single_token, assignment_token, .init = setup_stdout)
+{
+    print_lexing("VAR=value");
+
+	fflush(stdout);
+
+    cr_assert_stdout_eq_str("[VAR=value](ASSIGNMENT_WORD)\n");
+}
+
 // Tests for if clausures
 TestSuite(if_clausure, .init = setup_stdout);
 
@@ -430,4 +477,56 @@ Test(if_clausure, if_elif, .init = setup_stdout)
 			"[true](WORDS)\n"
 			"[;](SEMICOLON)\n"
 			"[fi](FI)\n");
+}
+
+TestSuite(loop_clausure, .init = setup_stdout);
+
+Test(loop_clausure, simple_while, .init = setup_stdout)
+{
+    char *input = "while true; do echo looper; done";
+    print_lexing(input);
+    fflush(stdout);
+
+    cr_assert_stdout_eq_str("[while](WHILE)\n"
+                            "[true](WORDS)\n"
+                            "[;](SEMICOLON)\n"
+                            "[do](DO)\n"
+                            "[echo](WORDS)\n"
+                            "[looper](WORDS)\n"
+                            "[;](SEMICOLON)\n"
+                            "[done](DONE)\n");
+}
+
+Test(loop_clausure, simple_until, .init = setup_stdout)
+{
+    char *input = "until false; do :; done";
+    print_lexing(input);
+    fflush(stdout);
+
+    cr_assert_stdout_eq_str("[until](UNTIL)\n"
+                            "[false](WORDS)\n"
+                            "[;](SEMICOLON)\n"
+                            "[do](DO)\n"
+                            "[:](WORDS)\n"
+                            "[;](SEMICOLON)\n"
+                            "[done](DONE)\n");
+}
+
+Test(loop_clausure, simple_for, .init = setup_stdout)
+{
+    char *input = "for i in 1 2; do echo $i; done";
+    print_lexing(input);
+    fflush(stdout);
+
+    cr_assert_stdout_eq_str("[for](FOR)\n"
+                            "[i](WORDS)\n"
+                            "[in](IN)\n"
+                            "[1](WORDS)\n"
+                            "[2](WORDS)\n"
+                            "[;](SEMICOLON)\n"
+                            "[do](DO)\n"
+                            "[echo](WORDS)\n"
+                            "[$i](WORDS)\n"
+                            "[;](SEMICOLON)\n"
+                            "[done](DONE)\n");
 }
