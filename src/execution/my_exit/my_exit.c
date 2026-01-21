@@ -4,27 +4,28 @@ extern struct env *env;
 
 int my_atoi(char *str, int *is_valid)
 {
-	int res = 0;
+    int res = 0;
 
-	for (int i = 0; str[i] != '\0'; i++)
-	{
-		if (str[i] < '0' || str[i] > '9')
-		{
-			*is_valid = 0;
-			return -1;
-		}
+    for (int i = 0; str[i] != '\0'; i++)
+    {
+        if (str[i] < '0' || str[i] > '9')
+        {
+            *is_valid = 0;
+            return -1;
+        }
 
-		int digit = str[i] - '0';
-		res = res * 10 + digit;
-	}
+        int digit = str[i] - '0';
+        res = res * 10 + digit;
+    }
 
-	return res;
+    return res;
 }
 
 int my_exit(char **command)
 {
 	// Exit takes 1 or no arguments
-	if (command[1] != NULL)
+	if (command[0] && command[1] != NULL)
+
 	{
 		fprintf(stderr, "Error: exit: too many arguments\n");
 		return 2;

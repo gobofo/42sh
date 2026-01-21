@@ -1,60 +1,71 @@
 #include "lexer.h"
-#include <stdbool.h>
-// #####################
-// #   MAIN FUNCTION   #
-// #####################
 
-
-struct token *intermediate(FILE *input, bool eat)
+struct lexer *init_lexer(FILE *input)
 {
-    static FILE *file = NULL;
+	struct lexer *lexer = malloc(sizeof(struct lexer));
+	if (!lexer)
+		return NULL;
 
-    if (input){
-        file = input;
-	}
+	lexer->input = input;
 
-    if (!file){
-        file = input;
-	}
+	lexer->current = read_input(input);
+	lexer->next = NULL;
 
-
-	static struct token* next_token = NULL;
-
-	if(!next_token){
-		next_token = read_input(file);
-	}
-
-	if(!eat)
-		return next_token;
-
-	struct token *token = next_token;
-	next_token = read_input(file);
-
-	return token;
+	return lexer;
 }
 
+void free_lexer(struct lexer *lexer)
+{
+	if (!lexer)
+		return;
+
+	if (lexer->current != NULL)
+		free_token(lexer->current);
+
+	if (lexer->next != NULL)
+		free_token(lexer->next);
+
+	free(lexer);
+}
+
+// ######################
+// #   MAIN FUNCTIONS   #
+// ######################
 
 /**
- * @brief 			Function to return the next token
+ * @brief 			Function to return the current token
  *
- * Returns the next token found in the stream when asked from the parser
+ * @param lexer		The struct lexer where everything is stored
  *
- * @param input		The input where the parser is reading
- *
- * @return 			Next token in stream
+ * @return 			Current token in stream
  */
 
-struct token *get_token(FILE *input)
+struct lexer *get_token(struct lexer *lexer)
 {
-    return intermediate(input, 1);
+
+	if (lexer->next == NULL)
+		lexer->current = read_input(lexer->input);
+	else
+	{
+		lexer->current = lexer->next;
+		lexer->next = NULL;
+	}
+
+    return lexer;
+
 }
 
-struct token *next_token(FILE *input)
+/**
+ * @brief			Return the look ahead token, the token following the current
+ *
+ * @param lexer		The struct lexer where everything is stored
+ *
+ * @return			The next token in stream
+ */
+void next_token(struct lexer **lexer)
 {
-	return intermediate(input, 0);
+	(*lexer)->next = read_input((*lexer)->input);
 }
-
-
 
 // ##############
 // #   STREAM   #
@@ -135,8 +146,8 @@ static void handle_quotes(FILE *file, FILE **stream, int *c)
 
     while ((*c = fgetc(file)) != EOF && *c != open_quote)
     {
-		// In double quotes, some characters can be escaped with the \ so when
-		// one is found we have to take a particular action
+        // In double quotes, some characters can be escaped with the \ so when
+        // one is found we have to take a particular action
 
         if (*c == '\\' && open_quote == '"')
         {
@@ -214,7 +225,7 @@ static void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
 
 static int is_redir_c(char c)
 {
-	return c == '>' || c == '<' || c == '|' || c == '&';
+    return c == '>' || c == '<' || c == '|' || c == '&';
 }
 
 static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
@@ -224,14 +235,14 @@ static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
 
     buff[0] = c;
     buff[1] = fgetc(file);
-	if (is_redir_c(buff[1]) == 0)
-	{
-		ungetc(buff[1], file);
-		return NULL;
-	}
+    if (is_redir_c(buff[1]) == 0)
+    {
+        ungetc(buff[1], file);
+        return NULL;
+    }
 
     buff[2] = fgetc(file);
-	
+
     int idx = 2;
 
     while (idx >= 0)
@@ -278,6 +289,7 @@ static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
 
 struct token *read_input(FILE *file)
 {
+	int in_var = 0;
     int c;
 
     char *buffer = NULL;
@@ -311,7 +323,7 @@ struct token *read_input(FILE *file)
         }
 
         // Same as before but those charcacters need to be safed as tokens
-        if (c == ';' || c == '\n' || c == '!' || c=='(' || c==')' || c=='{' || c=='}')
+        if (c == ';' || c == '\n' || c == '!' || c == '(' || c == ')')
         {
             // Sync the stream
             fflush(stream);
@@ -327,6 +339,33 @@ struct token *read_input(FILE *file)
 
             return flush_stream(stream, &buffer);
         }
+
+		if (c == '{' || c == '}')
+		{
+			fflush(stream);
+
+			if (c == '{' && size > 0 && buffer[size - 1] == '$')
+			{
+				in_var = 1;
+				fputc(c, stream);
+
+				continue;
+			}
+
+			if (c == '}' && in_var)
+			{
+				in_var = 0;
+				fputc(c, stream);
+				continue;
+			}
+
+			if (size > 0)
+				return empty_stream(file, &stream, &buffer, c);
+
+			fputc(c, stream);
+
+			return flush_stream(stream, &buffer);
+		}
 
         // Those two characters are considered as operators if they are doubled
         // For the | it can also be considered as a pipe if it is alone.
