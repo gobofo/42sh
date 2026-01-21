@@ -34,7 +34,7 @@ static const struct type_string_map debug_names[] = {
     { 0, NULL }
 };
 
-const char *get_type(enum types type)
+static const char *get_type(enum types type)
 {
     for (int i = 0; debug_names[i].name != NULL; i++) {
         if (debug_names[i].type == type)
@@ -43,7 +43,7 @@ const char *get_type(enum types type)
     return "UNKNOWN";
 }
 
-void print_lexing(const char *input)
+static void print_lexing(const char *input)
 {
     if (!input) return;
 
@@ -68,8 +68,7 @@ void print_lexing(const char *input)
     fclose(stream);
 }
 
-
-void setup_stdout(void)
+static void setup_stdout(void)
 {
 	cr_redirect_stdout();
 }
