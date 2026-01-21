@@ -171,8 +171,12 @@ int my_cd(char **command)
         char *old = hash_map_get(env->variables, "OLDPWD");
         char *oldpwd = strdup(old);
 
+		// Swap the pwd
         hash_map_insert(env->variables, "OLDPWD", pwd, &update);
         hash_map_insert(env->variables, "PWD", oldpwd, &update);
+
+		// Print the new pwd
+		printf("%s\n", pwd);
 
         free(oldpwd);
 
