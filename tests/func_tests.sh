@@ -78,17 +78,31 @@ if [ "$COVERAGE" = "yes" ]; then
 
 	if [ -f "unit/unit_tests" ]; then
 
-		RESULTS=$(./unit/unit_tests 2>&1 | grep "Synthesis:")
-        
-        PASSED=$(echo "$RESULTS" | sed -n 's/.*Passing: \([0-9]*\).*/\1/p')
-        TESTED=$(echo "$RESULTS" | sed -n 's/.*Tested: \([0-9]*\).*/\1/p')
+		UNIT_OUT=$(./unit/unit_tests --verbose --color=never 2>&1)
+        UNIT_EXIT=$?
+
+        # Use awk to extract numbers reliably [cite: 176]
+        SYNTHESIS=$(echo "$UNIT_OUT" | grep "Synthesis:")
+        PASSED=$(echo "$SYNTHESIS" | awk -F'Passing: ' '{print $2}' | awk '{print $1}')
+        TESTED=$(echo "$SYNTHESIS" | awk -F'Tested: ' '{print $2}' | awk '{print $1}')
 
         if [ -n "$PASSED" ] && [ -n "$TESTED" ]; then
             SUCCESS=$((SUCCESS + PASSED))
             TOTAL=$((TOTAL + TESTED))
-            echo -e "${GRN}Unit Tests: $PASSED / $TESTED passed${WHT}"
+            echo -e "${GRN}Unit tests completed: $PASSED/$TESTED${WHT}"
         else
-            echo -e "${RED}Failed to parse unit test results${WHT}"
+            # Fallback if parsing fails
+            echo -e "${RED}Failed to parse Criterion output${WHT}"
+            if [ $UNIT_EXIT -eq 0 ]; then
+                SUCCESS=$((SUCCESS + 1))
+            fi
+            TOTAL=$((TOTAL + 1))
+        fi
+
+        # Display the actual failing tests in color if the binary failed
+        if [ $UNIT_EXIT -ne 0 ]; then
+             echo -e "${RED}Details of Unit Test Failures:${WHT}"
+             ./unit/unit_tests --verbose --color=always
         fi
 
 	else
