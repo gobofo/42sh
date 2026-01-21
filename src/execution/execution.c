@@ -76,7 +76,9 @@ char **create_command(struct AST *root)
 
 			for (int j = 0; expanded_values[j] != NULL; j++)
 			{
-				if (expanded_values[j][0] != '\0')
+				if (expanded_values[j][0] != '\0' || 
+						strcmp(root->children[i]->content, "''") == 0 ||
+						strcmp(root->children[i]->content, "\"\"") == 0)
 				{
 					command = realloc(command, sizeof(char *) * (idx + 2));
 					command[idx++] = expanded_values[j];
