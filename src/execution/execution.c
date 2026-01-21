@@ -139,6 +139,7 @@ struct AST **create_redir(struct AST *root)
  *
  * @return		Exit code
  */
+
 int execute_redir(struct AST *root, struct AST **redir)
 {
     int fd = -1;
@@ -223,27 +224,19 @@ int execute_cmd(char **command)
     else if (strcmp(command[0], "cd") == 0)
         status = my_cd(command + 1);
     else if (strcmp(command[0], "exit") == 0)
-    {
         status = my_exit(command + 1);
-        env->should_exit = 1;
-    }
     else if (strcmp(command[0], "break") == 0)
-    {
         status = my_break(command + 1);
-    }
     else if (strcmp(command[0], "continue") == 0)
-    {
         status = my_continue(command + 1);
-    }
     else
         status = execute_non_builtin(command);
 
     for (int i = 0; command[i] != NULL; i++)
-    {
         free(command[i]);
-    }
 
     free(command);
+
     env->last_exit_code = status;
     return status;
 }
@@ -345,7 +338,7 @@ int execute_while(struct AST *root)
     return status;
 }
 
-int execute_until(struct AST *root)
+static int execute_until(struct AST *root)
 {
     if (env->should_exit == 1)
         return env->last_exit_code;
@@ -366,10 +359,45 @@ int execute_until(struct AST *root)
     return status;
 }
 
-int execute_for(struct AST *root)
+static char **create_for_args(struct AST *root)
+{
+	char **args = calloc(1, sizeof(char *));
+
+	size_t idx = 0;
+
+	for (int i = 1; i < root->count_children - 1; i++)
+	{
+		char **expanded_values = expand(root->children[i]->content);
+		if (expanded_values == NULL)
+			continue;
+
+		for (int j = 0; expanded_values[j] != NULL; j++)
+		{
+			if (expanded_values[j][0] != '\0' || 
+					strcmp(root->children[i]->content, "''") == 0 ||
+					strcmp(root->children[i]->content, "\"\"") == 0)
+			{
+				args = realloc(args, sizeof(char *) * (idx + 2));
+				args[idx++] = expanded_values[j];
+				args[idx] = NULL;
+			}
+			else
+			{
+				free(expanded_values[j]);
+			}
+		}
+
+		free(expanded_values);
+	}
+
+	return args;
+}
+
+static int execute_for(struct AST *root)
 {
     char *var = root->children[0]->content;
 
+	// Check if the identifier as a valid name
     if (is_valid_name(var) == 0)
     {
         fprintf(stderr, "Error: %s: not a valid identifier\n", var);
@@ -383,22 +411,33 @@ int execute_for(struct AST *root)
 
     int exit_code = 0;
 
+	char **args = create_for_args(root);
+
     // The first children is name of the identifier so we go from the second to
     // the before last child, the last beeing the command to execute inside
-    for (int i = 1; i < root->count_children - 1; i++)
+	for (int i = 0; args[i] != NULL; i++)
     {
-        bool updated = 1;
-        hash_map_insert(env->variables, var, root->children[i]->content,
-                        &updated);
+        bool updated = true;
+        hash_map_insert(env->variables, var, args[i], &updated);
 
         exit_code = execute_node(root->children[root->count_children - 1]);
+
         if (env->continue_count != 0)
         {
             i += env->continue_count;
             env->continue_count = 0;
         }
-    }
-    if (env->break_count)
+	}
+
+	if (args)
+	{
+		for (int i = 0; args[i] != NULL; i++)
+			free(args[i]);
+
+		free(args);
+	}
+
+    if (env->break_count > 0)
         env->break_count--;
 
     return exit_code;
@@ -559,7 +598,8 @@ int execute_pipeline(struct AST *root)
 
 // LOOKUP TABLE
 // Execute the function corresponding to the rule of the node
-int (*execute_node_table[])(struct AST *) = {
+int (*execute_node_table[])(struct AST *) =
+{
     [AST_LIST] = execute_list,
     [AST_SIMPLE_CMD] = execute_simple_cmd,
     [AST_SHELL_CMD] = execute_shell_cmd,
