@@ -24,6 +24,7 @@ AC_CONFIG_FILES([
 				 src/environment/Makefile
 				 src/hash_map/Makefile
 				 tests/Makefile
+				 tests/unit/Makefile
 				 ])
 
 AC_OUTPUT
