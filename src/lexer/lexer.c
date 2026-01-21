@@ -277,6 +277,7 @@ static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
 
 struct token *read_input(FILE *file)
 {
+	int in_var = 0;
     int c;
 
     char *buffer = NULL;
@@ -310,8 +311,7 @@ struct token *read_input(FILE *file)
         }
 
         // Same as before but those charcacters need to be safed as tokens
-        if (c == ';' || c == '\n' || c == '!' || c == '(' || c == ')'
-            || c == '{' || c == '}')
+        if (c == ';' || c == '\n' || c == '!' || c == '(' || c == ')')
         {
             // Sync the stream
             fflush(stream);
@@ -327,6 +327,33 @@ struct token *read_input(FILE *file)
 
             return flush_stream(stream, &buffer);
         }
+
+		if (c == '{' || c == '}')
+		{
+			fflush(stream);
+
+			if (c == '{' && size > 0 && buffer[size - 1] == '$')
+			{
+				in_var = 1;
+				fputc(c, stream);
+
+				continue;
+			}
+
+			if (c == '}' && in_var)
+			{
+				in_var = 0;
+				fputc(c, stream);
+				continue;
+			}
+
+			if (size > 0)
+				return empty_stream(file, &stream, &buffer, c);
+
+			fputc(c, stream);
+
+			return flush_stream(stream, &buffer);
+		}
 
         // Those two characters are considered as operators if they are doubled
         // For the | it can also be considered as a pipe if it is alone.
