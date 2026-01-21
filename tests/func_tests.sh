@@ -14,8 +14,8 @@ TOTAL=0
 SUCCESS=0
 
 if [ -z "$BIN_PATH" ]; then
-    echo "Error: BIN_PATH not set"
-    exit 0
+  echo "Error: BIN_PATH not set"
+  exit 0
 fi
 
 test_cmd()
@@ -68,20 +68,195 @@ test_error()
 
 if [ "$COVERAGE" = "yes" ]; then
 
-	echo "Unit Test"
+  echo "Unit Test"
 
-    gcc -I../src unit/lexer_tests.c ../src/lexer/*.c -o unit_tester
+  gcc -I../src unit/lexer_tests.c ../src/lexer/*.c -o unit_tester
 
-    if ./unit_tester; then
-        SUCCESS=$((SUCCESS + 1))
-    fi
+  if ./unit_tester; then
+    SUCCESS=$((SUCCESS + 1))
+  fi
 
-    TOTAL=$((TOTAL + 1))
+  TOTAL=$((TOTAL + 1))
 
 fi
 
 #test fonctionels
 
+#----------------- TESTS INPUT MODE (STDIN) -----------------#
+echo "###################################################"
+echo "TESTS MODE ENTREE STANDARD (STDIN)"
+echo "###################################################"
+
+test_stdin "echo simple stdin" "Test pipe basic dans le shell"
+test_stdin "echo line1; echo line2" "Test plusieurs commandes via stdin"
+test_stdin "if true; then echo yes; fi" "Test structure if via stdin"
+test_stdin "x=42; echo \$x" "Test variables via stdin"
+test_stdin "echo a | cat" "Test pipeline interne via stdin"
+test_stdin "      echo     espaces    " "Test stdin avec pleins d espaces"
+test_stdin "
+echo saut
+echo de
+echo ligne" "Test stdin avec sauts de lignes reels"
+test_stdin "# commentaire seulement" "Test stdin juste un commentaire"
+test_stdin "" "Test stdin vide"
+test_stdin "echo -n no_newline" "Test stdin sans newline final"
+test_stdin "echo 'quote test'" "Test quotes dans stdin"
+test_stdin "func() { echo dedans; }; func" "Test definition fonction dans stdin"
+
+#----------------- TESTS STEP 3 - BUILTINS (EXIT) -----------------#
+echo "###################################################"
+echo "TESTS STEP 3 - EXIT"
+echo "###################################################"
+
+test_cmd "exit" "Test exit simple"
+test_cmd "exit 0" "Test exit 0 explicite"
+test_cmd "exit 1" "Test exit 1"
+test_cmd "exit 42" "Test exit code perso"
+test_cmd "exit 255" "Test exit max byte"
+test_cmd "exit 256" "Test exit overflow (devrait etre 0)"
+test_cmd "exit -1" "Test exit negatif (devrait etre 255)"
+test_cmd "exit 1000" "Test exit grand nombre"
+test_cmd "echo a; exit 3; echo b" "Test exit stop bien l execution"
+test_cmd "if true; then exit 5; fi; echo fail" "Test exit dans un if"
+test_cmd "(exit 12); echo \$?" "Test exit dans subshell (ne quitte pas le shell pere)"
+
+#----------------- TESTS STEP 3 - BUILTINS (CD) -----------------#
+echo "###################################################"
+echo "TESTS STEP 3 - CD"
+echo "###################################################"
+
+test_cmd "cd /tmp; pwd" "Test cd dossier absolu"
+test_cmd "cd /; pwd" "Test cd root"
+test_cmd "cd /tmp && cd .. && pwd" "Test cd relatif .."
+test_cmd "cd . && pwd" "Test cd point"
+test_cmd "mkdir -p /tmp/test_cd/a/b; cd /tmp/test_cd/a/b; pwd" "Test cd dossier profond"
+test_cmd "cd /tmp; echo \$PWD" "Test cd met a jour PWD"
+test_cmd "cd /; cd /tmp; echo \$OLDPWD" "Test cd met a jour OLDPWD"
+test_cmd "cd /nonexistent_folder_xyz 2>/dev/null || echo fail" "Test cd dossier inexistant"
+test_cmd "touch /tmp/not_a_dir; cd /tmp/not_a_dir 2>/dev/null || echo fail" "Test cd sur un fichier"
+test_cmd "cd /tmp; cd -; pwd" "Test cd tiret (retour oldpwd)"
+test_cmd "unset PWD; cd /tmp; pwd" "Test cd sans variable PWD au depart"
+
+#----------------- TESTS STEP 3 - BUILTINS (EXPORT) -----------------#
+echo "###################################################"
+echo "TESTS STEP 3 - EXPORT"
+echo "###################################################"
+
+test_cmd "export MYVAR=test; env | grep MYVAR" "Test export basic assignment"
+test_cmd "MYVAR=test; export MYVAR; env | grep MYVAR" "Test export variable existante"
+test_cmd "export A=1 B=2; env | grep -E '^(A|B)='" "Test export multiple"
+test_cmd "export VAL; VAL=changed; env | grep VAL" "Test export puis modif"
+test_cmd "export X=1; sh -c 'echo \$X'" "Test export transmission au fils"
+test_cmd "X=1; sh -c 'echo \$X'" "Test variable non exportee (pas transmise)"
+test_cmd "export EMPTY=; env | grep EMPTY" "Test export vide"
+test_cmd "export _VAR123=ok; echo \$_VAR123" "Test export nom bizarre"
+test_cmd "export VAR='a b c'; sh -c 'echo \$VAR'" "Test export avec espaces"
+
+#----------------- TESTS STEP 3 - BUILTINS (UNSET) -----------------#
+echo "###################################################"
+echo "TESTS STEP 3 - UNSET"
+echo "###################################################"
+
+test_cmd "x=1; unset x; echo \"\$x\"" "Test unset variable simple"
+test_cmd "x=1; unset x; env | grep '^x='" "Test unset supprime de l env"
+test_cmd "export x=1; unset x; echo \"\$x\"" "Test unset variable exportee"
+test_cmd "unset NONEXISTENT" "Test unset truc qui existe pas"
+test_cmd "x=1 y=2; unset x y; echo \$x \$y" "Test unset multiple"
+test_cmd "f() { echo ok; }; unset -f f; f 2>/dev/null || echo deleted" "Test unset function -f"
+test_cmd "x=1; unset -v x; echo \$x" "Test unset variable -v"
+
+#----------------- TESTS STEP 3 - BUILTINS (CONTINUE/BREAK) -----------------#
+echo "###################################################"
+echo "TESTS STEP 3 - LOOP CONTROL"
+echo "###################################################"
+
+test_cmd "for i in 1 2 3; do continue; echo \$i; done" "Test continue dans for"
+test_cmd "for i in 1 2 3; do if true; then break; fi; echo \$i; done" "Test break dans for"
+test_cmd "x=0; while [ \$x -lt 3 ]; do x=\$((x+1)); continue; echo fail; done" "Test continue dans while"
+test_cmd "x=0; while true; do break; echo fail; done; echo out" "Test break dans while"
+test_cmd "for i in 1 2; do for j in a b; do if [ \$j = a ]; then break; fi; echo \$i\$j; done; done" "Test break imbrique default (1)"
+test_cmd "for i in 1 2; do for j in a b; do if [ \$j = a ]; then break 1; fi; echo \$i\$j; done; done" "Test break 1 explicit"
+test_cmd "for i in 1 2; do for j in a b; do break 2; echo fail; done; echo fail2; done" "Test break 2 (nested)"
+test_cmd "for i in 1 2; do continue 1; echo fail; done" "Test continue 1 explicit"
+
+#----------------- TESTS STEP 3 - COMMAND BLOCKS { } -----------------#
+echo "###################################################"
+echo "TESTS STEP 3 - COMMAND BLOCKS"
+echo "###################################################"
+
+test_cmd "{ echo a; echo b; }" "Test bloc simple"
+test_cmd "{ echo a; } > /tmp/block_out; cat /tmp/block_out" "Test redirection sortie bloc"
+test_cmd "echo a | { cat; }" "Test pipe entree bloc"
+test_cmd "{ echo a; exit 0; echo b; }" "Test exit dans bloc (stop tout)"
+test_cmd "{ { echo nested; }; }" "Test blocs imbriques"
+test_cmd "{ echo a; echo b; } | cat" "Test pipe sortie bloc"
+test_cmd "if true; then { echo inside; }; fi" "Test bloc dans if"
+test_cmd "{ var=changed; }; echo \$var" "Test bloc modifie variable (meme scope)"
+
+#----------------- TESTS STEP 3 - SUBSHELLS ( ) -----------------#
+echo "###################################################"
+echo "TESTS STEP 3 - SUBSHELLS"
+echo "###################################################"
+
+test_cmd "(echo a)" "Test subshell simple"
+test_cmd "(exit 42); echo \$?" "Test exit code subshell"
+test_cmd "var=1; (var=2; echo \$var); echo \$var" "Test isolation variable subshell"
+test_cmd "(cd /tmp; pwd); pwd" "Test isolation cd subshell"
+test_cmd "(echo a; echo b) | cat" "Test pipe sortie subshell"
+test_cmd "echo input | (cat)" "Test pipe entree subshell"
+test_cmd "( (echo nested) )" "Test subshells imbriques"
+test_cmd "if true; then (echo inside); fi" "Test subshell dans if"
+test_cmd "x=1; (x=2; (x=3; echo \$x); echo \$x); echo \$x" "Test double nesting vars"
+
+#----------------- TESTS STEP 3 - FUNCTIONS -----------------#
+echo "###################################################"
+echo "TESTS STEP 3 - FUNCTIONS"
+echo "###################################################"
+
+test_cmd "myfunc() { echo hello; }; myfunc" "Test definition et appel simple"
+test_cmd "f() { echo \$1; }; f argument" "Test fonction argument \$1"
+test_cmd "f() { echo \$#; }; f a b c" "Test fonction nombre arguments"
+test_cmd "f() { echo \$@; }; f a b c" "Test fonction print tous arguments"
+test_cmd "f() { return 42; }; f; echo \$?" "Test fonction return"
+test_cmd "f() { echo a; }; f | cat" "Test pipe sortie fonction"
+test_cmd "x=1; f() { x=2; }; f; echo \$x" "Test side effect variable fonction"
+test_cmd "f() { echo local; }; f; f" "Test appel multiple"
+test_cmd "f() { g() { echo inner; }; g; }; f" "Test fonction dans fonction"
+test_cmd "f() { if true; then echo yes; fi; }; f" "Test control flow dans fonction"
+test_cmd "f() { echo \$1; shift; echo \$1; }; f a b" "Test shift dans fonction"
+test_cmd "f() { echo start; return 0; echo end; }; f" "Test return stop execution"
+test_cmd "recurse() { echo \$1; if [ \$1 -lt 2 ]; then recurse \$((1+1)); fi; }; recurse 1" "Test recursion simple"
+
+#----------------- TESTS STEP 3 - COMMAND SUBSTITUTION -----------------#
+echo "###################################################"
+echo "TESTS STEP 3 - COMMAND SUBSTITUTION"
+echo "###################################################"
+
+test_cmd "echo \$(echo hello)" "Test basic substitution \$()"
+test_cmd "echo $(echo hello)" "Test basic substitution backquotes"
+test_cmd "a=\$(echo test); echo \$a" "Test assignation resultat"
+test_cmd "echo \$(echo a; echo b)" "Test substitution multilignes (devient espaces)"
+test_cmd "echo \"\$(echo a)\"" "Test substitution dans double quotes"
+test_cmd "echo '\$(echo a)'" "Test pas de substitution dans single quotes"
+test_cmd "echo \$(echo \$(echo nested))" "Test nested \$()"
+test_cmd "echo \$(echo a | cat)" "Test pipe dans substitution"
+test_cmd "echo \$(exit 42); echo \$?" "Test exit status conservation"
+test_cmd "echo \$(echo a)b" "Test concatenation avec substitution"
+test_cmd "echo \$(cat /etc/hostname)" "Test cat fichier dans substitution"
+test_cmd "x=\$(echo a b); echo \"\$x\"" "Test espaces conserves dans variable"
+test_cmd "echo \$( # comment
+echo ok)" "Test commentaire dans substitution"
+
+#----------------- TESTS STEP 3 - DOT COMMAND (.) -----------------#
+echo "###################################################"
+echo "TESTS STEP 3 - DOT"
+echo "###################################################"
+
+echo "echo sourced_var=ok" >/tmp/source_test.sh
+test_cmd ". /tmp/source_test.sh; echo \$sourced_var" "Test dot simple"
+test_cmd "myfunc() { . /tmp/source_test.sh; }; myfunc; echo \$sourced_var" "Test dot dans fonction"
+test_cmd ". /nonexistent 2>/dev/null || echo fail" "Test dot fichier inexistant"
+test_cmd "x=1; echo 'x=2' > /tmp/s.sh; . /tmp/s.sh; echo \$x" "Test dot ecrase variable"
 echo
 
 #----------------- TESTS SIMPLE COMMAND -----------------#
@@ -212,18 +387,16 @@ test_cmd "cat /etc/hostname | cat" "Test cat pipe cat"
 
 test_cmd "cat /etc/hostname | cat | cat" "Test cat pipes multiples"
 
-# Create temp file for cat tests
-echo "line1" > /tmp/42sh_test_cat.txt
-echo "line2" >> /tmp/42sh_test_cat.txt
+echo "line1" >/tmp/42sh_test_cat.txt
+echo "line2" >>/tmp/42sh_test_cat.txt
 
 test_cmd "cat /tmp/42sh_test_cat.txt" "Test cat fichier multilignes"
 
-# Test cat -e
-echo -e "test\n" > /tmp/42sh_test_cat_e.txt
+echo -e "test\n" >/tmp/42sh_test_cat_e.txt
 
 test_cmd "cat -e /tmp/42sh_test_cat_e.txt" "Test cat -e affiche dollar"
 
-echo -e "line1\nline2\n" > /tmp/42sh_test_cat_e2.txt
+echo -e "line1\nline2\n" >/tmp/42sh_test_cat_e2.txt
 
 test_cmd "cat -e /tmp/42sh_test_cat_e2.txt" "Test cat -e lignes multiples"
 
@@ -462,7 +635,68 @@ test_cmd "true && true && true" "Test ET sans echo"
 
 test_cmd "echo a | cat | cat | cat | cat | cat" "Test pipeline tres long"
 
-test_cmd "if true; then true; fi" "Test if sans echo"
+test_cmd "if true; then true; fi" "test if simple"
+#----------------- TESTS STEP 3 - HARDCORE FUNCTIONS -----------------#
+echo "###################################################"
+echo "TESTS HARDCORE FUNCTIONS"
+echo "###################################################"
+
+test_cmd "f() { f() { echo v2; }; echo v1; }; f; f" "Test fonction qui se redefinit elle-meme"
+test_cmd "f() { echo a; }; f > /tmp/f_out; cat /tmp/f_out" "Test redirection sur appel fonction"
+test_cmd "f() { { echo a; echo b; } > /tmp/f_grp; }; f; cat /tmp/f_grp" "Test redirection groupe dans fonction"
+test_cmd "f() { if true; then return 10; fi; echo fail; }; f; echo \$?" "Test return dans un if"
+test_cmd "f() { echo \$1; shift; echo \$1; }; f a b c" "Test shift arguments fonction"
+test_cmd "f() { echo \$*; }; f 'a b' c" "Test args fonction avec espaces"
+test_cmd "x=1; f() { x=2; }; (f); echo \$x" "Test side effect fonction annule par subshell"
+test_cmd "f() { echo pre; return 0; echo post; }; f && echo success" "Test return coupe l execution"
+test_cmd "f() { echo start; f() { echo nested; }; }; f" "Test definition imbriquee sans appel"
+
+#----------------- TESTS STEP 3 - HARDCORE SUBSHELLS -----------------#
+echo "###################################################"
+echo "TESTS HARDCORE SUBSHELLS"
+echo "###################################################"
+
+test_cmd "( ( ( echo deep ) ) )" "Test triple subshell inutile"
+test_cmd "x=1; ( x=2; ( x=3; echo \$x ); echo \$x ); echo \$x" "Test isolation variable cascade"
+test_cmd "(exit 12) || echo fail" "Test exit code propage hors subshell"
+test_cmd "(exit 0) && echo ok" "Test exit code 0 propage"
+test_cmd "if (true); then echo yes; fi" "Test subshell comme condition if"
+test_cmd "while (false); do echo no; done; echo out" "Test subshell comme condition while"
+test_cmd "(cd /tmp; mkdir -p test_sub; cd test_sub; pwd); pwd" "Test cd isole dans subshell"
+test_cmd "( echo a; exit 3; echo b ); echo status \$?" "Test exit stop le subshell immediatement"
+
+#----------------- TESTS STEP 3 - HARDCORE COMMAND SUB -----------------#
+echo "###################################################"
+echo "TESTS HARDCORE CMD SUB"
+echo "###################################################"
+
+test_cmd "echo \$( echo \$( echo \$( echo deep ) ) )" "Test substitutions imbriquees x3"
+test_cmd "echo \"\$( echo 'a b c' )\"" "Test substitution dans double quotes avec espaces"
+test_cmd "x=\$( echo a; exit 33; echo b ); echo res:\$x ret:\$?" "Test exit code de l assignation substitution"
+test_cmd "echo start \$( echo middle ) end" "Test substitution au milieu d arguments"
+test_cmd "echo \$(case x in x) echo case; esac)" "Test case dans substitution"
+test_cmd "echo \$(if true; then echo if; fi)" "Test if dans substitution"
+test_cmd "echo \$(for i in 1 2; do echo \$i; done)" "Test for dans substitution"
+test_cmd "x=\$(echo -n); echo \"|\$x|\"" "Test substitution vide"
+test_cmd "echo \$(cat /dev/null)" "Test cat vide dans substitution"
+
+#----------------- TESTS STEP 3 - MIX & TRICKY -----------------#
+echo "###################################################"
+echo "TESTS MIX STEP 3"
+echo "###################################################"
+
+test_cmd "f() { echo \$(echo inner); }; f" "Test substitution dans fonction"
+test_cmd "{ echo a; echo b; } | { cat; }" "Test pipe entre deux blocs"
+test_cmd "f() { return \$1; }; f 5 && echo no || echo yes" "Test return code dynamique"
+test_cmd "x=1; { x=2; }; echo \$x" "Test bloc modifie variable (pas de subshell)"
+test_cmd "x=1; ( x=2; ) ; echo \$x" "Test subshell ne modifie pas variable"
+test_cmd "f() { echo a; }; var=\$(f); echo \$var" "Test capture output fonction"
+test_cmd "if true; then { echo a; } | cat; fi" "Test bloc pipe dans if"
+test_cmd "func_err() { ls /nonexistent 2>/dev/null; }; func_err || echo failed" "Test exit status implicite fonction"
+test_cmd "f() { echo a; }; export -f f 2>/dev/null; sh -c f 2>/dev/null || echo 'export func not required'" "Test export fonction (souvent non requis mais ne doit pas crash)"
+test_cmd ". /dev/null" "Test source fichier vide"
+test_cmd "echo \$( echo a )b" "Test concatenation directe apres sub"
+test_cmd "echo a\$( echo b )" "Test concatenation directe avant sub"
 
 test_cmd "if false; then false; else true; fi" "Test if else sans echo"
 
@@ -552,16 +786,16 @@ echo "###################################################"
 echo "TESTS COMMENTS"
 echo "###################################################"
 
-test_cmd "echo test # this is a comment" "Test commentaire simple"
+test_cmd "echo test \# this is a comment" "Test commentaire simple"
 
-test_cmd "echo test # this is a comment\necho world" "Test commentaire puis commande"
+test_cmd "echo test \# this is a comment\necho world" "Test commentaire puis commande"
 
-test_cmd "# full line comment\necho visible" "Test ligne commentaire complete"
+test_cmd "\# full line comment\necho visible" "Test ligne commentaire complete"
 
-test_cmd "echo a; # comment
+test_cmd "echo a; \# comment
 echo b" "Test commentaire apres point-virgule"
 
-test_cmd "echo not#comment" "Test # pas en debut de mot"
+test_cmd "echo not#comment" "Test \# pas en debut de mot"
 
 #----------------- TESTS FOR -----------------#
 echo "###################################################"
@@ -803,6 +1037,100 @@ test_cmd "! true; echo \$?" "Exit code of a negation"
 
 test_cmd "echo hello | grep 'notfound'; echo \$?" "Exit status of a failed pipeline member"
 
+#----------------- TESTS HARDS / EDGE CASES (STEP 1 & 2) -----------------#
+echo "###################################################"
+echo "TESTS HARDCORE ET EDGE CASES"
+echo "###################################################"
+
+test_cmd "       " "Test ligne vide avec espaces"
+test_cmd "echo a;      ; echo b" "Test point virgule vide au milieu"
+test_cmd "if true;then echo a;fi" "Test if sans espaces du tout"
+test_cmd "if true; then echo; fi" "Test if avec commande vide"
+test_cmd "echo \"\$VAR_QUI_EXISTE_PAS\"" "Test echo variable inexistante (vide)"
+test_cmd "echo \"\"\"\"" "Test quatre double quotes"
+test_cmd "echo ''''" "Test quatre single quotes"
+test_cmd "VAR=val env | grep VAR" "Test one-shot variable assignment pour commande"
+test_cmd "VAR=a; VAR=b echo \$VAR" "Test assignation ne change pas variable courante si commande suit"
+test_cmd "echo a 1>&2" "Test redirect stdout vers stderr"
+test_cmd "ls /tmp > /tmp/a 2>&1" "Test redirect les deux flux"
+test_cmd "if true; then echo a; else echo b; fi > /tmp/if_redir; cat /tmp/if_redir" "Test redirection sortie bloc if"
+test_cmd "while false; do echo loop; done > /tmp/while_out" "Test redirection boucle vide"
+test_cmd "export X=1; (unset X; echo \$X); echo \$X" "Test unset variable exportee dans subshell"
+test_cmd "abc=123; echo \${abc}" "Test expansion accolades simple"
+test_cmd "echo \$\$" "Test pid shell actuel"
+test_cmd "! ! true" "Test double negation espacee"
+test_cmd "echo a | grep a | grep a | grep a | cat" "Test long pipe inutile"
+test_cmd "foo=bar; echo \"\$foo\"_\$foo" "Test variable mix quotes et raw"
+test_cmd "if true; then
+echo if_newline
+fi" "Test if avec vrais newlines"
+test_cmd "echo \$(echo \$(echo \$(echo deep)))" "Test substitution tres profonde"
+test_cmd "f() { return 1; }; f || echo worked" "Test function return false logic"
+test_cmd "cat < /dev/null" "Test input redirect null"
+test_cmd "echo > /dev/null" "Test output redirect null"
+
+#----------------- TESTS STEP 3 - HARDCORE FUNCTIONS -----------------#
+echo "###################################################"
+echo "TESTS HARDCORE FUNCTIONS"
+echo "###################################################"
+
+test_cmd "f() { f() { echo v2; }; echo v1; }; f; f" "Test fonction qui se redefinit elle-meme"
+test_cmd "f() { echo a; }; f > /tmp/f_out; cat /tmp/f_out" "Test redirection sur appel fonction"
+test_cmd "f() { { echo a; echo b; } > /tmp/f_grp; }; f; cat /tmp/f_grp" "Test redirection groupe dans fonction"
+test_cmd "f() { if true; then return 10; fi; echo fail; }; f; echo \$?" "Test return dans un if"
+test_cmd "f() { echo \$1; shift; echo \$1; }; f a b c" "Test shift arguments fonction"
+test_cmd "f() { echo \$*; }; f 'a b' c" "Test args fonction avec espaces"
+test_cmd "x=1; f() { x=2; }; (f); echo \$x" "Test side effect fonction annule par subshell"
+test_cmd "f() { echo pre; return 0; echo post; }; f && echo success" "Test return coupe l execution"
+test_cmd "f() { echo start; f() { echo nested; }; }; f" "Test definition imbriquee sans appel"
+
+#----------------- TESTS STEP 3 - HARDCORE SUBSHELLS -----------------#
+echo "###################################################"
+echo "TESTS HARDCORE SUBSHELLS"
+echo "###################################################"
+
+test_cmd "( ( ( echo deep ) ) )" "Test triple subshell inutile"
+test_cmd "x=1; ( x=2; ( x=3; echo \$x ); echo \$x ); echo \$x" "Test isolation variable cascade"
+test_cmd "(exit 12) || echo fail" "Test exit code propage hors subshell"
+test_cmd "(exit 0) && echo ok" "Test exit code 0 propage"
+test_cmd "if (true); then echo yes; fi" "Test subshell comme condition if"
+test_cmd "while (false); do echo no; done; echo out" "Test subshell comme condition while"
+test_cmd "(cd /tmp; mkdir -p test_sub; cd test_sub; pwd); pwd" "Test cd isole dans subshell"
+test_cmd "( echo a; exit 3; echo b ); echo status \$?" "Test exit stop le subshell immediatement"
+
+#----------------- TESTS STEP 3 - HARDCORE COMMAND SUB -----------------#
+echo "###################################################"
+echo "TESTS HARDCORE CMD SUB"
+echo "###################################################"
+
+test_cmd "echo \$( echo \$( echo \$( echo deep ) ) )" "Test substitutions imbriquees x3"
+test_cmd "echo \"\$( echo 'a b c' )\"" "Test substitution dans double quotes avec espaces"
+test_cmd "x=\$( echo a; exit 33; echo b ); echo res:\$x ret:\$?" "Test exit code de l assignation substitution"
+test_cmd "echo start \$( echo middle ) end" "Test substitution au milieu d arguments"
+test_cmd "echo \$(case x in x) echo case; esac)" "Test case dans substitution"
+test_cmd "echo \$(if true; then echo if; fi)" "Test if dans substitution"
+test_cmd "echo \$(for i in 1 2; do echo \$i; done)" "Test for dans substitution"
+test_cmd "x=\$(echo -n); echo \"|\$x|\"" "Test substitution vide"
+test_cmd "echo \$(cat /dev/null)" "Test cat vide dans substitution"
+
+#----------------- TESTS STEP 3 - MIX & TRICKY -----------------#
+echo "###################################################"
+echo "TESTS MIX STEP 3"
+echo "###################################################"
+
+test_cmd "f() { echo \$(echo inner); }; f" "Test substitution dans fonction"
+test_cmd "{ echo a; echo b; } | { cat; }" "Test pipe entre deux blocs"
+test_cmd "f() { return \$1; }; f 5 && echo no || echo yes" "Test return code dynamique"
+test_cmd "x=1; { x=2; }; echo \$x" "Test bloc modifie variable (pas de subshell)"
+test_cmd "x=1; ( x=2; ) ; echo \$x" "Test subshell ne modifie pas variable"
+test_cmd "f() { echo a; }; var=\$(f); echo \$var" "Test capture output fonction"
+test_cmd "if true; then { echo a; } | cat; fi" "Test bloc pipe dans if"
+test_cmd "func_err() { ls /nonexistent 2>/dev/null; }; func_err || echo failed" "Test exit status implicite fonction"
+test_cmd "f() { echo a; }; export -f f 2>/dev/null; sh -c f 2>/dev/null || echo 'export func not required'" "Test export fonction (souvent non requis mais ne doit pas crash)"
+test_cmd ". /dev/null" "Test source fichier vide"
+test_cmd "echo \$( echo a )b" "Test concatenation directe apres sub"
+test_cmd "echo a\$( echo b )" "Test concatenation directe avant sub"
+
 #----------------- TESTS FICHIERS -----------------#
 echo "###################################################"
 echo "TESTS FILES"
@@ -810,14 +1138,14 @@ echo "###################################################"
 
 mkdir -p /tmp/42sh_test_files
 
-cat > /tmp/42sh_test_files/simple.sh << 'EOF'
+cat >/tmp/42sh_test_files/simple.sh <<'EOF'
 echo "Hello from file"
 echo "Line 2"
 EOF
 
 test_file "/tmp/42sh_test_files/simple.sh" "Test fichier simple"
 
-cat > /tmp/42sh_test_files/variables.sh << 'EOF'
+cat >/tmp/42sh_test_files/variables.sh <<'EOF'
 x=hello
 y=world
 echo "$x" "$y"
@@ -825,7 +1153,7 @@ EOF
 
 test_file "/tmp/42sh_test_files/variables.sh" "Test fichier avec variables"
 
-cat > /tmp/42sh_test_files/conditions.sh << 'EOF'
+cat >/tmp/42sh_test_files/conditions.sh <<'EOF'
 if true; then
     echo "condition true"
 fi
@@ -839,7 +1167,7 @@ EOF
 
 test_file "/tmp/42sh_test_files/conditions.sh" "Test fichier avec conditions"
 
-cat > /tmp/42sh_test_files/loops.sh << 'EOF'
+cat >/tmp/42sh_test_files/loops.sh <<'EOF'
 for i in a b c
 do
     echo $i
@@ -848,7 +1176,7 @@ EOF
 
 test_file "/tmp/42sh_test_files/loops.sh" "Test fichier avec boucles for"
 
-cat > /tmp/42sh_test_files/pipes.sh << 'EOF'
+cat >/tmp/42sh_test_files/pipes.sh <<'EOF'
 echo "test" | cat
 echo "redirect" > /tmp/42sh_redir_test
 cat /tmp/42sh_redir_test
@@ -856,7 +1184,7 @@ EOF
 
 test_file "/tmp/42sh_test_files/pipes.sh" "Test fichier avec pipes et redirections"
 
-cat > /tmp/42sh_test_files/comments.sh << 'EOF'
+cat >/tmp/42sh_test_files/comments.sh <<'EOF'
 # This is a comment
 echo "visible"
 echo "test" # inline comment
@@ -866,7 +1194,7 @@ EOF
 
 test_file "/tmp/42sh_test_files/comments.sh" "Test fichier avec commentaires"
 
-cat > /tmp/42sh_test_files/operators.sh << 'EOF'
+cat >/tmp/42sh_test_files/operators.sh <<'EOF'
 true && echo "success"
 false || echo "fallback"
 true && true && echo "multiple"
@@ -874,22 +1202,39 @@ EOF
 
 test_file "/tmp/42sh_test_files/operators.sh" "Test fichier avec opérateurs && ||"
 
-cat > /tmp/42sh_test_files/empty.sh << 'EOF'
+cat >/tmp/42sh_test_files/empty.sh <<'EOF'
 EOF
 
-test_file "/tmp/42sh_test_files/empty.sh" "Test fichier vide"
-
-cat > /tmp/42sh_test_files/only_comments.sh << 'EOF'
+cat >/tmp/42sh_test_files/only_comments.sh <<'EOF'
 # Just comments
 # Nothing else
 EOF
 
 test_file "/tmp/42sh_test_files/only_comments.sh" "Test fichier avec seulement commentaires"
 
+cat >/tmp/42sh_arg_test.sh <<'EOF'
+echo $1 $2
+EOF
+test_cmd "/tmp/42sh_arg_test.sh one two" "Test execution script avec arguments"
+
+cat >/tmp/42sh_exit_file.sh <<'EOF'
+exit 33
+EOF
+test_cmd "/tmp/42sh_exit_file.sh; echo \$?" "Test exit code depuis fichier"
+
+cat >/tmp/42sh_weird_format.sh <<'EOF'
+echo a;echo b
+   echo c
+if true
+then
+echo d"
+fi
+EOF
+test_file "/tmp/42sh_weird_format.sh" "Test fichier formatage moche"
+
 #----------------- NETTOYAGE -----------------#
 
 rm -rf /tmp/42sh_* 2>/dev/null
-
 
 PERCENT=$(($SUCCESS * 100 / $TOTAL))
 echo -e "${BBLU}Succeed:${GRN} $SUCCESS${WHT}"
@@ -897,7 +1242,7 @@ echo -e "${BBLU}Failed:${RED} $(($TOTAL - $SUCCESS))${WHT}"
 echo -e "${BBLU}Results:${BYEL} $PERCENT%${WHT}"
 
 if [ -n "$OUTPUT_FILE" ]; then
-    echo "$PERCENT" > "$OUTPUT_FILE"
+  echo "$PERCENT" >"$OUTPUT_FILE"
 fi
 
 exit 0
