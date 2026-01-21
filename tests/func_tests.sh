@@ -26,7 +26,6 @@ test_cmd()
     local actual=$(timeout $TIMEOUT "$BIN_PATH" -c "$1" 2>&1)
 
 	if [ "$expected" = "$actual" ]; then
-		echo -e "${GRN}$2${WHT}"
 		SUCCESS=$((SUCCESS + 1))
 	else
 		echo -e "${RED}$2${WHT}"
@@ -43,7 +42,6 @@ test_file()
     local actual=$(timeout $TIMEOUT "$BIN_PATH" "$1" 2>&1)
 
 	if [ "$expected" = "$actual" ]; then
-		echo -e "${GRN}$2${WHT}"
 		SUCCESS=$((SUCCESS + 1))
 	else
 		echo -e "${RED}$2${WHT}"
@@ -60,7 +58,6 @@ test_error()
     local exit_code=$?
 
 	if [ $exit_code -ne 0 ]; then
-		echo -e "${GRN}$2${WHT}"
 		SUCCESS=$((SUCCESS + 1))
 	else
 		echo -e "${RED}$2${WHT}"

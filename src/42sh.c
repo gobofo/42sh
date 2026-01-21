@@ -35,44 +35,48 @@ int main(int argc, char *argv[])
 
     env = init_env(argc, argv);
 
-    struct token *tok = get_token(file);
-    while (1)
-    {
-        struct AST *ast;
+	struct lexer *lexer = init_lexer(file);
+	if (!lexer)
+	{
+		fprintf(stderr, "Error: Could not create the lexer struct\n");
 
-        if (tok == NULL)
-            break;
+		fclose(file);
 
-        else
-        {
-            ast = input(&tok);
+		return 2;
+	}
 
-            if (ast == NULL)
-            {
-                fprintf(stderr, "Error: Parsing\n");
-                return 2;
-            }
-        }
+	while (lexer->current != NULL)
+	{
+		struct AST *ast = input(&lexer);
 
-        if (pretty_print)
-            parser_print(ast);
+		if (ast == NULL)
+		{
+			fprintf(stderr, "Error: Parsing\n");
+			
+			free_lexer(lexer);
 
-        env->last_exit_code = execute_ast(ast);
-        destroy_AST(ast);
+			fclose(file);
 
-        if (env->should_exit == 1)
-            break;
+			return 2;
+		}
 
-        if (tok == NULL)
-            break;
+		if (pretty_print)
+			parser_print(ast);
 
-        tok = get_token(NULL);
-    }
+		env->last_exit_code = execute_ast(ast);
+		destroy_AST(ast);
+
+		free_token(lexer->current);
+		lexer = get_token(lexer);
+
+	}
 
     int return_val = env->last_exit_code;
+
     hash_map_free(env->variables);
     free_export(env->export_variables);
     free(env);
+	free_lexer(lexer);
 
     fclose(file);
 

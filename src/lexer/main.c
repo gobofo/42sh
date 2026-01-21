@@ -1,4 +1,4 @@
-#include "lexer.h"
+/*#include "lexer.h"
 
 const char *get_type_name(enum types type)
 {
@@ -112,4 +112,4 @@ int main(int argc, char **argv)
     free_token(tok);
     fclose(stream);
     return 0;
-}
+}*/
