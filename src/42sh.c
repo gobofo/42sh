@@ -60,8 +60,8 @@ int main(int argc, char *argv[])
         env->last_exit_code = execute_ast(ast);
         destroy_AST(ast);
 
-		if (env->should_exit == 1)
-			break;
+        if (env->should_exit == 1)
+            break;
 
         if (tok == NULL)
             break;

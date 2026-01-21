@@ -37,7 +37,7 @@ enum types
     // OTHER
     WORDS,
     A_WORDS,
-    
+
     // PARENTHESE ET BRACKET
     L_BRACE,
     R_BRACE,
