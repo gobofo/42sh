@@ -5,7 +5,7 @@
 
 #include "../../src/execution/my_echo/my_echo.h"
 
-void setup_stdout(void)
+static void setup_stdout(void)
 {
 	cr_redirect_stdout();
 }
