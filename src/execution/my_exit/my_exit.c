@@ -5,8 +5,16 @@ extern struct env *env;
 int my_atoi(char *str, int *is_valid)
 {
     int res = 0;
+	int start_idx = 0;
+	int is_neg = 0;
 
-    for (int i = 0; str[i] != '\0'; i++)
+	if (str[0] == '-')
+	{
+		is_neg = 1;
+		start_idx = 1;
+	}
+
+    for (int i = start_idx; str[i] != '\0'; i++)
     {
         if (str[i] < '0' || str[i] > '9')
         {
@@ -17,6 +25,9 @@ int my_atoi(char *str, int *is_valid)
         int digit = str[i] - '0';
         res = res * 10 + digit;
     }
+
+	if (is_neg == 1)
+		res = -1 * res;
 
     return res;
 }
