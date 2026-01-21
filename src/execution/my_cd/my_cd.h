@@ -3,13 +3,13 @@
 
 #define _POSIX_C_SOURCE 200809L
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-#include "../../hash_map/hash_map.h"
 #include "../../environment/environment.h"
+#include "../../hash_map/hash_map.h"
 
 int my_cd(char **command);
 

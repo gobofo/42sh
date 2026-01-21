@@ -701,7 +701,7 @@ echo "###################################################"
 echo "TESTS VARIABLES EDGE CASES"
 echo "###################################################"
 
-test_cmd 'ls /nonexistent 2>/dev/null; echo $?; true; echo $?' "Sequence of exit codes"
+test_cmd 'ls /nonexistent 2>/dev/null;echo $?;true;echo $?' "Sequence of exit codes"
 
 test_cmd 'echo $# $1 $2' "Positional parameters when none are provided"
 

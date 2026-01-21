@@ -10,7 +10,7 @@ AC_PROG_RANLIB
 
 AC_PROG_CC
 
-CFLAGS="$CFLAGS -std=c99 -pedantic -Werror -Wall -Wextra -Wvla -fsanitize=address -g -ggdb3 -O0"
+CFLAGS="$CFLAGS -std=c99 -pedantic -Werror -Wall -Wextra -Wvla"
 
 AC_CONFIG_FILES([
 				 Makefile
