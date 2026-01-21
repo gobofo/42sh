@@ -24,10 +24,26 @@ static char *create_path(char *cur_path)
     // '/'PWD'/'path
 
     char *pwd = hash_map_get(env->variables, "PWD");
+	char *save_pwd = NULL;
+
+	if (pwd == NULL)
+	{
+		save_pwd = getcwd(NULL, 0);
+		pwd = save_pwd;
+	}
+
+	if (pwd == NULL || pwd[0] == '\0')
+	{
+		if (save_pwd)
+			free(save_pwd);
+
+		return NULL;
+	}
 
     // Compute the absolute path length
     // PWD + '/' + path
-    size_t abs_path_len = strlen(pwd) + 1 + strlen(cur_path);
+	size_t pwd_len = strlen(pwd);
+    size_t abs_path_len = pwd_len + 1 + strlen(cur_path);
 
     // Create the absolute path by concatenation
     char *abs_path = malloc(abs_path_len + 1);
@@ -37,10 +53,13 @@ static char *create_path(char *cur_path)
     strcpy(abs_path, pwd);
 
     // If the PWD does not end with a / we add it
-    if (abs_path[strlen(pwd) - 1] != '/')
+    if (pwd_len > 0 && abs_path[strlen(pwd) - 1] != '/')
         strcat(abs_path, "/");
 
     strcat(abs_path, cur_path);
+
+	if (save_pwd)
+		free(save_pwd);
 
     return abs_path;
 }
@@ -170,25 +189,30 @@ int my_cd(char **command)
 
         char *pwd = hash_map_get(env->variables, "PWD");
         char *old = hash_map_get(env->variables, "OLDPWD");
-        char *oldpwd = strdup(old);
+		
+		if (old == NULL)
+		{
+			fprintf(stderr, "Error: cd : OLDPWD not set\n");
+			return 1;
+		}
+
+        char *target = strdup(old);
 
 		// Swap the pwd
         hash_map_insert(env->variables, "OLDPWD", pwd, &update);
-        hash_map_insert(env->variables, "PWD", oldpwd, &update);
-
-		// Print the new pwd
-		printf("%s\n", pwd);
-
-        free(oldpwd);
+        hash_map_insert(env->variables, "PWD", target, &update);
 
 		// Check if paths exists
-		if (chdir(pwd) != 0)
+		if (chdir(target) != 0)
 		{
 			fprintf(stderr, "Error: cd: no such file or directory: %s\n",
 					command[0]);
 
 			return 1;
 		}
+
+		printf("%s\n", target);
+        free(target);
 
 		return 0;
     }
@@ -223,7 +247,7 @@ int my_cd(char **command)
     bool update;
 
     // Update the PWD and OLDPWD
-    hash_map_insert(env->variables, "OLDPWD", pwd, &update);
+    hash_map_insert(env->variables, "OLDPWD", pwd ? pwd : "", &update);
     hash_map_insert(env->variables, "PWD", path, &update);
 
     free(path);
