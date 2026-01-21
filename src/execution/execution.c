@@ -31,8 +31,7 @@ int variable_assignation(struct AST *root)
 
     char *value = expand(&value_raw);
 
-    bool updated;
-    hash_map_insert(env->variables, key, value, &updated);
+    hash_map_insert(env->variables, key, strdup(value), free);
 
     free(value);
 
@@ -375,9 +374,8 @@ int execute_for(struct AST *root)
 	// the before last child, the last beeing the command to execute inside
     for (int i = 1; i < root->count_children - 1; i++)
     {
-        bool updated = 1;
-        hash_map_insert(env->variables, var, root->children[i]->content,
-						&updated);
+        hash_map_insert(env->variables, var, strdup(root->children[i]->content),
+						free);
 
         exit_code = execute_node(root->children[root->count_children - 1]);
 		if(env->continue_count!=0){

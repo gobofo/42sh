@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     }
 
     int return_val = env->last_exit_code;
-    hash_map_free(env->variables);
+    hash_map_free(env->variables, free);
 
     free(env);
 
