@@ -604,6 +604,22 @@ int execute_pipeline(struct AST *root)
 
     return res;
 }
+// ################
+// #   SUBSHELL   #
+// ################
+
+int  execute_subshell(struct AST *root){
+  pid_t pid =fork();
+
+  if(pid==0){
+    _exit(execute_node(root->children[0]));
+  }
+  int wstatus;
+  waitpid(pid, &wstatus, 0);
+  int res = WEXITSTATUS(wstatus);
+  return res;
+}
+
 
 // ####################
 // #   GENERAL NODE   #
@@ -621,8 +637,9 @@ int (*execute_node_table[])(struct AST *) = {
     [AST_FOR] = execute_for,
     [AST_AND] = execute_and,
     [AST_OR] = execute_or,
-    [AST_PIPELINE] = execute_pipeline
-    // AST_FUNC
+    [AST_PIPELINE] = execute_pipeline,
+    [AST_FUNC] = execute_pipeline,
+    [AST_SUB] = execute_subshell
 };
 
 int execute_node(struct AST *root)
