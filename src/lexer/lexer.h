@@ -11,7 +11,7 @@
 #include <stdbool.h>
 
 #include "../token.h"
-#include "utils.h"
+#include "lexer_utils.h"
 
 struct lexer
 {

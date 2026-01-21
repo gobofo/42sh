@@ -4,34 +4,30 @@
 
 extern struct env *env;
 
+static void add_word(struct expanded_words *words, char *word)
+{
+	// Allocate new space for the new word
+	words->words = realloc(words->words, sizeof(char *) * (words->count + 2));
+
+	// Add the word
+	words->words[words->count++] = word;
+
+	// Mark the end of the list of words
+	words->words[words->count] = NULL;
+}
+
+
 // #############
 // #   UTILS   #
 // #############
 
-/**
- * @brief	Determines if the character is special or no
- *
- * A special character is a character that has a specific behaviour when
- * escaped in double quotes
- *
- * @char c	The char to determine if it's special or no
- *
- * @return  Success or Failure (1 or 0)
- */
-
+// Determines if the char is a special variables
 static int is_special_char(char c)
 {
     return c == '$' || c == '`' || c == '"' || c == '\\' || c == '\n';
 }
 
-/**
- * @brief	Determines if the character is a digit
- *
- * @char c	The char to determine if it's a digit
- *
- * @return  Success or Failure (1 or 0)
- */
-
+// Determines if the char is a digit
 static int is_digit(char c)
 {
     return c >= '0' && c <= '9';
@@ -40,6 +36,26 @@ static int is_digit(char c)
 // ##########################
 // #   VARIABLE EXPANSION   #
 // ##########################
+
+static void expand_at_quoted(struct expansion_context *context)
+{
+	fclose(context->stream);
+
+	// If we have already a word we add it in the list
+	if (*(context->size) > 0)
+		add_word(context->words, strdup(*(context->buffer)));
+
+	free(*(context->buffer));
+	*(context)->buffer = NULL;
+	*(context)->size = 0;
+
+	// We add each argument as a separate word
+	for (int i = 0; i < env->argc; i++)
+		add_word(context->words, strdup(env->argv[i]));
+
+	// We open the stream for the next words
+	context->stream = open_memstream(context->buffer, context->size);
+}
 
 /**
  * @brief			Extends a variable if it is considered special
@@ -55,26 +71,27 @@ static int is_digit(char c)
  * @return			Special Variable was found or no (1 or 0)
  */
 
-static int is_special_variable(FILE *stream, char *str, size_t *i)
+static int is_special_variable(struct expansion_context *context,
+		char *str, size_t *i)
 {
     // The ? return the exit code of the last command executed
     if (str[*i] == '?')
     {
-        fprintf(stream, "%d", env->last_exit_code);
+        fprintf(context->stream, "%d", env->last_exit_code);
         (*i)++;
         return 1;
     }
     // $ returns the current PID of the process running
     else if (str[*i] == '$')
     {
-        fprintf(stream, "%d", getpid());
+        fprintf(context->stream, "%d", getpid());
         (*i)++;
         return 1;
     }
     // # returns the number of arguments in the shell
     else if (str[*i] == '#')
     {
-        fprintf(stream, "%d", env->argc);
+        fprintf(context->stream, "%d", env->argc);
         (*i)++;
         return 1;
     }
@@ -86,13 +103,21 @@ static int is_special_variable(FILE *stream, char *str, size_t *i)
     // - $@ -> Expands all args into a list of words
     else if (str[*i] == '@' || str[*i] == '*')
     {
-        for (int j = 0; j < env->argc; j++)
-        {
-            fputs(env->argv[j], stream);
+		// Handle the case where the @ is quoted
+		if (str[*i] == '@' && context->quoted == 1)
+		{
+			expand_at_quoted(context);
+		}
+		else
+		{
+			for (int j = 0; j < env->argc; j++)
+			{
+				fputs(env->argv[j], context->stream);
 
-            if (j < env->argc - 1)
-                fputc(' ', stream);
-        }
+				if (j < env->argc - 1)
+					fputc(' ', context->stream);
+			}
+		}
 
         (*i)++;
         return 1;
@@ -104,7 +129,7 @@ static int is_special_variable(FILE *stream, char *str, size_t *i)
         int idx = str[*i] - '0';
 
         if (idx > 0 && (idx - 1) < env->argc)
-            fputs(env->argv[idx - 1], stream);
+            fputs(env->argv[idx - 1], context->stream);
 
         (*i)++;
         return 1;
@@ -126,13 +151,14 @@ static int is_special_variable(FILE *stream, char *str, size_t *i)
  * @param i			The index in the string
  */
 
-static void expand_variable(FILE *stream, char *str, size_t *i)
+static void expand_variable(struct expansion_context *context,
+		char *str, size_t *i)
 {
     // Pass the $ and get to nect character
     (*i)++;
 
     // Detect if we have to handle a special variable
-    if (is_special_variable(stream, str, i) == 1)
+    if (is_special_variable(context, str, i) == 1)
         return;
 
     char *var_name;
@@ -164,9 +190,9 @@ static void expand_variable(FILE *stream, char *str, size_t *i)
     // These also make part of the special variables but are not composed of
     // only a character
     if (strcmp(var_name, "RANDOM") == 0)
-        fprintf(stream, "%d", rand() % 32768);
+        fprintf(context->stream, "%d", rand() % 32768);
     else if (strcmp(var_name, "UID") == 0)
-        fprintf(stream, "%d", getuid());
+        fprintf(context->stream, "%d", getuid());
     else
     {
         // The variable is not a 'special' one so we had it in environment and
@@ -174,7 +200,7 @@ static void expand_variable(FILE *stream, char *str, size_t *i)
         char *var_value = hash_map_get(env->variables, var_name);
 
         if (var_value)
-            fputs(var_value, stream);
+            fputs(var_value, context->stream);
     }
 
     free(var_name);
@@ -196,20 +222,24 @@ static void expand_variable(FILE *stream, char *str, size_t *i)
  * Between double quotes, we can escape some special characters thanks to the \
  * character and we can also expand some variables.
  * If nothing has to be expanded then the string stays the same.
+ *	We return an array to make the difference between $@ and "$@"
  *
  * @param value		The string to expand
  *
- * @return			The extended string
+ * @return			The extended string on an array format
  */
 
-char *expand(char **value)
+char **expand(char *str)
 {
-    size_t size;
+    size_t size = 0;
 
-    char *str = *value;
-    char *buffer;
+    char *buffer = NULL;
+
+	struct expanded_words words = { .words = NULL, .count = 0 };
 
     FILE *stream = open_memstream(&buffer, &size);
+
+	struct expansion_context context = { stream, 0, &buffer, &size, &words };
 
     size_t i = 0;
 
@@ -234,7 +264,7 @@ char *expand(char **value)
             }
 
             if (str[i] != '\0')
-                fputc(str[i++], stream);
+                fputc(str[i++], context.stream);
         }
         // Single quote is found, so we take the literal value inside
         else if (str[i] == '\'')
@@ -244,7 +274,7 @@ char *expand(char **value)
 
             // We save the character as it is until the closing quote
             while (str[i] != '\0' && str[i] != '\'')
-                fputc(str[i++], stream);
+                fputc(str[i++], context.stream);
 
             if (str[i] == '\'')
                 i++;
@@ -256,12 +286,14 @@ char *expand(char **value)
             // Pass the opening quote
             i++;
 
+			context.quoted = 1;
+
             while (str[i] != '\0' && str[i] != '"')
             {
                 // We have a variable extension
                 if (str[i] == '$')
                 {
-                    expand_variable(stream, str, &i);
+                    expand_variable(&context, str, &i);
                     continue;
                 }
                 // When inside double quotes the \ char does not act like the
@@ -271,12 +303,12 @@ char *expand(char **value)
                 {
                     // We skip the \ since it is supposed to escape
                     i++;
-                    fputc(str[i++], stream);
+                    fputc(str[i++], context.stream);
                     i++;
                 }
                 else
 				{
-                    fputc(str[i++], stream);
+                    fputc(str[i++], context.stream);
 				}
 			}
 
@@ -284,12 +316,17 @@ char *expand(char **value)
                 i++;
         }
         else if (str[i] == '$')
-            expand_variable(stream, str, &i);
+            expand_variable(&context, str, &i);
         else
-            fputc(str[i++], stream);
+            fputc(str[i++], context.stream);
     }
 
-    fclose(stream);
+	fclose(context.stream);
 
-    return buffer;
+	if (size > 0 || words.count == 0)
+		add_word(&words, strdup(buffer));
+
+    free(buffer);
+
+    return words.words;
 }
