@@ -225,6 +225,17 @@ int execute_cmd(char **command)
         status = my_cd(command + 1);
     else if (strcmp(command[0], "exit") == 0)
         status = my_exit(command + 1);
+        env->should_exit = 1;
+    }
+    else if (strcmp(command[0], "break")==0){
+        status=my_break(command+1);
+	}
+    else if (strcmp(command[0], "continue")==0){
+        status=my_continue(command+1);
+	}
+	else if (strcmp(command[0], "unset") == 0){
+		status = my_unset(command+1);
+	}
     else if (strcmp(command[0], "break") == 0)
         status = my_break(command + 1);
     else if (strcmp(command[0], "continue") == 0)
