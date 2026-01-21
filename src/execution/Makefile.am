@@ -8,7 +8,7 @@ libexecution_a_SOURCES = execution.c execution.h \
 						 my_exit/my_exit.c my_exit/my_exit.h \
 						 my_break/my_break.c my_break/my_break.h \
 						 my_continue/my_continue.c my_continue/my_continue.h \
-						 unset/unset.c unset/unset.h
+						 my_unset/my_unset.c my_unset/my_unset.h
 
 libexecution_a_CPPFLAGS = -I$(top_srcdir)/src
 

@@ -221,7 +221,7 @@ int execute_cmd(char **command)
         status=my_continue(command+1);
 	}
 	else if (strcmp(command[0], "unset") == 0){
-		status = unset(command+1);
+		status = my_unset(command+1);
 	}
     else
         status = execute_non_builtin(command);

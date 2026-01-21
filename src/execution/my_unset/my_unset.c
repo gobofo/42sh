@@ -1,0 +1,45 @@
+#include "my_unset.h"
+
+extern struct env *env;
+
+int my_unset(char **command)
+{
+    int v_flag = 0;
+    int f_flag = 0;
+
+    if (command[0][0] == '-')
+    {
+        for (int i = 1; command[0][i]; i++)
+        {
+            if (command[0][i] == 'v')
+                v_flag = 1;
+            else if (command[0][i] == 'f')
+                f_flag = 1;
+            else
+            {
+                fprintf(stderr, "Error: unset: flag must be v or f\n");
+                return 2;
+            }
+        }
+        command++;
+    }
+
+    if (f_flag && v_flag)
+    {
+        fprintf(stderr, "Error: unset: flag must be v or f not both\n");
+        return 1;
+    }
+
+    if (!(f_flag || v_flag))
+        v_flag = 1;
+
+    if (v_flag)
+        for (int i = 0; command[i]; i++)
+            hash_map_remove(env->variables, command[i]);
+
+    // 	else
+    // 		for(int i = 0; command[i]; i++)
+    // 			hash_map_remove(env->functions, command[i]);
+
+    return 0;
+}
