@@ -1,4 +1,5 @@
 #include "environment.h"
+#include <stdio.h>
 
 /**
  * @brief		Inits the environment
@@ -59,5 +60,33 @@ struct env *init_env(int argc, char **argv)
     hash_map_insert(env->variables, "PWD", pwd ? pwd : ".", &update);
     hash_map_insert(env->variables, "IFS", ifs, &update);
 
+    struct export* export_variables= create_export();
+    env->export_variables=export_variables;
+
     return env;
+}
+
+struct export* create_export(void){
+  struct export* export=malloc(sizeof(struct export));
+  export->nb_variables=0;
+  export->max_variables=8;
+  export->list_variables=malloc(export->max_variables*sizeof(char*));
+  return export;
+}
+
+void export_add_variable(struct export *export,char* variables){
+  if(export->nb_variables>=export->max_variables){
+    export->max_variables=export->max_variables*2;
+    export->list_variables=realloc(export->list_variables, export->max_variables*sizeof(char*));
+  }
+  export->list_variables[export->nb_variables]=variables;
+  export->nb_variables++;
+}
+
+void free_export(struct export *export){
+  for(int i=0;i<export->nb_variables;i++){
+    free(export->list_variables[i]);
+  }
+  free(export->list_variables);
+  free(export);
 }
