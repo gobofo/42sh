@@ -166,14 +166,13 @@ int my_cd(char **command)
 
 	if (strcmp(command[0], "-") == 0)
 	{
-		bool update;
 
 		char *pwd = hash_map_get(env->variables, "PWD");
 		char *old = hash_map_get(env->variables, "OLDPWD");
 		char *oldpwd = strdup(old); 
 
-		hash_map_insert(env->variables, "OLDPWD", pwd, &update); 
-		hash_map_insert(env->variables, "PWD", oldpwd, &update);
+		hash_map_insert(env->variables, "OLDPWD", strdup(pwd), free); 
+		hash_map_insert(env->variables, "PWD", strdup(oldpwd), free);
 
 		free(oldpwd);
 
@@ -207,11 +206,10 @@ int my_cd(char **command)
 
 	char *pwd = hash_map_get(env->variables, "PWD");
 
-	bool update;
 
 	// Update the PWD and OLDPWD
-	hash_map_insert(env->variables, "OLDPWD", pwd, &update); 
-	hash_map_insert(env->variables, "PWD", path, &update);
+	hash_map_insert(env->variables, "OLDPWD", strdup(pwd), free); 
+	hash_map_insert(env->variables, "PWD", strdup(path), free);
 
 	free(path);
 

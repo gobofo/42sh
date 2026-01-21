@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include "environment.h"
 
 /**
@@ -43,7 +44,6 @@ struct env *init_env(int argc, char **argv)
         env->argc = 0;
     }
 
-    bool update;
 
     char *oldpwd = getenv("OLDPWD");
     char *pwd = getenv("PWD");
@@ -54,10 +54,10 @@ struct env *init_env(int argc, char **argv)
 
     // ENV Variables Predefined when the shell is launched
     if (oldpwd)
-        hash_map_insert(env->variables, "OLDPWD", oldpwd, &update);
+        hash_map_insert(env->variables, "OLDPWD", strdup(oldpwd), free);
 
-    hash_map_insert(env->variables, "PWD", pwd ? pwd : ".", &update);
-    hash_map_insert(env->variables, "IFS", ifs, &update);
+    hash_map_insert(env->variables, "PWD", strdup(pwd ? pwd : "."), free);
+    hash_map_insert(env->variables, "IFS", strdup(ifs), free);
 
     return env;
 }
