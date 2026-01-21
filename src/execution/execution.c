@@ -214,14 +214,13 @@ int execute_cmd(char **command)
         status = my_exit(command + 1);
         env->should_exit = 1;
     }
-    else if (strcmp(command[0],"break")==0){
-        status=my_break(command+1);
-	}
-    else if (strcmp(command[0],"continue")==0){
-        status=my_continue(command+1);
-	}
-    else if (strcmp(command[0],"export")==0){
-      status=my_export(command+1);
+    else if (strcmp(command[0], "break") == 0)
+    {
+        status = my_break(command + 1);
+    }
+    else if (strcmp(command[0], "continue") == 0)
+    {
+        status = my_continue(command + 1);
     }
     else
         status = execute_non_builtin(command);
@@ -232,7 +231,7 @@ int execute_cmd(char **command)
     }
 
     free(command);
-    env->last_exit_code=status;
+    env->last_exit_code = status;
     return status;
 }
 
@@ -318,17 +317,17 @@ int execute_while(struct AST *root)
 
     int status = 0;
 
-	while (!execute_node(root->children[0]) && env->break_count==0)
-	{
-        if(env->continue_count==0)
-			status = execute_node(root->children[1]);
-		else
-			env->continue_count--;
-	}
-	env->continue_count = 0;
+    while (!execute_node(root->children[0]) && env->break_count == 0)
+    {
+        if (env->continue_count == 0)
+            status = execute_node(root->children[1]);
+        else
+            env->continue_count--;
+    }
+    env->continue_count = 0;
 
-    if(env->break_count)
-      env->break_count--;
+    if (env->break_count)
+        env->break_count--;
 
     return status;
 }
@@ -340,53 +339,54 @@ int execute_until(struct AST *root)
 
     int status = 0;
 
-    while (execute_node(root->children[0]) && env->break_count==0)
-	{
-        if(env->continue_count==0)
-			status = execute_node(root->children[1]);
-		else
-			env->continue_count--;
-	}
-	env->continue_count = 0;
-    if(env->break_count)
-      env->break_count--;
+    while (execute_node(root->children[0]) && env->break_count == 0)
+    {
+        if (env->continue_count == 0)
+            status = execute_node(root->children[1]);
+        else
+            env->continue_count--;
+    }
+    env->continue_count = 0;
+    if (env->break_count)
+        env->break_count--;
 
     return status;
 }
 
 int execute_for(struct AST *root)
 {
-	char *var = root->children[0]->content;
+    char *var = root->children[0]->content;
 
-	if (is_valid_name(var) == 0)
-	{
-		fprintf(stderr, "Error: %s: not a valid identifier\n", var);
+    if (is_valid_name(var) == 0)
+    {
+        fprintf(stderr, "Error: %s: not a valid identifier\n", var);
 
-		env->should_exit = 1;
-		env->last_exit_code = 1;
-	}
+        env->should_exit = 1;
+        env->last_exit_code = 1;
+    }
 
     if (env->should_exit == 1)
         return env->last_exit_code;
 
     int exit_code = 0;
 
-	// The first children is name of the identifier so we go from the second to
-	// the before last child, the last beeing the command to execute inside
+    // The first children is name of the identifier so we go from the second to
+    // the before last child, the last beeing the command to execute inside
     for (int i = 1; i < root->count_children - 1; i++)
     {
         bool updated = 1;
         hash_map_insert(env->variables, var, root->children[i]->content,
-						&updated);
+                        &updated);
 
         exit_code = execute_node(root->children[root->count_children - 1]);
-		if(env->continue_count!=0){
-			i+=env->continue_count;
-			env->continue_count = 0;
-		}
+        if (env->continue_count != 0)
+        {
+            i += env->continue_count;
+            env->continue_count = 0;
+        }
     }
-    if(env->break_count)
-      env->break_count--;
+    if (env->break_count)
+        env->break_count--;
 
     return exit_code;
 }
@@ -430,7 +430,9 @@ int execute_list(struct AST *root)
 
     int status = 0;
 
-    for (int i = 0; i < root->count_children && env->break_count==0 && env->continue_count==0; i++)
+    for (int i = 0; i < root->count_children && env->break_count == 0
+         && env->continue_count == 0;
+         i++)
         status = execute_node(root->children[i]);
 
     return status;
@@ -583,7 +585,7 @@ int execute_ast(struct AST *root)
 {
     if (!root)
         return 1;
-    env->break_count=0;
-	env->continue_count=0;
+    env->break_count = 0;
+    env->continue_count = 0;
     return execute_node(root);
 }

@@ -11,37 +11,38 @@ extern struct env *env;
  *
  * @return			The new absolute path
  */
-char *create_path(char *cur_path)
+
+static char *create_path(char *cur_path)
 {
-	// Check if the current path is an absolute or no
+    // Check if the current path is an absolute or no
 
-	// If the path starts with a / is an absolute path and we do nothing
-	if (cur_path[0] == '/')
-		return strdup(cur_path);
+    // If the path starts with a / is an absolute path and we do nothing
+    if (cur_path[0] == '/')
+        return strdup(cur_path);
 
-	// If it is not an absolute path we must do a concatenation:
-	// '/'PWD'/'path
-	
-	char *pwd = hash_map_get(env->variables, "PWD");
+    // If it is not an absolute path we must do a concatenation:
+    // '/'PWD'/'path
 
-	// Compute the absolute path length
-	// PWD + '/' + path
-	size_t abs_path_len = strlen(pwd) + 1 + strlen(cur_path);
+    char *pwd = hash_map_get(env->variables, "PWD");
 
-	// Create the absolute path by concatenation
-	char *abs_path = malloc(abs_path_len + 1);
-	if (abs_path == NULL)
-		return NULL;
+    // Compute the absolute path length
+    // PWD + '/' + path
+    size_t abs_path_len = strlen(pwd) + 1 + strlen(cur_path);
 
-	strcpy(abs_path, pwd);
+    // Create the absolute path by concatenation
+    char *abs_path = malloc(abs_path_len + 1);
+    if (abs_path == NULL)
+        return NULL;
 
-	// If the PWD does not end with a / we add it
-	if (abs_path[strlen(pwd) - 1] != '/')
-		strcat(abs_path, "/");
+    strcpy(abs_path, pwd);
 
-	strcat(abs_path, cur_path);
+    // If the PWD does not end with a / we add it
+    if (abs_path[strlen(pwd) - 1] != '/')
+        strcat(abs_path, "/");
 
-	return abs_path;
+    strcat(abs_path, cur_path);
+
+    return abs_path;
 }
 
 /**
@@ -54,28 +55,28 @@ char *create_path(char *cur_path)
  * @return			The path
  */
 
-char *reconstruct_path(char **stack, size_t top)
+static char *reconstruct_path(char **stack, size_t top)
 {
-	char *path;
-	size_t len = 0;
+    char *path;
+    size_t len = 0;
 
-	FILE *stream = open_memstream(&path, &len);
+    FILE *stream = open_memstream(&path, &len);
 
-	fputc('/', stream);
+    fputc('/', stream);
 
-	for (int i = 0; stack[i] != NULL && top > 0; i++)
-	{
-		fputs(stack[i], stream);
+    for (int i = 0; stack[i] != NULL && top > 0; i++)
+    {
+        fputs(stack[i], stream);
 
-		if (stack[i + 1] != NULL)
-			fputc('/', stream);
+        if (stack[i + 1] != NULL)
+            fputc('/', stream);
 
-		top--;
-	}
+        top--;
+    }
 
-	fclose(stream);
+    fclose(stream);
 
-	return path;
+    return path;
 }
 
 /**
@@ -91,46 +92,45 @@ char *reconstruct_path(char **stack, size_t top)
  * @return			The canonical form of the path
  */
 
-char *canonical_form(char *cur_path)
+static char *canonical_form(char *cur_path)
 {
-	char *path_copy = strdup(cur_path);
+    char *path_copy = strdup(cur_path);
 
-	// We use a stack to hold all components to handle the ..
-	// The path will be created once the path has been processed entirely from
-	// the stack.
-	size_t top = 0;
+    // We use a stack to hold all components to handle the ..
+    // The path will be created once the path has been processed entirely from
+    // the stack.
+    size_t top = 0;
 
-	char **stack = calloc(strlen(cur_path), sizeof(char *));
+    char **stack = calloc(strlen(cur_path), sizeof(char *));
 
-	char *token = strtok(path_copy, "/");
-	while (token != NULL)
-	{
-		// If the component is '..' we pop the last element found
-		if (strcmp(token, "..") == 0)
-		{
-			// Ensure we have something to pop
-			if (top > 0)
-				top--;
-		}
-		// Since we ignore the '.' we dont have to take them in consideration
-		else if (strcmp(token, ".") != 0)
-		{
-			stack[top++] = token;
-		}
-		
-		token = strtok(NULL, "/");
-	}
+    char *token = strtok(path_copy, "/");
+    while (token != NULL)
+    {
+        // If the component is '..' we pop the last element found
+        if (strcmp(token, "..") == 0)
+        {
+            // Ensure we have something to pop
+            if (top > 0)
+                top--;
+        }
+        // Since we ignore the '.' we dont have to take them in consideration
+        else if (strcmp(token, ".") != 0)
+        {
+            stack[top++] = token;
+        }
 
-	char *path = reconstruct_path(stack, top);
-	if (path == NULL)
-		return NULL;
+        token = strtok(NULL, "/");
+    }
 
-	free(stack);
-	free(path_copy);
+    char *path = reconstruct_path(stack, top);
+    if (path == NULL)
+        return NULL;
 
-	return path;
+    free(stack);
+    free(path_copy);
+
+    return path;
 }
-
 
 /**
  * @brief			Mimics the builtin cd command
@@ -145,75 +145,88 @@ char *canonical_form(char *cur_path)
 
 int my_cd(char **command)
 {
-	// TODO
-	// Handle if no args are given -> Step 4 with implementation of the HOME
-	// env var
+    // TODO
+    // Handle if no args are given -> Step 4 with implementation of the HOME
+    // env var
 
-	// Since the subject does not require to handle the -L and -P flags, cd
-	// must have exactly one single argument
-	// To remove when HOME var is added
-	if (command == NULL || command[0] == NULL) 
-	{
-		fprintf(stderr, "Error: cd: not enough arguments\n");
-		return 1;
-	}
+    // Since the subject does not require to handle the -L and -P flags, cd
+    // must have exactly one single argument
+    // To remove when HOME var is added
+    if (command == NULL || command[0] == NULL)
+    {
+        fprintf(stderr, "Error: cd: not enough arguments\n");
+        return 1;
+    }
 
-	if (command[1] != NULL)
-	{
-		fprintf(stderr, "Error: cd: too many arguments\n");
-		return 2;
-	}
+    if (command[1] != NULL)
+    {
+        fprintf(stderr, "Error: cd: too many arguments\n");
+        return 2;
+    }
 
-	if (strcmp(command[0], "-") == 0)
-	{
-		bool update;
+    if (strcmp(command[0], "-") == 0)
+    {
+        bool update;
 
-		char *pwd = hash_map_get(env->variables, "PWD");
-		char *old = hash_map_get(env->variables, "OLDPWD");
-		char *oldpwd = strdup(old); 
+        char *pwd = hash_map_get(env->variables, "PWD");
+        char *old = hash_map_get(env->variables, "OLDPWD");
+        char *oldpwd = strdup(old);
 
-		hash_map_insert(env->variables, "OLDPWD", pwd, &update); 
-		hash_map_insert(env->variables, "PWD", oldpwd, &update);
+		// Swap the pwd
+        hash_map_insert(env->variables, "OLDPWD", pwd, &update);
+        hash_map_insert(env->variables, "PWD", oldpwd, &update);
 
-		free(oldpwd);
+		// Print the new pwd
+		printf("%s\n", pwd);
+
+        free(oldpwd);
+
+		// Check if paths exists
+		if (chdir(pwd) != 0)
+		{
+			fprintf(stderr, "Error: cd: no such file or directory: %s\n",
+					command[0]);
+
+			return 1;
+		}
 
 		return 0;
-	}
+    }
 
-	char *cur_path = create_path(command[0]); 
-	if (cur_path == NULL)
-		return 1;
+    char *cur_path = create_path(command[0]);
+    if (cur_path == NULL)
+        return 1;
 
-	// Get the canonical form of the path
-	char *path = canonical_form(cur_path);
-	if (path == NULL)
-	{
-		free(cur_path);
-		return 1;
-	}
+    // Get the canonical form of the path
+    char *path = canonical_form(cur_path);
+    if (path == NULL)
+    {
+        free(cur_path);
+        return 1;
+    }
 
-	free(cur_path);
+    free(cur_path);
 
-	// Check if paths exists
-	if (chdir(path) != 0)
-	{
-		fprintf(stderr, "Error: cd: no such file or directory: %s\n",
-				command[0]);
+    // Check if paths exists
+    if (chdir(path) != 0)
+    {
+        fprintf(stderr, "Error: cd: no such file or directory: %s\n",
+                command[0]);
 
-		free(path);
+        free(path);
 
-		return 1;
-	}
+        return 1;
+    }
 
-	char *pwd = hash_map_get(env->variables, "PWD");
+    char *pwd = hash_map_get(env->variables, "PWD");
 
-	bool update;
+    bool update;
 
-	// Update the PWD and OLDPWD
-	hash_map_insert(env->variables, "OLDPWD", pwd, &update); 
-	hash_map_insert(env->variables, "PWD", path, &update);
+    // Update the PWD and OLDPWD
+    hash_map_insert(env->variables, "OLDPWD", pwd, &update);
+    hash_map_insert(env->variables, "PWD", path, &update);
 
-	free(path);
+    free(path);
 
-	return 0;
+    return 0;
 }
