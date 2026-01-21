@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include "../ast/ast.h"
-#include "parser.h"
+#include "print_parser.h"
 
 char *get_string_of_node(struct AST *ast)
 {

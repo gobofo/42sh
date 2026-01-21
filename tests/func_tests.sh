@@ -18,63 +18,52 @@ if [ -z "$BIN_PATH" ]; then
   exit 0
 fi
 
-test_cmd() {
-  TOTAL=$((TOTAL + 1))
+test_cmd()
+{
+	TOTAL=$((TOTAL + 1))
+    
+    local expected=$(timeout $TIMEOUT bash --posix -c "$1" 2>&1)
+    local actual=$(timeout $TIMEOUT "$BIN_PATH" -c "$1" 2>&1)
 
-  local expected=$(timeout $TIMEOUT bash --posix -c "$1" 2>&1)
-  local actual=$(timeout $TIMEOUT "$BIN_PATH" -c "$1" 2>&1)
-
-  if [ "$expected" = "$actual" ]; then
-    SUCCESS=$((SUCCESS + 1))
-  else
-    echo -e "${RED}$2${WHT}"
-    echo -e "${RED}Expected:${WHT} $expected"
-    echo -e "${RED}Actual:${WHT} $actual"
-  fi
+	if [ "$expected" = "$actual" ]; then
+		SUCCESS=$((SUCCESS + 1))
+	else
+		echo -e "${RED}$2${WHT}"
+		echo -e "${RED}Expected:${WHT} $expected"
+		echo -e "${RED}Actual:${WHT} $actual"
+	fi
 }
 
-test_file() {
-  TOTAL=$((TOTAL + 1))
+test_file()
+{
+	TOTAL=$((TOTAL + 1))
+    
+    local expected=$(timeout $TIMEOUT bash --posix "$1" 2>&1)
+    local actual=$(timeout $TIMEOUT "$BIN_PATH" "$1" 2>&1)
 
-  local expected=$(timeout $TIMEOUT bash --posix "$1" 2>&1)
-  local actual=$(timeout $TIMEOUT "$BIN_PATH" "$1" 2>&1)
-
-  if [ "$expected" = "$actual" ]; then
-    SUCCESS=$((SUCCESS + 1))
-  else
-    echo -e "${RED}$2${WHT}"
-    echo -e "${RED}Expected:${WHT} $expected"
-    echo -e "${RED}Actual:${WHT} $actual"
-  fi
+	if [ "$expected" = "$actual" ]; then
+		SUCCESS=$((SUCCESS + 1))
+	else
+		echo -e "${RED}$2${WHT}"
+		echo -e "${RED}Expected:${WHT} $expected"
+		echo -e "${RED}Actual:${WHT} $actual"
+	fi
 }
 
-test_error() {
-  TOTAL=$((TOTAL + 1))
+test_error()
+{
+	TOTAL=$((TOTAL + 1))
+    
+    timeout $TIMEOUT "$BIN_PATH" -c "$1" > /dev/null 2>&1
+    local exit_code=$?
 
-  timeout $TIMEOUT "$BIN_PATH" -c "$1" >/dev/null 2>&1
-  local exit_code=$?
-
-  if [ $exit_code -ne 0 ]; then
-    SUCCESS=$((SUCCESS + 1))
-  else
-    echo -e "${RED}$2${WHT}"
-    echo -e "${RED}Expected:${WHT} mauvais code retour"
-    echo -e "${RED}Actual: exit code ${WHT}$exit_code"
-  fi
-}
-test_stdin() {
-  TOTAL=$((TOTAL + 1))
-
-  local expected=$(echo "$1" | timeout $TIMEOUT bash --posix 2>&1)
-  local actual=$(echo "$1" | timeout $TIMEOUT "$BIN_PATH" 2>&1)
-
-  if [ "$expected" = "$actual" ]; then
-    SUCCESS=$((SUCCESS + 1))
-  else
-    echo -e "${RED}$2${WHT}"
-    echo -e "${RED}Expected:${WHT} $expected"
-    echo -e "${RED}Actual:${WHT} $actual"
-  fi
+	if [ $exit_code -ne 0 ]; then
+		SUCCESS=$((SUCCESS + 1))
+	else
+		echo -e "${RED}$2${WHT}"
+		echo -e "${RED}Expected:${WHT} mauvais code retour"
+		echo -e "${RED}Actual: exit code ${WHT}$exit_code"
+	fi
 }
 
 if [ "$COVERAGE" = "yes" ]; then
@@ -946,7 +935,7 @@ echo "###################################################"
 echo "TESTS VARIABLES EDGE CASES"
 echo "###################################################"
 
-test_cmd 'ls /nonexistent 2>/dev/null; echo $?; true; echo $?' "Sequence of exit codes"
+test_cmd 'ls /nonexistent 2>/dev/null;echo $?;true;echo $?' "Sequence of exit codes"
 
 test_cmd 'echo $# $1 $2' "Positional parameters when none are provided"
 
