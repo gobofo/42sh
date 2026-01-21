@@ -7,43 +7,105 @@
 #include "../lexer/lexer.h"
 #include "../token.h"
 
-struct AST *input(struct token **token);
+/* ============= PRINT AST ============= */
 
-// print
-//
-bool first_list(struct token *token);
-bool first_and_or(struct token *token);
-bool first_pipeline(struct token *token);
-bool first_command(struct token *token);
-bool first_shell_command(struct token *token);
-bool first_rule_if(struct token *token);
-bool first_rule_while(struct token *token);
-bool first_rule_until(struct token *token);
-bool first_rule_for(struct token *token);
-bool first_else_clause(struct token *token);
-bool first_compound_list(struct token *token);
-bool first_simple_command(struct token *token);
-bool first_prefix(struct token *token);
-bool first_redirection(struct token *token);
-bool first_element(struct token *token);
-bool first_funcdec(struct token *token);
+#include "print_parser.h"
 
-bool follow_input(struct token *token);
-bool follow_list(struct token *token);
-bool follow_and_or(struct token *token);
-bool follow_pipeline(struct token *token);
-bool follow_command(struct token *token);
-bool follow_shell_command(struct token *token);
-bool follow_rule_if(struct token *token);
-bool follow_rule_while(struct token *token);
-bool follow_rule_until(struct token *token);
-bool follow_rule_for(struct token *token);
-bool follow_else_clause(struct token *token);
-bool follow_compound_list(struct token *token);
-bool follow_simple_command(struct token *token);
-bool follow_prefix(struct token *token);
-bool follow_redirection(struct token *token);
-bool follow_element(struct token *token);
+/* ============= USEFULL FONCTION ============= */
 
-void parser_print(struct AST *ast);
+#include "usefull_fnct.h"
+
+/* ============= FIRST ============= */
+
+#include "parser_first.h"
+
+/* ============= FOLLOW ============= */
+
+#include "parser_follow.h"
+
+/* ============= GRAMMAR ============= */
+
+/*
+    input =
+(1)     list '\n'
+(2)    | list EOF
+(3)    | '\n'
+(4)    | EOF
+
+(5) list = and_or { ';' and_or } [ ';' ]
+
+(6) and_or = pipeline { ( '&&' | '||' ) {'\n'} pipeline }
+
+(7) pipeline = [!] command { '|' {'\n'} command }
+
+    command =
+(8)    simple_command
+(9)    | shell_command {redirection}
+       |funcdec { redirection }
+
+
+(10) shell_c
+    '{' compound_list '}'
+   |'(' compound_list ')'
+   | rule_if
+   | rule_while
+   | rule_until
+   | rule_for
+
+funcdec = WORD '(' ')' {'\n'} shell_command ;
+
+(11) rule_if = 'if' compound_list 'then' compound_list [else_clause] 'fi'
+
+    else_clause =
+(12)    'else' compound_list
+(13)    | 'elif' compound_list 'then' compound_list [else_clause]
+
+(14) rule_while = 'while' compound_list 'do' compound_list 'done' while true do echo a done 
+
+(15) rule_until = 'until' compound_list 'do' compound_list 'done'
+
+(16) rule_for = 'for' WORD ( [';'] | [ {'\n'} 'in' { WORD } ( ';' | '\n' ) ] )
+{'\n'} 'do' compound_list 'done'
+
+(17) compound_list = {'\n'} and_or { ( ';' | '\n' ) {'\n'} and_or } [';'] {'\n'}
+
+(18) simple_command =
+          prefix {prefix}
+(19)    | {prefix} WORD { element }
+
+(20) prefix =
+        redirection
+        | ASSIGNEMENT_WORD
+
+(21) redirection = [IONUMBER] ( '>' | '<' | '>>' | '>&' | '<&' | '>|' | '<>' )
+WORD
+
+(22) element =
+        WORD
+        | redirection
+*/
+
+/* ============= FONCTION DE DEPART ============= */
+
+struct AST *input(struct lexer **lexer);
+
+/* ============= PARSER ============= */
+
+struct AST *list(struct lexer **lexer);
+struct AST *and_or(struct lexer **lexer);
+struct AST *pipeline(struct lexer **lexer);
+struct AST *command(struct lexer **lexer);
+struct AST *shell_command(struct lexer **lexer);
+struct AST *rule_if(struct lexer **lexer);
+struct AST *else_clause(struct lexer **lexer);
+struct AST *compound_list(struct lexer **lexer);
+struct AST *simple_command(struct lexer **lexer);
+struct AST *element(struct lexer **lexer);
+struct AST *redirection(struct lexer **lexer);
+struct AST *prefix(struct lexer **lexer);
+struct AST *rule_for(struct lexer **lexer);
+struct AST *rule_while(struct lexer **lexer);
+struct AST *rule_until(struct lexer **lexer);
+struct AST *funcdec(struct lexer **lexer);
+
 #endif /* ! PARSER_H */

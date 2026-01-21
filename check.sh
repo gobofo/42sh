@@ -1,28 +1,28 @@
-autoreconf --install
-./configure
+autoreconf --install >/dev/null
+./configure CFLAGS="-fsanitize=address -g" >/dev/null
 
 BIN_PATH="$(pwd)/src/42sh" OUTPUT_FILE="$(pwd)/out" make check
-make clean
+make clean >/dev/null
 
-rm AST_def_node.txt
+rm AST_def_node.txt >/dev/null
 
-rm -rf ar-lib
-rm config.log
-rm depcomp
-rm -rf autom4te.cache/
-rm aclocal.m4
-rm compile
-rm config.status
-rm configure
-rm install-sh
-rm missing
-rm test-driver
-rm Makefile.in
-rm Makefile
+rm -rf ar-lib >/dev/null
+rm config.log >/dev/null
+rm depcomp >/dev/null
+rm -rf autom4te.cache/ >/dev/null
+rm aclocal.m4 >/dev/null
+rm compile >/dev/null
+rm config.status >/dev/null
+rm configure >/dev/null
+rm install-sh >/dev/null
+rm missing >/dev/null
+rm test-driver >/dev/null
+rm Makefile.in >/dev/null
+rm Makefile >/dev/null
 
-rm tests/Makefile.in
-rm tests/Makefile
-rm -rf tests/.deps
+rm tests/Makefile.in >/dev/null
+rm tests/Makefile >/dev/null
+rm -rf tests/.deps >/dev/null
 
-rm $(find src -name "Makefile" -o -name "Makefile.in")
-rm -rf $(find src -type d -name ".deps")
+rm $(find src -name "Makefile" -o -name "Makefile.in") >/dev/null
+rm -rf $(find src -type d -name ".deps") >/dev/null
