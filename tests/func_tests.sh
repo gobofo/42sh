@@ -73,13 +73,28 @@ test_stdin()
 }
 
 if [ "$COVERAGE" = "yes" ]; then
-  echo "Unit Test"
-  gcc -I../src unit/lexer_tests.c ../src/lexer/*.c -o unit_tester 2>/dev/null
-  if [ -f unit_tester ] && ./unit_tester; then
-    SUCCESS=$((SUCCESS + 1))
-  fi
-  TOTAL=$((TOTAL + 1))
-  rm -f unit_tester 2>/dev/null
+
+	echo RUNNING UNIT TESTS
+
+	if [ -f "unit/unit_tests" ]; then
+
+		RESULTS=$(./unit/unit_tests 2>&1 | grep "Synthesis:")
+        
+        PASSED=$(echo "$RESULTS" | sed -n 's/.*Passing: \([0-9]*\).*/\1/p')
+        TESTED=$(echo "$RESULTS" | sed -n 's/.*Tested: \([0-9]*\).*/\1/p')
+
+        if [ -n "$PASSED" ] && [ -n "$TESTED" ]; then
+            SUCCESS=$((SUCCESS + PASSED))
+            TOTAL=$((TOTAL + TESTED))
+            echo -e "${GRN}Unit Tests: $PASSED / $TESTED passed${WHT}"
+        else
+            echo -e "${RED}Failed to parse unit test results${WHT}"
+        fi
+
+	else
+		echo -e "${RED}Unit tester binary not found${WHT}"
+	fi
+
 fi
 
 #----------------- STEP 1: BASIC FUNCTIONALITY -----------------#
