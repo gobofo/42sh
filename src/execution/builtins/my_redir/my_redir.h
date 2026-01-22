@@ -1,6 +1,8 @@
 #ifndef MY_REDIR_H
 #define MY_REDIR_H
 
+#define _POSIX_C_SOURCE 200809L
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,6 +10,9 @@
 
 #include "../../../ast/ast.h"
 #include "../../../environment/environment.h"
+
+
+int execute_redir(struct AST *root, struct AST **redir);
 
 int redir_replace_in(struct AST *root, struct AST **redir, int fd);
 

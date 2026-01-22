@@ -3,6 +3,59 @@
 int do_redir(struct AST *root, struct AST **redir);
 
 /**
+ * @brief		Executes a redir
+ *
+ * Various REDIR exists so for each type we excute a different one.
+ * In the program we first execute all the REDIR before executing the command
+ *
+ * @param root	The AST node to execute
+ * @param redir The rest of REDIT to execute
+ *
+ * @return		Exit code
+ */
+
+int execute_redir(struct AST *root, struct AST **redir)
+{
+	int fd = -1;
+
+	// Get the IONumber of the REDIR
+	char ionumber = redir[0]->children[0]->content[0];
+	char *content = strdup(redir[0]->children[0]->content);
+	char *to_free = content;
+
+	// Check if a IONumber is given if not we keep the default one for each
+	// redir
+	if (ionumber >= '0' && ionumber <= '9')
+	{
+		fd = ionumber - '0';
+		content++;
+	}
+
+	int status = 0;
+
+	// IF FOR EACH REDIR
+	if (strcmp(content, ">") == 0 || strcmp(content, ">|") == 0)
+		status = redir_replace_in(root, redir, fd == -1 ? 1 : fd);
+	else if (strcmp(content, ">>") == 0)
+		status = redir_append_in(root, redir, fd == -1 ? 1 : fd);
+	else if (strcmp(content, "<") == 0)
+		status = redir_read(root, redir, fd == -1 ? 0 : fd);
+	else if (strcmp(content, ">&") == 0)
+		status = redir_dup(root, redir, fd == -1 ? 1 : fd);
+	else if (strcmp(content, "<&") == 0)
+		status = redir_dup(root, redir, fd == -1 ? 0 : fd);
+	else if (strcmp(content, "<>") == 0)
+		status = redir_open(root, redir, fd == -1 ? 0 : fd);
+
+	free(to_free);
+
+	if (status != 0)
+		return status;
+
+	return status;
+}
+
+/**
  * @brief			Mimics the redirections > and >|
  *
  * Executes a redirection between two file descriptors.
