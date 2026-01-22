@@ -1,14 +1,14 @@
 #ifndef MY_EXPORT_H
 #define MY_EXPORT_H
 
-#define _POSIX_C_SOURCE  200809L
+#define _POSIX_C_SOURCE 200809L
 
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "../../../utils.h"
 #include "../../../environment/environment.h"
+#include "../../../utils.h"
 
 int my_export(char **command);
 
