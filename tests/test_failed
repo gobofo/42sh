@@ -1,135 +1,6 @@
-Test Failures Log - jeu. 22 janv. 2026 05:02:33 CET
+Test Failures Log - jeu. 22 janv. 2026 10:15:39 CET
 ---------------------------------------------------
-Test: cd dash
-Command: cd /tmp; cd -; pwd
-Expected: /home/lennyt/42/42sh/tests
-/home/lennyt/42/42sh/tests
-Actual:   =================================================================
-==342330==ERROR: AddressSanitizer: heap-use-after-free on address 0x73745d5e0250 at pc 0x77445ed1a3dd bp 0x7ffef6be4720 sp 0x7ffef6be3ec8
-READ of size 2 at 0x73745d5e0250 thread T0
-    #0 0x77445ed1a3dc in strdup /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_interceptors.cpp:591
-    #1 0x5c2d31b3030b in my_cd my_cd/my_cd.c:201
-    #2 0x5c2d31b29c94 in execute_cmd /home/lennyt/42/42sh/src/execution/execution.c:237
-    #3 0x5c2d31b29ae3 in do_redir /home/lennyt/42/42sh/src/execution/execution.c:203
-    #4 0x5c2d31b2a3ad in execute_simple_cmd /home/lennyt/42/42sh/src/execution/execution.c:303
-    #5 0x5c2d31b2d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #6 0x5c2d31b2c67f in execute_pipeline /home/lennyt/42/42sh/src/execution/execution.c:591
-    #7 0x5c2d31b2d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #8 0x5c2d31b2c16e in execute_list /home/lennyt/42/42sh/src/execution/execution.c:540
-    #9 0x5c2d31b2d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #10 0x5c2d31b2d99a in execute_ast /home/lennyt/42/42sh/src/execution/execution.c:768
-    #11 0x5c2d31b28817 in my_42sh /home/lennyt/42/42sh/src/42sh.c:60
-    #12 0x5c2d31b28a60 in main /home/lennyt/42/42sh/src/42sh.c:82
-    #13 0x77445e827634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #14 0x77445e8276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #15 0x5c2d31b28474 in _start (/home/lennyt/42/42sh/src/42sh+0x5474) (BuildId: d65a885dc749f2401e04e7b1f3cb710c47be753b)
-
-0x73745d5e0250 is located 0 bytes inside of 27-byte region [0x73745d5e0250,0x73745d5e026b)
-freed by thread T0 here:
-    #0 0x77445ed1f79d in free /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:51
-    #1 0x5c2d31b3cd54 in hash_map_insert /home/lennyt/42/42sh/src/hash_map/hash_map.c:64
-    #2 0x5c2d31b302ff in my_cd my_cd/my_cd.c:200
-    #3 0x5c2d31b29c94 in execute_cmd /home/lennyt/42/42sh/src/execution/execution.c:237
-    #4 0x5c2d31b29ae3 in do_redir /home/lennyt/42/42sh/src/execution/execution.c:203
-    #5 0x5c2d31b2a3ad in execute_simple_cmd /home/lennyt/42/42sh/src/execution/execution.c:303
-    #6 0x5c2d31b2d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #7 0x5c2d31b2c67f in execute_pipeline /home/lennyt/42/42sh/src/execution/execution.c:591
-    #8 0x5c2d31b2d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #9 0x5c2d31b2c16e in execute_list /home/lennyt/42/42sh/src/execution/execution.c:540
-    #10 0x5c2d31b2d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #11 0x5c2d31b2d99a in execute_ast /home/lennyt/42/42sh/src/execution/execution.c:768
-    #12 0x5c2d31b28817 in my_42sh /home/lennyt/42/42sh/src/42sh.c:60
-    #13 0x5c2d31b28a60 in main /home/lennyt/42/42sh/src/42sh.c:82
-    #14 0x77445e827634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #15 0x77445e8276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #16 0x5c2d31b28474 in _start (/home/lennyt/42/42sh/src/42sh+0x5474) (BuildId: d65a885dc749f2401e04e7b1f3cb710c47be753b)
-
-previously allocated by thread T0 here:
-    #0 0x77445ed1a42a in strdup /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_interceptors.cpp:593
-    #1 0x5c2d31b305a4 in my_cd my_cd/my_cd.c:247
-    #2 0x5c2d31b29c94 in execute_cmd /home/lennyt/42/42sh/src/execution/execution.c:237
-    #3 0x5c2d31b29ae3 in do_redir /home/lennyt/42/42sh/src/execution/execution.c:203
-    #4 0x5c2d31b2a3ad in execute_simple_cmd /home/lennyt/42/42sh/src/execution/execution.c:303
-    #5 0x5c2d31b2d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #6 0x5c2d31b2c67f in execute_pipeline /home/lennyt/42/42sh/src/execution/execution.c:591
-    #7 0x5c2d31b2d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #8 0x5c2d31b2c16e in execute_list /home/lennyt/42/42sh/src/execution/execution.c:540
-    #9 0x5c2d31b2d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #10 0x5c2d31b2d99a in execute_ast /home/lennyt/42/42sh/src/execution/execution.c:768
-    #11 0x5c2d31b28817 in my_42sh /home/lennyt/42/42sh/src/42sh.c:60
-    #12 0x5c2d31b28a60 in main /home/lennyt/42/42sh/src/42sh.c:82
-    #13 0x77445e827634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #14 0x77445e8276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #15 0x5c2d31b28474 in _start (/home/lennyt/42/42sh/src/42sh+0x5474) (BuildId: d65a885dc749f2401e04e7b1f3cb710c47be753b)
-
-SUMMARY: AddressSanitizer: heap-use-after-free my_cd/my_cd.c:201 in my_cd
-Shadow bytes around the buggy address:
-  0x73745d5dff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  0x73745d5e0000: fa fa 00 00 00 fa fa fa fd fd fd fa fa fa 00 00
-  0x73745d5e0080: 00 fa fa fa fd fd fd fd fa fa 00 00 00 fa fa fa
-  0x73745d5e0100: 00 00 00 fa fa fa 00 00 00 fa fa fa 00 00 00 00
-  0x73745d5e0180: fa fa fd fd fd fa fa fa fd fd fd fa fa fa fd fd
-=>0x73745d5e0200: fd fa fa fa fd fd fd fd fa fa[fd]fd fd fd fa fa
-  0x73745d5e0280: fd fd fd fa fa fa fd fd fd fa fa fa 00 00 00 fa
-  0x73745d5e0300: fa fa fd fd fd fa fa fa 00 00 00 fa fa fa 00 00
-  0x73745d5e0380: 00 03 fa fa fd fd fd fa fa fa fa fa fa fa fa fa
-  0x73745d5e0400: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
-  0x73745d5e0480: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
-Shadow byte legend (one shadow byte represents 8 application bytes):
-  Addressable:           00
-  Partially addressable: 01 02 03 04 05 06 07 
-  Heap left redzone:       fa
-  Freed heap region:       fd
-  Stack left redzone:      f1
-  Stack mid redzone:       f2
-  Stack right redzone:     f3
-  Stack after return:      f5
-  Stack use after scope:   f8
-  Global redzone:          f9
-  Global init order:       f6
-  Poisoned by user:        f7
-  Container overflow:      fc
-  Array cookie:            ac
-  Intra object redzone:    bb
-  ASan internal:           fe
-  Left alloca redzone:     ca
-  Right alloca redzone:    cb
-==342330==ABORTING
----------------------------------------------------
-Test: cd without PWD
-Command: unset PWD; cd /tmp; pwd
-Expected: /tmp
-Actual:   AddressSanitizer:DEADLYSIGNAL
-=================================================================
-==342336==ERROR: AddressSanitizer: SEGV on unknown address 0x000000000000 (pc 0x7c32f6d3fd06 bp 0x7ffe2e577ba0 sp 0x7ffe2e577318 T0)
-==342336==The signal is caused by a READ memory access.
-==342336==Hint: address points to the zero page.
-    #0 0x7c32f6d3fd06 in __sanitizer::internal_strlen(char const*) /usr/src/debug/gcc/gcc/libsanitizer/sanitizer_common/sanitizer_libc.cpp:176
-    #1 0x7c32f6d1a16e in strdup /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_interceptors.cpp:589
-    #2 0x631bef7b55a4 in my_cd my_cd/my_cd.c:247
-    #3 0x631bef7aec94 in execute_cmd /home/lennyt/42/42sh/src/execution/execution.c:237
-    #4 0x631bef7aeae3 in do_redir /home/lennyt/42/42sh/src/execution/execution.c:203
-    #5 0x631bef7af3ad in execute_simple_cmd /home/lennyt/42/42sh/src/execution/execution.c:303
-    #6 0x631bef7b2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #7 0x631bef7b167f in execute_pipeline /home/lennyt/42/42sh/src/execution/execution.c:591
-    #8 0x631bef7b2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #9 0x631bef7b116e in execute_list /home/lennyt/42/42sh/src/execution/execution.c:540
-    #10 0x631bef7b2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #11 0x631bef7b299a in execute_ast /home/lennyt/42/42sh/src/execution/execution.c:768
-    #12 0x631bef7ad817 in my_42sh /home/lennyt/42/42sh/src/42sh.c:60
-    #13 0x631bef7ada60 in main /home/lennyt/42/42sh/src/42sh.c:82
-    #14 0x7c32f6827634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #15 0x7c32f68276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #16 0x631bef7ad474 in _start (/home/lennyt/42/42sh/src/42sh+0x5474) (BuildId: d65a885dc749f2401e04e7b1f3cb710c47be753b)
-
-==342336==Register values:
-rax = 0x0000000000000000  rbx = 0x0000000000000000  rcx = 0x0000000000000000  rdx = 0x00007982f55e01a0  
-rdi = 0x0000000000000000  rsi = 0x0000000000000003  rbp = 0x00007ffe2e577ba0  rsp = 0x00007ffe2e577318  
- r8 = 0x00007852f55e0620   r9 = 0x000000000001fd69  r10 = 0x0000000000000000  r11 = 0x0000000000000202  
-r12 = 0x00007832f4200080  r13 = 0x00000f065e840010  r14 = 0x00007892f55e0080  r15 = 0x00007ffe2e577ea0  
-AddressSanitizer can not provide additional info.
-SUMMARY: AddressSanitizer: SEGV my_cd/my_cd.c:247 in my_cd
-==342336==ABORTING
+### UNIT TEST FAILURES ###
 ---------------------------------------------------
 Test: function argc
 Command: f() { echo $#; }; f a b c
@@ -146,87 +17,87 @@ Command: f() { f() { echo v2; }; echo v1; }; f; f
 Expected: v1
 v2
 Actual:   =================================================================
-==342824==ERROR: AddressSanitizer: heap-use-after-free on address 0x73dbadde05e8 at pc 0x5d27db68c1a9 bp 0x7fff67640f70 sp 0x7fff67640f60
-READ of size 4 at 0x73dbadde05e8 thread T0
-    #0 0x5d27db68c1a8 in execute_list /home/lennyt/42/42sh/src/execution/execution.c:539
-    #1 0x5d27db68d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #2 0x5d27db689af7 in do_redir /home/lennyt/42/42sh/src/execution/execution.c:208
-    #3 0x5d27db68d37e in execute_function /home/lennyt/42/42sh/src/execution/execution.c:694
-    #4 0x5d27db68a006 in execute_cmd /home/lennyt/42/42sh/src/execution/execution.c:259
-    #5 0x5d27db689ae3 in do_redir /home/lennyt/42/42sh/src/execution/execution.c:203
-    #6 0x5d27db68a3ad in execute_simple_cmd /home/lennyt/42/42sh/src/execution/execution.c:303
-    #7 0x5d27db68d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #8 0x5d27db68c67f in execute_pipeline /home/lennyt/42/42sh/src/execution/execution.c:591
-    #9 0x5d27db68d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #10 0x5d27db68c16e in execute_list /home/lennyt/42/42sh/src/execution/execution.c:540
-    #11 0x5d27db68d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #12 0x5d27db68d99a in execute_ast /home/lennyt/42/42sh/src/execution/execution.c:768
-    #13 0x5d27db688817 in my_42sh /home/lennyt/42/42sh/src/42sh.c:60
-    #14 0x5d27db688a60 in main /home/lennyt/42/42sh/src/42sh.c:82
-    #15 0x779baf027634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #16 0x779baf0276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #17 0x5d27db688474 in _start (/home/lennyt/42/42sh/src/42sh+0x5474) (BuildId: d65a885dc749f2401e04e7b1f3cb710c47be753b)
+==477669==ERROR: AddressSanitizer: heap-use-after-free on address 0x7c14365e05e8 at pc 0x5631598391a9 bp 0x7fff10cfa340 sp 0x7fff10cfa330
+READ of size 4 at 0x7c14365e05e8 thread T0
+    #0 0x5631598391a8 in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:539
+    #1 0x56315983a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #2 0x563159836af7 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:208
+    #3 0x56315983a37e in execute_function /home/yann/Desktop/42sh/src/execution/execution.c:694
+    #4 0x563159837006 in execute_cmd /home/yann/Desktop/42sh/src/execution/execution.c:259
+    #5 0x563159836ae3 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:203
+    #6 0x5631598373ad in execute_simple_cmd /home/yann/Desktop/42sh/src/execution/execution.c:303
+    #7 0x56315983a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #8 0x56315983967f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #9 0x56315983a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #10 0x56315983916e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #11 0x56315983a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #12 0x56315983a99a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
+    #13 0x563159835817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
+    #14 0x563159835a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
+    #15 0x7fd437827634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #16 0x7fd4378276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #17 0x563159835474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
 
-0x73dbadde05e8 is located 24 bytes inside of 40-byte region [0x73dbadde05d0,0x73dbadde05f8)
+0x7c14365e05e8 is located 24 bytes inside of 40-byte region [0x7c14365e05d0,0x7c14365e05f8)
 freed by thread T0 here:
-    #0 0x779baf51f79d in free /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:51
-    #1 0x5d27db694c21 in destroy_AST /home/lennyt/42/42sh/src/ast/ast.c:73
-    #2 0x5d27db694b64 in destroy_AST /home/lennyt/42/42sh/src/ast/ast.c:69
-    #3 0x5d27db694c3e in destroy_AST_void /home/lennyt/42/42sh/src/ast/ast.c:78
-    #4 0x5d27db69cd54 in hash_map_insert /home/lennyt/42/42sh/src/hash_map/hash_map.c:64
-    #5 0x5d27db68cf09 in create_function /home/lennyt/42/42sh/src/execution/execution.c:670
-    #6 0x5d27db68d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #7 0x5d27db68c67f in execute_pipeline /home/lennyt/42/42sh/src/execution/execution.c:591
-    #8 0x5d27db68d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #9 0x5d27db68c16e in execute_list /home/lennyt/42/42sh/src/execution/execution.c:540
-    #10 0x5d27db68d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #11 0x5d27db689af7 in do_redir /home/lennyt/42/42sh/src/execution/execution.c:208
-    #12 0x5d27db68d37e in execute_function /home/lennyt/42/42sh/src/execution/execution.c:694
-    #13 0x5d27db68a006 in execute_cmd /home/lennyt/42/42sh/src/execution/execution.c:259
-    #14 0x5d27db689ae3 in do_redir /home/lennyt/42/42sh/src/execution/execution.c:203
-    #15 0x5d27db68a3ad in execute_simple_cmd /home/lennyt/42/42sh/src/execution/execution.c:303
-    #16 0x5d27db68d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #17 0x5d27db68c67f in execute_pipeline /home/lennyt/42/42sh/src/execution/execution.c:591
-    #18 0x5d27db68d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #19 0x5d27db68c16e in execute_list /home/lennyt/42/42sh/src/execution/execution.c:540
-    #20 0x5d27db68d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #21 0x5d27db68d99a in execute_ast /home/lennyt/42/42sh/src/execution/execution.c:768
-    #22 0x5d27db688817 in my_42sh /home/lennyt/42/42sh/src/42sh.c:60
-    #23 0x5d27db688a60 in main /home/lennyt/42/42sh/src/42sh.c:82
-    #24 0x779baf027634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #25 0x779baf0276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #26 0x5d27db688474 in _start (/home/lennyt/42/42sh/src/42sh+0x5474) (BuildId: d65a885dc749f2401e04e7b1f3cb710c47be753b)
+    #0 0x7fd437d1f79d in free /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:51
+    #1 0x563159841cac in destroy_AST /home/yann/Desktop/42sh/src/ast/ast.c:73
+    #2 0x563159841bef in destroy_AST /home/yann/Desktop/42sh/src/ast/ast.c:69
+    #3 0x563159841cc9 in destroy_AST_void /home/yann/Desktop/42sh/src/ast/ast.c:78
+    #4 0x563159849ddf in hash_map_insert /home/yann/Desktop/42sh/src/hash_map/hash_map.c:64
+    #5 0x563159839f09 in create_function /home/yann/Desktop/42sh/src/execution/execution.c:670
+    #6 0x56315983a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #7 0x56315983967f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #8 0x56315983a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #9 0x56315983916e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #10 0x56315983a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #11 0x563159836af7 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:208
+    #12 0x56315983a37e in execute_function /home/yann/Desktop/42sh/src/execution/execution.c:694
+    #13 0x563159837006 in execute_cmd /home/yann/Desktop/42sh/src/execution/execution.c:259
+    #14 0x563159836ae3 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:203
+    #15 0x5631598373ad in execute_simple_cmd /home/yann/Desktop/42sh/src/execution/execution.c:303
+    #16 0x56315983a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #17 0x56315983967f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #18 0x56315983a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #19 0x56315983916e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #20 0x56315983a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #21 0x56315983a99a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
+    #22 0x563159835817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
+    #23 0x563159835a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
+    #24 0x7fd437827634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #25 0x7fd4378276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #26 0x563159835474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
 
 previously allocated by thread T0 here:
-    #0 0x779baf520cb5 in malloc /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:67
-    #1 0x5d27db6948b1 in dup_ast /home/lennyt/42/42sh/src/ast/ast.c:49
-    #2 0x5d27db694a6b in dup_ast /home/lennyt/42/42sh/src/ast/ast.c:58
-    #3 0x5d27db68ce74 in create_function /home/lennyt/42/42sh/src/execution/execution.c:670
-    #4 0x5d27db68d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #5 0x5d27db68c67f in execute_pipeline /home/lennyt/42/42sh/src/execution/execution.c:591
-    #6 0x5d27db68d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #7 0x5d27db68c16e in execute_list /home/lennyt/42/42sh/src/execution/execution.c:540
-    #8 0x5d27db68d813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #9 0x5d27db68d99a in execute_ast /home/lennyt/42/42sh/src/execution/execution.c:768
-    #10 0x5d27db688817 in my_42sh /home/lennyt/42/42sh/src/42sh.c:60
-    #11 0x5d27db688a60 in main /home/lennyt/42/42sh/src/42sh.c:82
-    #12 0x779baf027634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #13 0x779baf0276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #14 0x5d27db688474 in _start (/home/lennyt/42/42sh/src/42sh+0x5474) (BuildId: d65a885dc749f2401e04e7b1f3cb710c47be753b)
+    #0 0x7fd437d20cb5 in malloc /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x56315984193c in dup_ast /home/yann/Desktop/42sh/src/ast/ast.c:49
+    #2 0x563159841af6 in dup_ast /home/yann/Desktop/42sh/src/ast/ast.c:58
+    #3 0x563159839e74 in create_function /home/yann/Desktop/42sh/src/execution/execution.c:670
+    #4 0x56315983a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #5 0x56315983967f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #6 0x56315983a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #7 0x56315983916e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #8 0x56315983a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #9 0x56315983a99a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
+    #10 0x563159835817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
+    #11 0x563159835a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
+    #12 0x7fd437827634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #13 0x7fd4378276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #14 0x563159835474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
 
-SUMMARY: AddressSanitizer: heap-use-after-free /home/lennyt/42/42sh/src/execution/execution.c:539 in execute_list
+SUMMARY: AddressSanitizer: heap-use-after-free /home/yann/Desktop/42sh/src/execution/execution.c:539 in execute_list
 Shadow bytes around the buggy address:
-  0x73dbadde0300: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x73dbadde0380: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x73dbadde0400: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x73dbadde0480: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x73dbadde0500: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-=>0x73dbadde0580: fa fa fd fd fd fd fd fa fa fa fd fd fd[fd]fd fa
-  0x73dbadde0600: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x73dbadde0680: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x73dbadde0700: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x73dbadde0780: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x73dbadde0800: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7c14365e0300: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7c14365e0380: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7c14365e0400: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7c14365e0480: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7c14365e0500: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+=>0x7c14365e0580: fa fa fd fd fd fd fd fa fa fa fd fd fd[fd]fd fa
+  0x7c14365e0600: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7c14365e0680: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7c14365e0700: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7c14365e0780: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7c14365e0800: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
 Shadow byte legend (one shadow byte represents 8 application bytes):
   Addressable:           00
   Partially addressable: 01 02 03 04 05 06 07 
@@ -246,7 +117,7 @@ Shadow byte legend (one shadow byte represents 8 application bytes):
   ASan internal:           fe
   Left alloca redzone:     ca
   Right alloca redzone:    cb
-==342824==ABORTING
+==477669==ABORTING
 ---------------------------------------------------
 Test: function args with spaces
 Command: f() { echo $*; }; f 'a b' c
@@ -258,87 +129,87 @@ Command: f() { echo start; f() { echo nested; }; }; f
 Expected: start
 Actual:   start
 =================================================================
-==342876==ERROR: AddressSanitizer: heap-use-after-free on address 0x77a2d8fe0528 at pc 0x5c611a2c11a9 bp 0x7fff1f96f790 sp 0x7fff1f96f780
-READ of size 4 at 0x77a2d8fe0528 thread T0
-    #0 0x5c611a2c11a8 in execute_list /home/lennyt/42/42sh/src/execution/execution.c:539
-    #1 0x5c611a2c2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #2 0x5c611a2beaf7 in do_redir /home/lennyt/42/42sh/src/execution/execution.c:208
-    #3 0x5c611a2c237e in execute_function /home/lennyt/42/42sh/src/execution/execution.c:694
-    #4 0x5c611a2bf006 in execute_cmd /home/lennyt/42/42sh/src/execution/execution.c:259
-    #5 0x5c611a2beae3 in do_redir /home/lennyt/42/42sh/src/execution/execution.c:203
-    #6 0x5c611a2bf3ad in execute_simple_cmd /home/lennyt/42/42sh/src/execution/execution.c:303
-    #7 0x5c611a2c2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #8 0x5c611a2c167f in execute_pipeline /home/lennyt/42/42sh/src/execution/execution.c:591
-    #9 0x5c611a2c2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #10 0x5c611a2c116e in execute_list /home/lennyt/42/42sh/src/execution/execution.c:540
-    #11 0x5c611a2c2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #12 0x5c611a2c299a in execute_ast /home/lennyt/42/42sh/src/execution/execution.c:768
-    #13 0x5c611a2bd817 in my_42sh /home/lennyt/42/42sh/src/42sh.c:60
-    #14 0x5c611a2bda60 in main /home/lennyt/42/42sh/src/42sh.c:82
-    #15 0x7b62da227634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #16 0x7b62da2276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #17 0x5c611a2bd474 in _start (/home/lennyt/42/42sh/src/42sh+0x5474) (BuildId: d65a885dc749f2401e04e7b1f3cb710c47be753b)
+==477721==ERROR: AddressSanitizer: heap-use-after-free on address 0x7bb5923e0528 at pc 0x55e6b17791a9 bp 0x7ffde0584f00 sp 0x7ffde0584ef0
+READ of size 4 at 0x7bb5923e0528 thread T0
+    #0 0x55e6b17791a8 in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:539
+    #1 0x55e6b177a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #2 0x55e6b1776af7 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:208
+    #3 0x55e6b177a37e in execute_function /home/yann/Desktop/42sh/src/execution/execution.c:694
+    #4 0x55e6b1777006 in execute_cmd /home/yann/Desktop/42sh/src/execution/execution.c:259
+    #5 0x55e6b1776ae3 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:203
+    #6 0x55e6b17773ad in execute_simple_cmd /home/yann/Desktop/42sh/src/execution/execution.c:303
+    #7 0x55e6b177a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #8 0x55e6b177967f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #9 0x55e6b177a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #10 0x55e6b177916e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #11 0x55e6b177a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #12 0x55e6b177a99a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
+    #13 0x55e6b1775817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
+    #14 0x55e6b1775a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
+    #15 0x7f7593627634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #16 0x7f75936276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #17 0x55e6b1775474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
 
-0x77a2d8fe0528 is located 24 bytes inside of 40-byte region [0x77a2d8fe0510,0x77a2d8fe0538)
+0x7bb5923e0528 is located 24 bytes inside of 40-byte region [0x7bb5923e0510,0x7bb5923e0538)
 freed by thread T0 here:
-    #0 0x7b62da71f79d in free /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:51
-    #1 0x5c611a2c9c21 in destroy_AST /home/lennyt/42/42sh/src/ast/ast.c:73
-    #2 0x5c611a2c9b64 in destroy_AST /home/lennyt/42/42sh/src/ast/ast.c:69
-    #3 0x5c611a2c9c3e in destroy_AST_void /home/lennyt/42/42sh/src/ast/ast.c:78
-    #4 0x5c611a2d1d54 in hash_map_insert /home/lennyt/42/42sh/src/hash_map/hash_map.c:64
-    #5 0x5c611a2c1f09 in create_function /home/lennyt/42/42sh/src/execution/execution.c:670
-    #6 0x5c611a2c2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #7 0x5c611a2c167f in execute_pipeline /home/lennyt/42/42sh/src/execution/execution.c:591
-    #8 0x5c611a2c2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #9 0x5c611a2c116e in execute_list /home/lennyt/42/42sh/src/execution/execution.c:540
-    #10 0x5c611a2c2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #11 0x5c611a2beaf7 in do_redir /home/lennyt/42/42sh/src/execution/execution.c:208
-    #12 0x5c611a2c237e in execute_function /home/lennyt/42/42sh/src/execution/execution.c:694
-    #13 0x5c611a2bf006 in execute_cmd /home/lennyt/42/42sh/src/execution/execution.c:259
-    #14 0x5c611a2beae3 in do_redir /home/lennyt/42/42sh/src/execution/execution.c:203
-    #15 0x5c611a2bf3ad in execute_simple_cmd /home/lennyt/42/42sh/src/execution/execution.c:303
-    #16 0x5c611a2c2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #17 0x5c611a2c167f in execute_pipeline /home/lennyt/42/42sh/src/execution/execution.c:591
-    #18 0x5c611a2c2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #19 0x5c611a2c116e in execute_list /home/lennyt/42/42sh/src/execution/execution.c:540
-    #20 0x5c611a2c2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #21 0x5c611a2c299a in execute_ast /home/lennyt/42/42sh/src/execution/execution.c:768
-    #22 0x5c611a2bd817 in my_42sh /home/lennyt/42/42sh/src/42sh.c:60
-    #23 0x5c611a2bda60 in main /home/lennyt/42/42sh/src/42sh.c:82
-    #24 0x7b62da227634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #25 0x7b62da2276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #26 0x5c611a2bd474 in _start (/home/lennyt/42/42sh/src/42sh+0x5474) (BuildId: d65a885dc749f2401e04e7b1f3cb710c47be753b)
+    #0 0x7f7593b1f79d in free /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:51
+    #1 0x55e6b1781cac in destroy_AST /home/yann/Desktop/42sh/src/ast/ast.c:73
+    #2 0x55e6b1781bef in destroy_AST /home/yann/Desktop/42sh/src/ast/ast.c:69
+    #3 0x55e6b1781cc9 in destroy_AST_void /home/yann/Desktop/42sh/src/ast/ast.c:78
+    #4 0x55e6b1789ddf in hash_map_insert /home/yann/Desktop/42sh/src/hash_map/hash_map.c:64
+    #5 0x55e6b1779f09 in create_function /home/yann/Desktop/42sh/src/execution/execution.c:670
+    #6 0x55e6b177a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #7 0x55e6b177967f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #8 0x55e6b177a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #9 0x55e6b177916e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #10 0x55e6b177a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #11 0x55e6b1776af7 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:208
+    #12 0x55e6b177a37e in execute_function /home/yann/Desktop/42sh/src/execution/execution.c:694
+    #13 0x55e6b1777006 in execute_cmd /home/yann/Desktop/42sh/src/execution/execution.c:259
+    #14 0x55e6b1776ae3 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:203
+    #15 0x55e6b17773ad in execute_simple_cmd /home/yann/Desktop/42sh/src/execution/execution.c:303
+    #16 0x55e6b177a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #17 0x55e6b177967f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #18 0x55e6b177a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #19 0x55e6b177916e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #20 0x55e6b177a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #21 0x55e6b177a99a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
+    #22 0x55e6b1775817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
+    #23 0x55e6b1775a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
+    #24 0x7f7593627634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #25 0x7f75936276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #26 0x55e6b1775474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
 
 previously allocated by thread T0 here:
-    #0 0x7b62da720cb5 in malloc /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:67
-    #1 0x5c611a2c98b1 in dup_ast /home/lennyt/42/42sh/src/ast/ast.c:49
-    #2 0x5c611a2c9a6b in dup_ast /home/lennyt/42/42sh/src/ast/ast.c:58
-    #3 0x5c611a2c1e74 in create_function /home/lennyt/42/42sh/src/execution/execution.c:670
-    #4 0x5c611a2c2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #5 0x5c611a2c167f in execute_pipeline /home/lennyt/42/42sh/src/execution/execution.c:591
-    #6 0x5c611a2c2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #7 0x5c611a2c116e in execute_list /home/lennyt/42/42sh/src/execution/execution.c:540
-    #8 0x5c611a2c2813 in execute_node /home/lennyt/42/42sh/src/execution/execution.c:750
-    #9 0x5c611a2c299a in execute_ast /home/lennyt/42/42sh/src/execution/execution.c:768
-    #10 0x5c611a2bd817 in my_42sh /home/lennyt/42/42sh/src/42sh.c:60
-    #11 0x5c611a2bda60 in main /home/lennyt/42/42sh/src/42sh.c:82
-    #12 0x7b62da227634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #13 0x7b62da2276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #14 0x5c611a2bd474 in _start (/home/lennyt/42/42sh/src/42sh+0x5474) (BuildId: d65a885dc749f2401e04e7b1f3cb710c47be753b)
+    #0 0x7f7593b20cb5 in malloc /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x55e6b178193c in dup_ast /home/yann/Desktop/42sh/src/ast/ast.c:49
+    #2 0x55e6b1781af6 in dup_ast /home/yann/Desktop/42sh/src/ast/ast.c:58
+    #3 0x55e6b1779e74 in create_function /home/yann/Desktop/42sh/src/execution/execution.c:670
+    #4 0x55e6b177a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #5 0x55e6b177967f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #6 0x55e6b177a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #7 0x55e6b177916e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #8 0x55e6b177a813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #9 0x55e6b177a99a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
+    #10 0x55e6b1775817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
+    #11 0x55e6b1775a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
+    #12 0x7f7593627634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #13 0x7f75936276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #14 0x55e6b1775474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
 
-SUMMARY: AddressSanitizer: heap-use-after-free /home/lennyt/42/42sh/src/execution/execution.c:539 in execute_list
+SUMMARY: AddressSanitizer: heap-use-after-free /home/yann/Desktop/42sh/src/execution/execution.c:539 in execute_list
 Shadow bytes around the buggy address:
-  0x77a2d8fe0280: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x77a2d8fe0300: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x77a2d8fe0380: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x77a2d8fe0400: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x77a2d8fe0480: fa fa 00 00 00 00 00 fa fa fa fd fd fd fd fd fa
-=>0x77a2d8fe0500: fa fa fd fd fd[fd]fd fa fa fa fd fd fd fd fd fa
-  0x77a2d8fe0580: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x77a2d8fe0600: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x77a2d8fe0680: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x77a2d8fe0700: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x77a2d8fe0780: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7bb5923e0280: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7bb5923e0300: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7bb5923e0380: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7bb5923e0400: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7bb5923e0480: fa fa 00 00 00 00 00 fa fa fa fd fd fd fd fd fa
+=>0x7bb5923e0500: fa fa fd fd fd[fd]fd fa fa fa fd fd fd fd fd fa
+  0x7bb5923e0580: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7bb5923e0600: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7bb5923e0680: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7bb5923e0700: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7bb5923e0780: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
 Shadow byte legend (one shadow byte represents 8 application bytes):
   Addressable:           00
   Partially addressable: 01 02 03 04 05 06 07 
@@ -358,7 +229,7 @@ Shadow byte legend (one shadow byte represents 8 application bytes):
   ASan internal:           fe
   Left alloca redzone:     ca
   Right alloca redzone:    cb
-==342876==ABORTING
+==477721==ABORTING
 ---------------------------------------------------
 Test: function capture output
 Command: f() { echo a; }; var=$(f); echo $var
@@ -413,7 +284,7 @@ Actual:   Error: Parsing
 ---------------------------------------------------
 Test: command sub cat file
 Command: echo $(cat /etc/hostname)
-Expected: lenny-garuru
+Expected: yann-xps15
 Actual:   Error: Parsing
 ---------------------------------------------------
 Test: command sub spaces
