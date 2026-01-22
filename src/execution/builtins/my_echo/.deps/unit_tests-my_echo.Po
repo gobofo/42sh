@@ -1,6 +1,7 @@
-../../src/execution/my_echo/unit_tests-my_echo.o: \
- ../../src/execution/my_echo/my_echo.c /usr/include/stdc-predef.h \
- ../../src/execution/my_echo/my_echo.h /usr/include/stdio.h \
+../../src/execution/builtins/my_echo/unit_tests-my_echo.o: \
+ ../../src/execution/builtins/my_echo/my_echo.c \
+ /usr/include/stdc-predef.h \
+ ../../src/execution/builtins/my_echo/my_echo.h /usr/include/stdio.h \
  /usr/include/bits/libc-header-start.h /usr/include/features.h \
  /usr/include/features-time64.h /usr/include/bits/wordsize.h \
  /usr/include/bits/timesize.h /usr/include/sys/cdefs.h \
@@ -16,7 +17,7 @@
  /usr/include/bits/stdio_lim.h /usr/include/bits/floatn.h \
  /usr/include/bits/floatn-common.h /usr/include/string.h
 /usr/include/stdc-predef.h:
-../../src/execution/my_echo/my_echo.h:
+../../src/execution/builtins/my_echo/my_echo.h:
 /usr/include/stdio.h:
 /usr/include/bits/libc-header-start.h:
 /usr/include/features.h:

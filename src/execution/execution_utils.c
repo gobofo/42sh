@@ -1,6 +1,3 @@
-#define _POSIX_C_SOURCE 200809L
-#include <string.h>
-
 #include "execution_utils.h"
 
 extern struct env *env;
@@ -40,4 +37,79 @@ int variable_assignation(struct AST *root)
 	}
 
 	return 0;
+}
+
+
+/**
+ * @brief 		Creates the command with children from a node
+ *
+ * For a given node of the AST tree of type AST_SIMPLE_CMD, creates a string
+ * from where the children of the node are values, so a valid command
+ *
+ * @param root	The parent root with all children beeing the commands
+ *
+ * @return		The command as a string
+ */
+
+char **create_command(struct AST *root)
+{
+	// Is free by caller
+	char **command = calloc(root->count_children + 1, sizeof(char *));
+
+	size_t idx = 0;
+
+	for (int i = 0; i < root->count_children; i++)
+	{
+		if (root->children[i]->rule == AST_VALUE)
+		{
+			char **expanded_values = expand(root->children[i]->content);
+
+			for (int j = 0; expanded_values[j] != NULL; j++)
+			{
+				if (expanded_values[j][0] != '\0'
+						|| strcmp(root->children[i]->content, "''") == 0
+						|| strcmp(root->children[i]->content, "\"\"") == 0)
+				{
+					command = realloc(command, sizeof(char *) * (idx + 2));
+					command[idx++] = expanded_values[j];
+					command[idx] = NULL;
+				}
+				else
+				{
+					free(expanded_values[j]);
+				}
+			}
+
+			free(expanded_values);
+		}
+	}
+
+	return command;
+}
+
+/**
+ * @brief 		Creates a list of AST_REDIR from a command
+ *
+ * For a given node of the AST tree of type AST_SIMPLE_CMD, creates a list of
+ * all redirections to execute
+ *
+ * @param root	The parent root with all children beeing the commands
+ *
+ * @return		An array of AST_REDIR nodes
+ */
+
+struct AST **create_redir(struct AST *root)
+{
+	// Free by the caller
+	struct AST **redir = calloc(root->count_children + 1, sizeof(struct AST *));
+
+	size_t idx = 0;
+
+	for (int i = 0; i < root->count_children; i++)
+	{
+		if (root->children[i]->rule == AST_REDIR)
+			redir[idx++] = root->children[i];
+	}
+
+	return redir;
 }

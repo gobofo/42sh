@@ -1,10 +1,11 @@
-my_continue/libexecution_a-my_continue.o: my_continue/my_continue.c \
- /usr/include/stdc-predef.h my_continue/my_continue.h \
- /usr/include/stdio.h /usr/include/bits/libc-header-start.h \
- /usr/include/features.h /usr/include/features-time64.h \
- /usr/include/bits/wordsize.h /usr/include/bits/timesize.h \
- /usr/include/sys/cdefs.h /usr/include/bits/long-double.h \
- /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h \
+builtins/my_continue/libexecution_a-my_continue.o: \
+ builtins/my_continue/my_continue.c /usr/include/stdc-predef.h \
+ builtins/my_continue/my_continue.h /usr/include/stdio.h \
+ /usr/include/bits/libc-header-start.h /usr/include/features.h \
+ /usr/include/features-time64.h /usr/include/bits/wordsize.h \
+ /usr/include/bits/timesize.h /usr/include/sys/cdefs.h \
+ /usr/include/bits/long-double.h /usr/include/gnu/stubs.h \
+ /usr/include/gnu/stubs-64.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stddef.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdarg.h \
  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
@@ -14,12 +15,12 @@ my_continue/libexecution_a-my_continue.o: my_continue/my_continue.c \
  /usr/include/bits/types/FILE.h /usr/include/bits/types/struct_FILE.h \
  /usr/include/bits/stdio_lim.h /usr/include/bits/floatn.h \
  /usr/include/bits/floatn-common.h /usr/include/string.h \
- my_continue/../../environment/environment.h /usr/include/stdlib.h \
- /usr/include/bits/stdlib-float.h \
- my_continue/../../environment/../hash_map/hash_map.h \
+ builtins/my_continue/../../../environment/environment.h \
+ /usr/include/stdlib.h /usr/include/bits/stdlib-float.h \
+ builtins/my_continue/../../../environment/../hash_map/hash_map.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdbool.h
 /usr/include/stdc-predef.h:
-my_continue/my_continue.h:
+builtins/my_continue/my_continue.h:
 /usr/include/stdio.h:
 /usr/include/bits/libc-header-start.h:
 /usr/include/features.h:
@@ -45,8 +46,8 @@ my_continue/my_continue.h:
 /usr/include/bits/floatn.h:
 /usr/include/bits/floatn-common.h:
 /usr/include/string.h:
-my_continue/../../environment/environment.h:
+builtins/my_continue/../../../environment/environment.h:
 /usr/include/stdlib.h:
 /usr/include/bits/stdlib-float.h:
-my_continue/../../environment/../hash_map/hash_map.h:
+builtins/my_continue/../../../environment/../hash_map/hash_map.h:
 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdbool.h:

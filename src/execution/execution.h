@@ -15,7 +15,7 @@
 #include "../parser/parser.h"
 #include "../42sh.h"
 
-#include "execution_utils.c"
+#include "execution_utils.h"
 
 #include "execute_command/execute_command.h"
 
