@@ -13,7 +13,10 @@
 #include "../expansion/expansion.h"
 #include "../hash_map/hash_map.h"
 #include "../parser/parser.h"
+#include "../42sh.h"
+
 #include "execute_command/execute_command.h"
+
 #include "builtins/my_break/my_break.h"
 #include "builtins/my_cd/my_cd.h"
 #include "builtins/my_continue/my_continue.h"
@@ -25,7 +28,7 @@
 #include "builtins/my_unset/my_unset.h"
 #include "builtins/my_export/my_export.h"
 #include "builtins/my_dot/my_dot.h"
-#include "../42sh.h"
+#include "builtins/operators/operators.h"
 
 struct builtin
 {
