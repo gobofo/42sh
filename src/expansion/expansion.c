@@ -114,7 +114,7 @@ static int is_special_variable(struct expansion_context *context,
 			{
 				fputs(env->argv[j], context->stream);
 
-				if (j < env->argc - 1)
+				if (j < env->argc)
 					fputc(' ', context->stream);
 			}
 		}
