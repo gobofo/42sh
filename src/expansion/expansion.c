@@ -312,8 +312,16 @@ char **expand(char *str)
 				}
 			}
 
+			if (str[i] == '\0')
+			{
+				fprintf(stderr, "Error: Expected closing quote\n");
+				fclose(context.stream);
+				free(buffer);
+			}
+
             if (str[i] == '"')
                 i++;
+
         }
         else if (str[i] == '$')
             expand_variable(&context, str, &i);
