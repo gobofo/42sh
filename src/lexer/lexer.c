@@ -144,11 +144,12 @@ static void handle_quotes(FILE *file, FILE **stream, int *c)
 
     fputc(*c, *stream);
 
+	// While we not find the corresponding closing quote we add each char
+	// between the quotes in the stream
     while ((*c = fgetc(file)) != EOF && *c != open_quote)
     {
         // In double quotes, some characters can be escaped with the \ so when
         // one is found we have to take a particular action
-
         if (*c == '\\' && open_quote == '"')
         {
             int next = fgetc(file);
@@ -170,6 +171,8 @@ static void handle_quotes(FILE *file, FILE **stream, int *c)
 
         fputc(*c, *stream);
 
+		// If we find the closing quote then we indicate it by setting the
+		// value of the char to something we know is not possible
         if (*c == open_quote)
         {
             *c = -2;
@@ -413,6 +416,7 @@ struct token *read_input(FILE *file)
 
         if (c == '\'' || c == '"')
         {
+
             handle_quotes(file, &stream, &c);
 
             if (c == -2)
