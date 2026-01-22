@@ -9,7 +9,8 @@ libexecution_a_SOURCES = execution.c execution.h \
 						 my_break/my_break.c my_break/my_break.h \
 						 my_continue/my_continue.c my_continue/my_continue.h \
 						 my_unset/my_unset.c my_unset/my_unset.h \
-						 my_export/my_export.c my_export/my_export.h
+						 my_export/my_export.c my_export/my_export.h\
+						 my_dot/my_dot.c my_dot/my_dot.h
 
 libexecution_a_CPPFLAGS = -I$(top_srcdir)/src
 
