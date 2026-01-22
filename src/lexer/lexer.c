@@ -332,7 +332,7 @@ struct token *read_input(FILE *file)
         }
 
         // Same as before but those charcacters need to be safed as tokens
-        if (c == ';' || c == '\n' || c == '!' || c == '(' || c == ')')
+        if (c == ';' || c == '\n' || c == '!')
         {
             // Sync the stream
             fflush(stream);
@@ -348,6 +348,36 @@ struct token *read_input(FILE *file)
 
             return flush_stream(stream, &buffer);
         }
+
+		if (c == '(' || c == ')')
+		{
+			fflush(stream);
+
+			if (c == '(' && size > 0 && buffer[size - 1] == '$')
+			{
+				int nesting = 1;
+				fputc(c, stream);
+
+				while (nesting > 0 && (c = fgetc(file)) != EOF)
+				{
+					if (c == '(')
+						nesting++;
+					if (c == ')')
+						nesting--;
+
+					fputc(c, stream);
+				}
+
+				return flush_stream(stream, &buffer);
+			}
+
+			if (size > 0)
+				return empty_stream(file, &stream, &buffer, c);
+
+			fputc(c, stream);
+
+			return flush_stream(stream, &buffer);
+		}
 
 		if (c == '{' || c == '}')
 		{
