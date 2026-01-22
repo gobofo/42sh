@@ -14,14 +14,11 @@ int do_redir(struct AST *root, struct AST **redir);
 // #   UTILS   #
 // #############
 
-
-
 int my_return(char **command)
 {
 	env->should_return = 1;
 	return atoi(command[0]);
 }
-
 
 /**
  * @brief		Creates a new entry in the hash_map of the environment
@@ -232,9 +229,15 @@ int execute_cmd(char **command)
 	else if (strcmp(command[0], "false") == 0)
 		status = 1;
 	else if (strcmp(command[0], "echo") == 0)
+	{
 		status = my_echo(command + 1);
+		fflush(stdout);
+	}
 	else if (strcmp(command[0], "cd") == 0)
+	{
 		status = my_cd(command + 1);
+		fflush(stdout);	
+	}
 	else if (strcmp(command[0], "exit") == 0)
 	{
 		status = my_exit(command + 1);
@@ -300,7 +303,22 @@ int execute_simple_cmd(struct AST *root)
 	}
 
 	struct AST **redir = create_redir(root);
+
+	int saved_stdout = dup(STDOUT_FILENO);
+    int saved_stderr = dup(STDERR_FILENO);
+    int saved_stdin  = dup(STDIN_FILENO);
+
 	int status = do_redir(root, redir);
+
+	// 3. RESTORE the shell's FDs immediately
+    dup2(saved_stdout, STDOUT_FILENO);
+    dup2(saved_stderr, STDERR_FILENO);
+    dup2(saved_stdin, STDIN_FILENO);
+
+    // 4. Close the temporary copies to avoid leaking FDs
+    close(saved_stdout);
+    close(saved_stderr);
+    close(saved_stdin);
 
 	free(redir);
 
