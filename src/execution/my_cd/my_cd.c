@@ -242,7 +242,6 @@ int my_cd(char **command)
 
     char *pwd = hash_map_get(env->variables, "PWD");
 
-
 	// Update the PWD and OLDPWD
 	if (pwd != NULL)
 		hash_map_insert(env->variables, "OLDPWD", strdup(pwd), free); 
