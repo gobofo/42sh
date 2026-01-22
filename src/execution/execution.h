@@ -27,6 +27,11 @@
 #include "my_dot/my_dot.h"
 #include "../42sh.h"
 
+struct builtin
+{
+	char *name;
+	int (*func)(char **);
+};
 
 int execute_ast(struct AST *root);
 

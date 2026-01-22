@@ -211,66 +211,80 @@ int do_redir(struct AST *root, struct AST **redir)
 // #   SIMPLE & SHELL COMMANDS   #
 // ###############################
 
+int my_true(char **command)
+{
+	(void)command;
+	return 0;
+}
+
+int my_false(char **command)
+{
+	(void)command;
+	return 1;
+}
+
+static struct builtin builtins_table[] =
+{
+	{"true", my_true},
+	{"flase", my_false},
+	{"echo", my_echo},
+	{"cd", my_cd},
+	{"exit", my_exit},
+	{"break", my_break},
+	{"continue", my_continue},
+	{"unset", my_unset},
+	{"export", my_export},
+	{"return", my_return},
+	{".", my_dot},
+	{NULL, NULL}
+};
+
 int execute_cmd(char **command)
 {
-	int status = 0;
-
 	if (!command || command[0] == NULL)
 	{
-		free(command);
-		return 0; // a fix peut etre
+		if (command)
+			free(command);
+
+		return 0;
+	}
+
+	int status = 0;
+
+	for (int i = 0; builtins_table[i].name != NULL; i++)
+	{
+		if (strcmp(command[0], builtins_table[i].name) == 0)
+		{
+			if (strcmp(command[0], ".") == 0)
+				status = builtins_table[i].func(command);
+			else
+				status = builtins_table[i].func(command + 1);
+
+			fflush(stdout);
+
+			goto clean_up;
+		}
 	}
 
 	struct AST* func;
+	
+	if ((func = hash_map_get(env->functions, command[0])))
+	{
+		status = execute_function(func, command + 1);
+		goto clean_up;
+	}
 
-	// We consider the quote expansion has been done
-	if (strcmp(command[0], "true") == 0)
-		status = 0;
-	else if (strcmp(command[0], "false") == 0)
-		status = 1;
-	else if (strcmp(command[0], "echo") == 0)
-	{
-		status = my_echo(command + 1);
-		fflush(stdout);
-	}
-	else if (strcmp(command[0], "cd") == 0)
-	{
-		status = my_cd(command + 1);
-		fflush(stdout);	
-	}
-	else if (strcmp(command[0], "exit") == 0)
-	{
-		status = my_exit(command + 1);
-		env->should_exit = 1;
-	}
-	else if (strcmp(command[0], "break")==0){
-		status=my_break(command+1);
-	}
-	else if (strcmp(command[0], "continue")==0){
-		status=my_continue(command+1);
-	}
-	else if (strcmp(command[0], "unset") == 0){
-		status = my_unset(command+1);
-	}
-	else if (strcmp(command[0], "export") == 0)
-		status = my_export(command + 1);
-	else if (strcmp(command[0], ".") == 0)
-		status = my_dot(command);
-	else if (strcmp(command[0], "return") == 0)
-		status = my_return(command + 1);
-	else if ((func = hash_map_get(env->functions, command[0])))
-		status = execute_function(func, command+1);
-	else
-		status = execute_non_builtin(command);
+	status = execute_non_builtin(command);
+
+clean_up:
 
 	for (int i = 0; command[i] != NULL; i++)
-	{
 		free(command[i]);
-	}
 
 	free(command);
 
 	env->last_exit_code = status;
+
 	return status;
 }
 
@@ -304,21 +318,7 @@ int execute_simple_cmd(struct AST *root)
 
 	struct AST **redir = create_redir(root);
 
-	int saved_stdout = dup(STDOUT_FILENO);
-    int saved_stderr = dup(STDERR_FILENO);
-    int saved_stdin  = dup(STDIN_FILENO);
-
 	int status = do_redir(root, redir);
-
-	// 3. RESTORE the shell's FDs immediately
-    dup2(saved_stdout, STDOUT_FILENO);
-    dup2(saved_stderr, STDERR_FILENO);
-    dup2(saved_stdin, STDIN_FILENO);
-
-    // 4. Close the temporary copies to avoid leaking FDs
-    close(saved_stdout);
-    close(saved_stderr);
-    close(saved_stdin);
 
 	free(redir);
 
