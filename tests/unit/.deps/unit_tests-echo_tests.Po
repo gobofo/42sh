@@ -41,7 +41,7 @@ unit_tests-echo_tests.o: echo_tests.c /usr/include/stdc-predef.h \
  /usr/include/bits/types/__fpos_t.h /usr/include/bits/types/__fpos64_t.h \
  /usr/include/bits/types/struct_FILE.h /usr/include/bits/stdio_lim.h \
  /usr/include/criterion/internal/redirect.h \
- ../../src/execution/my_echo/my_echo.h
+ ../../src/execution/builtins/my_echo/my_echo.h
 /usr/include/stdc-predef.h:
 /usr/include/criterion/criterion.h:
 /usr/include/criterion/types.h:
@@ -109,4 +109,4 @@ unit_tests-echo_tests.o: echo_tests.c /usr/include/stdc-predef.h \
 /usr/include/bits/types/struct_FILE.h:
 /usr/include/bits/stdio_lim.h:
 /usr/include/criterion/internal/redirect.h:
-../../src/execution/my_echo/my_echo.h:
+../../src/execution/builtins/my_echo/my_echo.h:

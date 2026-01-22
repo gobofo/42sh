@@ -2,19 +2,28 @@
 
 extern struct env *env;
 
-int execute_node(struct AST *root);
-int execute_list(struct AST *root);
-int execute_cmd(char **command);
-int create_function(struct AST *root);
-int execute_function(struct AST *root, char **command);
+static int execute_cmd(char **command);
+static int execute_node(struct AST *root);
+static int execute_function(struct AST *root, char **command);
 
-int do_redir(struct AST *root, struct AST **redir);
+struct builtin builtins_table[];
 
+int my_true(char **command)
+{
+	(void)command;
+	return 0;
+}
+
+int my_false(char **command)
+{
+	(void)command;
+	return 1;
+}
 // #############
 // #   UTILS   #
 // #############
 
-int my_return(char **command)
+static int my_return(char **command)
 {
 	env->should_return = 1;
 	return atoi(command[0]);
@@ -211,35 +220,7 @@ int do_redir(struct AST *root, struct AST **redir)
 // #   SIMPLE & SHELL COMMANDS   #
 // ###############################
 
-int my_true(char **command)
-{
-	(void)command;
-	return 0;
-}
-
-int my_false(char **command)
-{
-	(void)command;
-	return 1;
-}
-
-static struct builtin builtins_table[] =
-{
-	{"true", my_true},
-	{"flase", my_false},
-	{"echo", my_echo},
-	{"cd", my_cd},
-	{"exit", my_exit},
-	{"break", my_break},
-	{"continue", my_continue},
-	{"unset", my_unset},
-	{"export", my_export},
-	{"return", my_return},
-	{".", my_dot},
-	{NULL, NULL}
-};
-
-int execute_cmd(char **command)
+static int execute_cmd(char **command)
 {
 	if (!command || command[0] == NULL)
 	{
@@ -288,7 +269,7 @@ clean_up:
 	return status;
 }
 
-int execute_simple_cmd(struct AST *root)
+static int execute_simple_cmd(struct AST *root)
 {
 	if (env->should_exit == 1)
 		return env->last_exit_code;
@@ -325,7 +306,7 @@ int execute_simple_cmd(struct AST *root)
 	return status;
 }
 
-int execute_shell_cmd(struct AST *root)
+static int execute_shell_cmd(struct AST *root)
 {
 	if (env->should_exit == 1)
 		return env->last_exit_code;
@@ -343,7 +324,7 @@ int execute_shell_cmd(struct AST *root)
 // #   CONDITIONS   #
 // ##################
 
-int execute_if(struct AST *root)
+static int execute_if(struct AST *root)
 {
 	if (env->should_exit == 1)
 		return env->last_exit_code;
@@ -364,7 +345,7 @@ int execute_if(struct AST *root)
 // #   LOOP   #
 // ############
 
-int execute_while(struct AST *root)
+static int execute_while(struct AST *root)
 {
 	env->boucle_count++;
 	if (env->should_exit == 1)
@@ -519,7 +500,7 @@ static int execute_for(struct AST *root)
 // #   OPERATORS   #
 // #################
 
-int execute_or(struct AST *root)
+static int execute_or(struct AST *root)
 {
 	if (env->should_exit == 1)
 		return env->last_exit_code;
@@ -531,7 +512,7 @@ int execute_or(struct AST *root)
 	return status;
 }
 
-int execute_and(struct AST *root)
+static int execute_and(struct AST *root)
 {
 	if (env->should_exit == 1)
 		return env->last_exit_code;
@@ -547,7 +528,7 @@ int execute_and(struct AST *root)
 // #   LIST   #
 // ############
 
-int execute_list(struct AST *root)
+static int execute_list(struct AST *root)
 {
 	if (env->should_exit == 1)
 		return env->last_exit_code;
@@ -596,7 +577,7 @@ static pid_t exec_fork(struct AST *root, int intput_pipe, int output_pipe)
 	_exit(execute_node(root));
 }
 
-int execute_pipeline(struct AST *root)
+static int execute_pipeline(struct AST *root)
 {
 	if (env->should_exit == 1)
 		return env->last_exit_code;
@@ -665,7 +646,7 @@ int execute_pipeline(struct AST *root)
 // #   SUBSHELL   #
 // ################
 
-int  execute_subshell(struct AST *root){
+static int  execute_subshell(struct AST *root){
 	pid_t pid =fork();
 
 	if(pid==0){
@@ -683,14 +664,14 @@ int  execute_subshell(struct AST *root){
 // ####################
 
 // This function is called when we encounter a function node
-int create_function(struct AST *root)
+static int create_function(struct AST *root)
 {
 	hash_map_insert(env->functions, root->content, dup_ast(root), destroy_AST_void);	
 	return 0;
 }
 
 
-int execute_function(struct AST *root, char **command)
+static int execute_function(struct AST *root, char **command)
 {
 	struct AST **redir = create_redir(root);
 
@@ -724,13 +705,35 @@ int execute_function(struct AST *root, char **command)
 	return status;
 }
 
-// ####################
-// #   GENERAL NODE   #
-// ####################
+//###################
+//#   LOOKUP TABLES #
+//###################
 
-// LOOKUP TABLE
-// Execute the function corresponding to the rule of the node
-int (*execute_node_table[])(struct AST *) = {
+// We use lookup tables to execute the nodes and builtins in a more clear way.
+// It avoids a lot of if else clauses or switch cases.
+// It makes the code more readable and its more easy to implement some extra
+// nodes or builtins to execute.
+
+// Helps to reference each builtin to its corresponding func
+struct builtin builtins_table[] =
+{
+	{"true", my_true},
+	{"false", my_false},
+	{"echo", my_echo},
+	{"cd", my_cd},
+	{"exit", my_exit},
+	{"break", my_break},
+	{"continue", my_continue},
+	{"unset", my_unset},
+	{"export", my_export},
+	{"return", my_return},
+	{".", my_dot},
+	{NULL, NULL}
+};
+
+// Helps to reference each type of node to its corresponding func
+int (*execute_node_table[])(struct AST *) =
+{
 	[AST_LIST] = execute_list,
 	[AST_SIMPLE_CMD] = execute_simple_cmd,
 	[AST_SHELL_CMD] = execute_shell_cmd,
@@ -745,7 +748,11 @@ int (*execute_node_table[])(struct AST *) = {
 	[AST_FUNC] = create_function
 };
 
-int execute_node(struct AST *root)
+// ####################
+// #   GENERAL NODE   #
+// ####################
+
+static int execute_node(struct AST *root)
 {
 	if (!root)
 			return 0;
@@ -770,6 +777,7 @@ int execute_ast(struct AST *root)
 {
 	if (!root)
 		return 1;
+
 	env->break_count = 0;
 	env->boucle_count=0;
 	env->continue_count=0;

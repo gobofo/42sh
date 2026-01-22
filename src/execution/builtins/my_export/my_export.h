@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "../../environment/environment.h"
+#include "../../../environment/environment.h"
 
 int my_export(char **command);
 

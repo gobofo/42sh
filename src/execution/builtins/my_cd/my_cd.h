@@ -8,8 +8,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "../../environment/environment.h"
-#include "../../hash_map/hash_map.h"
+#include "../../../environment/environment.h"
+#include "../../../hash_map/hash_map.h"
 
 int my_cd(char **command);
 

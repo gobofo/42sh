@@ -6,8 +6,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "../../ast/ast.h"
-#include "../../environment/environment.h"
+#include "../../../ast/ast.h"
+#include "../../../environment/environment.h"
 
 int redir_replace_in(struct AST *root, struct AST **redir, int fd);
 

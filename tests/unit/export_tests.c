@@ -4,7 +4,7 @@
 #include <criterion/redirect.h>
 #include <stdlib.h>
 
-#include "../../src/execution/my_export/my_export.h"
+#include "../../src/execution/builtins/my_export/my_export.h"
 #include "../../src/environment/environment.h"
 
 struct env *env;
