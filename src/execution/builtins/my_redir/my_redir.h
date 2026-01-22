@@ -11,6 +11,13 @@
 #include "../../../ast/ast.h"
 #include "../../../environment/environment.h"
 
+struct redir
+{
+	char *type;
+
+	int flags;
+	int fd;
+};
 
 int execute_redir(struct AST *root, struct AST **redir);
 
