@@ -19,6 +19,7 @@ struct env *init_env(int argc, char **argv)
 
     // Creates the hash_map to store the variables
     env->variables = hash_map_init(64);
+	env->functions = hash_map_init(64);
 
     // When the shell is launched no command as been launched so the last exit
     // code is 0

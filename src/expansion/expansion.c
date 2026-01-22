@@ -101,13 +101,13 @@ static int is_special_variable(FILE *stream, char *str, size_t *i)
     // going from 1 to 9
     else if (is_digit(str[*i]))
     {
-        int idx = str[*i] - '0';
+/*        int idx = str[*i] - '0';
 
         if (idx > 0 && (idx - 1) < env->argc)
             fputs(env->argv[idx - 1], stream);
 
         (*i)++;
-        return 1;
+	    return 1;*/
     }
 
     return 0;
