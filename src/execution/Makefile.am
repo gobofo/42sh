@@ -1,6 +1,7 @@
 #lib_LIBRARIES = libexecution.a
 
 libexecution_a_SOURCES = execution.c execution.h \
+						 execution_utils.c execution_utils.h \
 						 execute_command/execute_command.c execute_command/execute_command.h \
 						 builtins/my_echo/my_echo.c builtins/my_echo/my_echo.h \
 						 builtins/my_redir/my_redir.c builtins/my_redir/my_redir.h \

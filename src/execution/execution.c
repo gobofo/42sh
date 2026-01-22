@@ -18,42 +18,42 @@ static int my_return(char **command)
 	return atoi(command[0]);
 }
 
-/**
- * @brief		Creates a new entry in the hash_map of the environment
- *
- * When a node of type AST_ASSIGNEMENT, we create a new entry to store the new
- * variable or update an already existing one
- *
- * @param root	The AST node
- */
-
-int variable_assignation(struct AST *root)
-{
-	char *key = strtok(root->content, "=");
-	char *value_raw = strtok(NULL, "");
-
-	if (value_raw == NULL)
-		value_raw = "";
-
-	char **expanded = expand(value_raw);
-
-	char *value = "";
-
-	if (expanded != NULL && expanded[0] != NULL)
-		value = expanded[0];
-
-	hash_map_insert(env->variables, key, strdup(value), free);
-
-	if (expanded)
-	{
-		for (int i = 0; expanded[i] != NULL; i++)
-			free(expanded[i]);
-
-		free(expanded);
-	}
-
-	return 0;
-}
+///**
+// * @brief		Creates a new entry in the hash_map of the environment
+// *
+// * When a node of type AST_ASSIGNEMENT, we create a new entry to store the new
+// * variable or update an already existing one
+// *
+// * @param root	The AST node
+// */
+//
+//int variable_assignation(struct AST *root)
+//{
+//	char *key = strtok(root->content, "=");
+//	char *value_raw = strtok(NULL, "");
+//
+//	if (value_raw == NULL)
+//		value_raw = "";
+//
+//	char **expanded = expand(value_raw);
+//
+//	char *value = "";
+//
+//	if (expanded != NULL && expanded[0] != NULL)
+//		value = expanded[0];
+//
+//	hash_map_insert(env->variables, key, strdup(value), free);
+//
+//	if (expanded)
+//	{
+//		for (int i = 0; expanded[i] != NULL; i++)
+//			free(expanded[i]);
+//
+//		free(expanded);
+//	}
+//
+//	return 0;
+//}
 
 /**
  * @brief 		Creates the command with children from a node
