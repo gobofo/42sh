@@ -669,6 +669,7 @@ int create_function(struct AST *root)
 	return 0;
 }
 
+
 int execute_function(struct AST *root, char **command)
 {
 	struct AST **redir = create_redir(root);
@@ -682,12 +683,20 @@ int execute_function(struct AST *root, char **command)
 			save_val[i] = strdup(val);
 	}
 
+	char *save_h_val = hash_map_get(env->variables, "#");
+	save_h_val = save_h_val ? strdup(save_h_val) : NULL;
+
+	char count = '0';
 
 	for(int i = 0; i<9 && command[i]; i++)
 	{
+		count++;
 		char key[2] = { i + 1 + '0', 0};
 		hash_map_insert(env->variables, key, strdup(command[i]), free);
 	}
+
+	char value[2] = { count, 0};
+	hash_map_insert(env->variables, "#", strdup(value), free);
 
 	int status = do_redir(root->children[0], redir);
 	
@@ -707,6 +716,10 @@ int execute_function(struct AST *root, char **command)
 			hash_map_remove(env->variables, key, free);
 		}
 	}
+	if(save_h_val)
+		hash_map_insert(env->variables, "#", save_h_val, free);
+	else
+		hash_map_remove(env->variables, "#", free);
 
 	free(save_val);
 

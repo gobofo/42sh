@@ -89,12 +89,12 @@ static int is_special_variable(struct expansion_context *context,
         return 1;
     }
     // # returns the number of arguments in the shell
-    else if (str[*i] == '#')
+    /*else if (str[*i] == '#')
     {
         fprintf(context->stream, "%d", env->argc);
         (*i)++;
         return 1;
-    }
+    }*/
     // $@ and $* act the same way, they display all the arguments passed in
     // parameter.
     // The only real difference is when the expansion is done when they are
