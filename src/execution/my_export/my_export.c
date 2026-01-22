@@ -31,7 +31,6 @@ int my_export(char **command){
       }
       value[k]=0;
       hash_map_insert(env->variables,command[j], value, free);
-      free(value);
     }
     export_add_variable(env->export_variables,strdup(command[j]));
   }
