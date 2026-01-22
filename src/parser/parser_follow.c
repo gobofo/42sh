@@ -98,7 +98,7 @@ bool follow_prefix(struct token *token)
     if (token == NULL)
         return true;
     enum types type = token->type;
-    return follow_simple_command(token) || first_prefix(token) || type==WORDS;
+    return follow_simple_command(token) || first_prefix(token) || type==WORDS || type == SUBSHELL;
 }
 
 bool follow_redirection(struct token *token)
