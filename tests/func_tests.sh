@@ -350,6 +350,14 @@ test_cmd 'x=test; echo "$x$x"' "same variable twice"
 test_cmd 'x=test; x=new; echo "$x"' "reassign variable"
 test_cmd 'x=a; echo "$x"; x=b; echo "$x"' "change value"
 test_cmd 'a=1 b=2; echo $a $b' "multiple assignment"
+test_cmd 'echo $1var' "digit starts word"
+
+test_error "1var=value" "starts with digit"
+test_error "var-name=value" "contains hyphen"
+test_error "var.name=value" "contains dot"
+test_error "var@=value" "contains special char"
+test_error "=value" "empty variable name"
+test_error 'echo ${1var}' "invalid name in braces (should be grammar error)"
 
 echo "###################################################"
 echo "STEP 2 - VARIABLES RECURSIVE"
@@ -380,6 +388,16 @@ test_cmd 'echo ${1}' "positional 1 empty"
 test_cmd 'echo "$VAR_NOT_EXIST"' "nonexistent variable"
 
 echo "###################################################"
+echo "STEP 2 - IDENTIFIER VALIDATION"
+echo "###################################################"
+
+test_error 'echo ${1var}' "braces: invalid name starting with digit"
+test_error 'echo ${var-hyphen}' "braces: invalid hyphen"
+test_error 'echo ${}' "braces: empty name"
+test_error '1var=value' "assignment: invalid name"
+test_error 'for 1i in a; do echo $1i; done' "for: invalid identifier"
+
+echo "###################################################"
 echo "STEP 2 - FOR LOOPS"
 echo "###################################################"
 
@@ -396,6 +414,10 @@ test_cmd 'for var in aa bb cc; do echo test "$var"; done' "for with prefix"
 test_cmd 'for i in a b; do true && echo "$i"; done' "for with AND"
 test_cmd 'for i in a b; do echo "$i" | cat; done' "for with pipe"
 test_cmd "for i in 'hello world' test; do echo \"\$i\"; done" "for with quoted arg"
+
+test_error "for 1i in a b; do echo \$1i; done" "for: identifier starts with digit"
+test_error "for i-2 in a b; do echo \$i-2; done" "for: identifier with hyphen"
+test_error "for in a b; do echo ok; done" "for: missing identifier"
 
 #----------------- STEP 3: ADVANCED BUILTINS & CONSTRUCTS -----------------#
 
