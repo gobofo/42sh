@@ -1,14 +1,42 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "expansion.h"
+#include "command_sub.h"
 
 extern struct env *env;
+
+static char ** separate_white_space(char* output){
+  if (output==NULL)
+    return NULL;
+  char *copy = strdup(output);
+
+  int count = 0;
+  char *temp = strdup(output);
+  char *token = strtok(temp, " \t\n");
+  while (token != NULL) {
+    count++;
+    token = strtok(NULL, " \t\n");
+  }
+  free(temp);
+  char **result = malloc(sizeof(char *) * (count + 1));
+  int i = 0;
+  token = strtok(copy, " \t\n");
+  while (token != NULL) {
+    result[i] = strdup(token);
+    i++;
+    token = strtok(NULL, " \t\n\r");
+  }
+  result[i] = NULL;
+  free(copy);
+  return result;
+}
+
 
 static void add_word(struct expanded_words *words, char *word)
 {
 	// Allocate new space for the new word
 	words->words = realloc(words->words, sizeof(char *) * (words->count + 2));
-
+G
 	// Add the word
 	words->words[words->count++] = word;
 
@@ -36,6 +64,22 @@ static int is_digit(char c)
 // ##########################
 // #   VARIABLE EXPANSION   #
 // ##########################
+
+static void expand_subshell(struct expansion_context *context,char** list_sub)
+{
+  fclose(context->stream);
+  // If we have already a word we add it in the list
+
+  free(*(context->buffer));
+  *(context)->buffer = NULL;
+  *(context)->size = 0;
+  int i=0;
+  while(list_sub[i]!=NULL){
+    add_word(context->words, list_sub[i++]);
+  }
+  // We open the stream for the next words
+  context->stream = open_memstream(context->buffer, context->size);
+}
 
 static void expand_at_quoted(struct expansion_context *context)
 {
@@ -184,15 +228,50 @@ static void expand_variable(struct expansion_context *context,
         while (str[*i] != '\0' && (isalnum(str[*i]) || str[*i] == '_'))
             fputc(str[(*i)++], var);
     }
+    if(str[*i] == '('){ 
+
+      int count_par=1;
+
+      (*i)++;
+      char* sub_string=malloc(strlen(str));
+      int k=0;
+      while (str[*i] != '\0' && (count_par>0)){
+        if(str[*i]=='('){
+          count_par++;
+        }
+        if(str[*i]==')'){
+          count_par--;
+        }
+        if(count_par==0){
+          break;
+        }
+        sub_string[k]=str[(*i)++];
+        k++;
+      }
+      sub_string[k]=0;
+      (*i)++;
+      char* output= expand_command_substitution(sub_string);
+
+      free(sub_string);
+      char** list_sub=separate_white_space(output);
+
+      expand_subshell(context,list_sub);
+      free(list_sub);
+      free(output);
+      fclose(var);
+      free(var_name);
+      return;
+      //fork recupere stdout->val echo $(echo a)
+    }
 
     fclose(var);
 
     // These also make part of the special variables but are not composed of
     // only a character
     if (strcmp(var_name, "RANDOM") == 0)
-        fprintf(context->stream, "%d", rand() % 32768);
+      fprintf(context->stream, "%d", rand() % 32768);
     else if (strcmp(var_name, "UID") == 0)
-        fprintf(context->stream, "%d", getuid());
+      fprintf(context->stream, "%d", getuid());
     else
     {
         // The variable is not a 'special' one so we had it in environment and
