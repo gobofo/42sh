@@ -1,6 +1,4 @@
-Test Failures Log - jeu. 22 janv. 2026 10:19:41 CET
----------------------------------------------------
-### UNIT TEST FAILURES ###
+Test Failures Log - jeu. 22 janv. 2026 10:22:28 CET
 ---------------------------------------------------
 Test: function argc
 Command: f() { echo $#; }; f a b c
@@ -17,87 +15,87 @@ Command: f() { f() { echo v2; }; echo v1; }; f; f
 Expected: v1
 v2
 Actual:   =================================================================
-==488438==ERROR: AddressSanitizer: heap-use-after-free on address 0x7ba5319e05e8 at pc 0x5587cb8ba1a9 bp 0x7ffe3770d9b0 sp 0x7ffe3770d9a0
-READ of size 4 at 0x7ba5319e05e8 thread T0
-    #0 0x5587cb8ba1a8 in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:539
-    #1 0x5587cb8bb813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #2 0x5587cb8b7af7 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:208
-    #3 0x5587cb8bb37e in execute_function /home/yann/Desktop/42sh/src/execution/execution.c:694
-    #4 0x5587cb8b8006 in execute_cmd /home/yann/Desktop/42sh/src/execution/execution.c:259
-    #5 0x5587cb8b7ae3 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:203
-    #6 0x5587cb8b83ad in execute_simple_cmd /home/yann/Desktop/42sh/src/execution/execution.c:303
-    #7 0x5587cb8bb813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #8 0x5587cb8ba67f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
-    #9 0x5587cb8bb813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #10 0x5587cb8ba16e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
-    #11 0x5587cb8bb813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #12 0x5587cb8bb99a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
-    #13 0x5587cb8b6817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
-    #14 0x5587cb8b6a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
-    #15 0x7f6532c27634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #16 0x7f6532c276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #17 0x5587cb8b6474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
+==499492==ERROR: AddressSanitizer: heap-use-after-free on address 0x7baffdde05e8 at pc 0x5592822b81a9 bp 0x7ffe1a0862c0 sp 0x7ffe1a0862b0
+READ of size 4 at 0x7baffdde05e8 thread T0
+    #0 0x5592822b81a8 in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:539
+    #1 0x5592822b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #2 0x5592822b5af7 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:208
+    #3 0x5592822b937e in execute_function /home/yann/Desktop/42sh/src/execution/execution.c:694
+    #4 0x5592822b6006 in execute_cmd /home/yann/Desktop/42sh/src/execution/execution.c:259
+    #5 0x5592822b5ae3 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:203
+    #6 0x5592822b63ad in execute_simple_cmd /home/yann/Desktop/42sh/src/execution/execution.c:303
+    #7 0x5592822b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #8 0x5592822b867f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #9 0x5592822b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #10 0x5592822b816e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #11 0x5592822b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #12 0x5592822b999a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
+    #13 0x5592822b4817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
+    #14 0x5592822b4a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
+    #15 0x7f6fff027634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #16 0x7f6fff0276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #17 0x5592822b4474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
 
-0x7ba5319e05e8 is located 24 bytes inside of 40-byte region [0x7ba5319e05d0,0x7ba5319e05f8)
+0x7baffdde05e8 is located 24 bytes inside of 40-byte region [0x7baffdde05d0,0x7baffdde05f8)
 freed by thread T0 here:
-    #0 0x7f653311f79d in free /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:51
-    #1 0x5587cb8c2cac in destroy_AST /home/yann/Desktop/42sh/src/ast/ast.c:73
-    #2 0x5587cb8c2bef in destroy_AST /home/yann/Desktop/42sh/src/ast/ast.c:69
-    #3 0x5587cb8c2cc9 in destroy_AST_void /home/yann/Desktop/42sh/src/ast/ast.c:78
-    #4 0x5587cb8caddf in hash_map_insert /home/yann/Desktop/42sh/src/hash_map/hash_map.c:64
-    #5 0x5587cb8baf09 in create_function /home/yann/Desktop/42sh/src/execution/execution.c:670
-    #6 0x5587cb8bb813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #7 0x5587cb8ba67f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
-    #8 0x5587cb8bb813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #9 0x5587cb8ba16e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
-    #10 0x5587cb8bb813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #11 0x5587cb8b7af7 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:208
-    #12 0x5587cb8bb37e in execute_function /home/yann/Desktop/42sh/src/execution/execution.c:694
-    #13 0x5587cb8b8006 in execute_cmd /home/yann/Desktop/42sh/src/execution/execution.c:259
-    #14 0x5587cb8b7ae3 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:203
-    #15 0x5587cb8b83ad in execute_simple_cmd /home/yann/Desktop/42sh/src/execution/execution.c:303
-    #16 0x5587cb8bb813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #17 0x5587cb8ba67f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
-    #18 0x5587cb8bb813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #19 0x5587cb8ba16e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
-    #20 0x5587cb8bb813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #21 0x5587cb8bb99a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
-    #22 0x5587cb8b6817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
-    #23 0x5587cb8b6a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
-    #24 0x7f6532c27634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #25 0x7f6532c276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #26 0x5587cb8b6474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
+    #0 0x7f6fff51f79d in free /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:51
+    #1 0x5592822c0cac in destroy_AST /home/yann/Desktop/42sh/src/ast/ast.c:73
+    #2 0x5592822c0bef in destroy_AST /home/yann/Desktop/42sh/src/ast/ast.c:69
+    #3 0x5592822c0cc9 in destroy_AST_void /home/yann/Desktop/42sh/src/ast/ast.c:78
+    #4 0x5592822c8ddf in hash_map_insert /home/yann/Desktop/42sh/src/hash_map/hash_map.c:64
+    #5 0x5592822b8f09 in create_function /home/yann/Desktop/42sh/src/execution/execution.c:670
+    #6 0x5592822b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #7 0x5592822b867f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #8 0x5592822b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #9 0x5592822b816e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #10 0x5592822b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #11 0x5592822b5af7 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:208
+    #12 0x5592822b937e in execute_function /home/yann/Desktop/42sh/src/execution/execution.c:694
+    #13 0x5592822b6006 in execute_cmd /home/yann/Desktop/42sh/src/execution/execution.c:259
+    #14 0x5592822b5ae3 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:203
+    #15 0x5592822b63ad in execute_simple_cmd /home/yann/Desktop/42sh/src/execution/execution.c:303
+    #16 0x5592822b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #17 0x5592822b867f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #18 0x5592822b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #19 0x5592822b816e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #20 0x5592822b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #21 0x5592822b999a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
+    #22 0x5592822b4817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
+    #23 0x5592822b4a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
+    #24 0x7f6fff027634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #25 0x7f6fff0276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #26 0x5592822b4474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
 
 previously allocated by thread T0 here:
-    #0 0x7f6533120cb5 in malloc /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:67
-    #1 0x5587cb8c293c in dup_ast /home/yann/Desktop/42sh/src/ast/ast.c:49
-    #2 0x5587cb8c2af6 in dup_ast /home/yann/Desktop/42sh/src/ast/ast.c:58
-    #3 0x5587cb8bae74 in create_function /home/yann/Desktop/42sh/src/execution/execution.c:670
-    #4 0x5587cb8bb813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #5 0x5587cb8ba67f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
-    #6 0x5587cb8bb813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #7 0x5587cb8ba16e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
-    #8 0x5587cb8bb813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #9 0x5587cb8bb99a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
-    #10 0x5587cb8b6817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
-    #11 0x5587cb8b6a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
-    #12 0x7f6532c27634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #13 0x7f6532c276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #14 0x5587cb8b6474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
+    #0 0x7f6fff520cb5 in malloc /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x5592822c093c in dup_ast /home/yann/Desktop/42sh/src/ast/ast.c:49
+    #2 0x5592822c0af6 in dup_ast /home/yann/Desktop/42sh/src/ast/ast.c:58
+    #3 0x5592822b8e74 in create_function /home/yann/Desktop/42sh/src/execution/execution.c:670
+    #4 0x5592822b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #5 0x5592822b867f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #6 0x5592822b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #7 0x5592822b816e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #8 0x5592822b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #9 0x5592822b999a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
+    #10 0x5592822b4817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
+    #11 0x5592822b4a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
+    #12 0x7f6fff027634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #13 0x7f6fff0276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #14 0x5592822b4474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
 
 SUMMARY: AddressSanitizer: heap-use-after-free /home/yann/Desktop/42sh/src/execution/execution.c:539 in execute_list
 Shadow bytes around the buggy address:
-  0x7ba5319e0300: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x7ba5319e0380: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x7ba5319e0400: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x7ba5319e0480: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x7ba5319e0500: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-=>0x7ba5319e0580: fa fa fd fd fd fd fd fa fa fa fd fd fd[fd]fd fa
-  0x7ba5319e0600: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x7ba5319e0680: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x7ba5319e0700: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x7ba5319e0780: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x7ba5319e0800: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7baffdde0300: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7baffdde0380: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7baffdde0400: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7baffdde0480: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7baffdde0500: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+=>0x7baffdde0580: fa fa fd fd fd fd fd fa fa fa fd fd fd[fd]fd fa
+  0x7baffdde0600: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7baffdde0680: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7baffdde0700: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7baffdde0780: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7baffdde0800: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
 Shadow byte legend (one shadow byte represents 8 application bytes):
   Addressable:           00
   Partially addressable: 01 02 03 04 05 06 07 
@@ -117,7 +115,7 @@ Shadow byte legend (one shadow byte represents 8 application bytes):
   ASan internal:           fe
   Left alloca redzone:     ca
   Right alloca redzone:    cb
-==488438==ABORTING
+==499492==ABORTING
 ---------------------------------------------------
 Test: function args with spaces
 Command: f() { echo $*; }; f 'a b' c
@@ -129,87 +127,87 @@ Command: f() { echo start; f() { echo nested; }; }; f
 Expected: start
 Actual:   start
 =================================================================
-==488490==ERROR: AddressSanitizer: heap-use-after-free on address 0x7b901f5e0528 at pc 0x5558eb7b81a9 bp 0x7ffcf3a5cc90 sp 0x7ffcf3a5cc80
-READ of size 4 at 0x7b901f5e0528 thread T0
-    #0 0x5558eb7b81a8 in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:539
-    #1 0x5558eb7b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #2 0x5558eb7b5af7 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:208
-    #3 0x5558eb7b937e in execute_function /home/yann/Desktop/42sh/src/execution/execution.c:694
-    #4 0x5558eb7b6006 in execute_cmd /home/yann/Desktop/42sh/src/execution/execution.c:259
-    #5 0x5558eb7b5ae3 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:203
-    #6 0x5558eb7b63ad in execute_simple_cmd /home/yann/Desktop/42sh/src/execution/execution.c:303
-    #7 0x5558eb7b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #8 0x5558eb7b867f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
-    #9 0x5558eb7b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #10 0x5558eb7b816e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
-    #11 0x5558eb7b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #12 0x5558eb7b999a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
-    #13 0x5558eb7b4817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
-    #14 0x5558eb7b4a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
-    #15 0x7f5020827634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #16 0x7f50208276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #17 0x5558eb7b4474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
+==499544==ERROR: AddressSanitizer: heap-use-after-free on address 0x7b6e8e7e0528 at pc 0x55d5c97071a9 bp 0x7ffe4faa2150 sp 0x7ffe4faa2140
+READ of size 4 at 0x7b6e8e7e0528 thread T0
+    #0 0x55d5c97071a8 in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:539
+    #1 0x55d5c9708813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #2 0x55d5c9704af7 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:208
+    #3 0x55d5c970837e in execute_function /home/yann/Desktop/42sh/src/execution/execution.c:694
+    #4 0x55d5c9705006 in execute_cmd /home/yann/Desktop/42sh/src/execution/execution.c:259
+    #5 0x55d5c9704ae3 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:203
+    #6 0x55d5c97053ad in execute_simple_cmd /home/yann/Desktop/42sh/src/execution/execution.c:303
+    #7 0x55d5c9708813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #8 0x55d5c970767f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #9 0x55d5c9708813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #10 0x55d5c970716e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #11 0x55d5c9708813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #12 0x55d5c970899a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
+    #13 0x55d5c9703817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
+    #14 0x55d5c9703a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
+    #15 0x7f2e8fa27634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #16 0x7f2e8fa276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #17 0x55d5c9703474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
 
-0x7b901f5e0528 is located 24 bytes inside of 40-byte region [0x7b901f5e0510,0x7b901f5e0538)
+0x7b6e8e7e0528 is located 24 bytes inside of 40-byte region [0x7b6e8e7e0510,0x7b6e8e7e0538)
 freed by thread T0 here:
-    #0 0x7f5020d1f79d in free /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:51
-    #1 0x5558eb7c0cac in destroy_AST /home/yann/Desktop/42sh/src/ast/ast.c:73
-    #2 0x5558eb7c0bef in destroy_AST /home/yann/Desktop/42sh/src/ast/ast.c:69
-    #3 0x5558eb7c0cc9 in destroy_AST_void /home/yann/Desktop/42sh/src/ast/ast.c:78
-    #4 0x5558eb7c8ddf in hash_map_insert /home/yann/Desktop/42sh/src/hash_map/hash_map.c:64
-    #5 0x5558eb7b8f09 in create_function /home/yann/Desktop/42sh/src/execution/execution.c:670
-    #6 0x5558eb7b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #7 0x5558eb7b867f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
-    #8 0x5558eb7b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #9 0x5558eb7b816e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
-    #10 0x5558eb7b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #11 0x5558eb7b5af7 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:208
-    #12 0x5558eb7b937e in execute_function /home/yann/Desktop/42sh/src/execution/execution.c:694
-    #13 0x5558eb7b6006 in execute_cmd /home/yann/Desktop/42sh/src/execution/execution.c:259
-    #14 0x5558eb7b5ae3 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:203
-    #15 0x5558eb7b63ad in execute_simple_cmd /home/yann/Desktop/42sh/src/execution/execution.c:303
-    #16 0x5558eb7b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #17 0x5558eb7b867f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
-    #18 0x5558eb7b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #19 0x5558eb7b816e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
-    #20 0x5558eb7b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #21 0x5558eb7b999a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
-    #22 0x5558eb7b4817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
-    #23 0x5558eb7b4a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
-    #24 0x7f5020827634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #25 0x7f50208276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #26 0x5558eb7b4474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
+    #0 0x7f2e8ff1f79d in free /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:51
+    #1 0x55d5c970fcac in destroy_AST /home/yann/Desktop/42sh/src/ast/ast.c:73
+    #2 0x55d5c970fbef in destroy_AST /home/yann/Desktop/42sh/src/ast/ast.c:69
+    #3 0x55d5c970fcc9 in destroy_AST_void /home/yann/Desktop/42sh/src/ast/ast.c:78
+    #4 0x55d5c9717ddf in hash_map_insert /home/yann/Desktop/42sh/src/hash_map/hash_map.c:64
+    #5 0x55d5c9707f09 in create_function /home/yann/Desktop/42sh/src/execution/execution.c:670
+    #6 0x55d5c9708813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #7 0x55d5c970767f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #8 0x55d5c9708813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #9 0x55d5c970716e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #10 0x55d5c9708813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #11 0x55d5c9704af7 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:208
+    #12 0x55d5c970837e in execute_function /home/yann/Desktop/42sh/src/execution/execution.c:694
+    #13 0x55d5c9705006 in execute_cmd /home/yann/Desktop/42sh/src/execution/execution.c:259
+    #14 0x55d5c9704ae3 in do_redir /home/yann/Desktop/42sh/src/execution/execution.c:203
+    #15 0x55d5c97053ad in execute_simple_cmd /home/yann/Desktop/42sh/src/execution/execution.c:303
+    #16 0x55d5c9708813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #17 0x55d5c970767f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #18 0x55d5c9708813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #19 0x55d5c970716e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #20 0x55d5c9708813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #21 0x55d5c970899a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
+    #22 0x55d5c9703817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
+    #23 0x55d5c9703a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
+    #24 0x7f2e8fa27634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #25 0x7f2e8fa276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #26 0x55d5c9703474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
 
 previously allocated by thread T0 here:
-    #0 0x7f5020d20cb5 in malloc /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:67
-    #1 0x5558eb7c093c in dup_ast /home/yann/Desktop/42sh/src/ast/ast.c:49
-    #2 0x5558eb7c0af6 in dup_ast /home/yann/Desktop/42sh/src/ast/ast.c:58
-    #3 0x5558eb7b8e74 in create_function /home/yann/Desktop/42sh/src/execution/execution.c:670
-    #4 0x5558eb7b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #5 0x5558eb7b867f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
-    #6 0x5558eb7b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #7 0x5558eb7b816e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
-    #8 0x5558eb7b9813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
-    #9 0x5558eb7b999a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
-    #10 0x5558eb7b4817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
-    #11 0x5558eb7b4a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
-    #12 0x7f5020827634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #13 0x7f50208276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
-    #14 0x5558eb7b4474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
+    #0 0x7f2e8ff20cb5 in malloc /usr/src/debug/gcc/gcc/libsanitizer/asan/asan_malloc_linux.cpp:67
+    #1 0x55d5c970f93c in dup_ast /home/yann/Desktop/42sh/src/ast/ast.c:49
+    #2 0x55d5c970faf6 in dup_ast /home/yann/Desktop/42sh/src/ast/ast.c:58
+    #3 0x55d5c9707e74 in create_function /home/yann/Desktop/42sh/src/execution/execution.c:670
+    #4 0x55d5c9708813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #5 0x55d5c970767f in execute_pipeline /home/yann/Desktop/42sh/src/execution/execution.c:591
+    #6 0x55d5c9708813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #7 0x55d5c970716e in execute_list /home/yann/Desktop/42sh/src/execution/execution.c:540
+    #8 0x55d5c9708813 in execute_node /home/yann/Desktop/42sh/src/execution/execution.c:750
+    #9 0x55d5c970899a in execute_ast /home/yann/Desktop/42sh/src/execution/execution.c:768
+    #10 0x55d5c9703817 in my_42sh /home/yann/Desktop/42sh/src/42sh.c:60
+    #11 0x55d5c9703a60 in main /home/yann/Desktop/42sh/src/42sh.c:82
+    #12 0x7f2e8fa27634  (/usr/lib/libc.so.6+0x27634) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #13 0x7f2e8fa276e8 in __libc_start_main (/usr/lib/libc.so.6+0x276e8) (BuildId: 9569a499070da747128b450e157301b26f5c2f9c)
+    #14 0x55d5c9703474 in _start (/home/yann/Desktop/42sh/src/42sh+0x5474) (BuildId: 3ad964c4d57832e7296d0c3cff204e4560d303c4)
 
 SUMMARY: AddressSanitizer: heap-use-after-free /home/yann/Desktop/42sh/src/execution/execution.c:539 in execute_list
 Shadow bytes around the buggy address:
-  0x7b901f5e0280: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x7b901f5e0300: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x7b901f5e0380: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x7b901f5e0400: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
-  0x7b901f5e0480: fa fa 00 00 00 00 00 fa fa fa fd fd fd fd fd fa
-=>0x7b901f5e0500: fa fa fd fd fd[fd]fd fa fa fa fd fd fd fd fd fa
-  0x7b901f5e0580: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x7b901f5e0600: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x7b901f5e0680: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x7b901f5e0700: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
-  0x7b901f5e0780: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7b6e8e7e0280: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7b6e8e7e0300: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7b6e8e7e0380: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7b6e8e7e0400: fa fa 00 00 00 00 00 fa fa fa 00 00 00 00 00 fa
+  0x7b6e8e7e0480: fa fa 00 00 00 00 00 fa fa fa fd fd fd fd fd fa
+=>0x7b6e8e7e0500: fa fa fd fd fd[fd]fd fa fa fa fd fd fd fd fd fa
+  0x7b6e8e7e0580: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7b6e8e7e0600: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7b6e8e7e0680: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7b6e8e7e0700: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
+  0x7b6e8e7e0780: fa fa fd fd fd fd fd fa fa fa fd fd fd fd fd fa
 Shadow byte legend (one shadow byte represents 8 application bytes):
   Addressable:           00
   Partially addressable: 01 02 03 04 05 06 07 
@@ -229,7 +227,7 @@ Shadow byte legend (one shadow byte represents 8 application bytes):
   ASan internal:           fe
   Left alloca redzone:     ca
   Right alloca redzone:    cb
-==488490==ABORTING
+==499544==ABORTING
 ---------------------------------------------------
 Test: function capture output
 Command: f() { echo a; }; var=$(f); echo $var
