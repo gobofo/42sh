@@ -71,6 +71,7 @@ int main(int argc, char *argv[])
 
     int return_val = env->last_exit_code;
     hash_map_free(env->variables, free);
+	hash_map_free(env->functions, destroy_AST_void);
 
     free(env);
 

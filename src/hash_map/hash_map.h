@@ -9,7 +9,7 @@
 struct pair_list
 {
     char *key;
-    char *value;
+    void *value;
     struct pair_list *next;
 };
 
@@ -26,9 +26,8 @@ bool hash_map_insert(struct hash_map *hash_map, char *key, void *value,
                      void(*free_value)(void*));
 
 void hash_map_free(struct hash_map *hash_map, void(*free_value)(void*));
-void hash_map_dump(struct hash_map *hash_map);
 
-char *hash_map_get(const struct hash_map *hash_map, char *key);
+void *hash_map_get(const struct hash_map *hash_map, char *key);
 
 bool hash_map_remove(struct hash_map *hash_map, char *key, void(*free_value)(void*));
 

@@ -5,6 +5,8 @@ extern struct env *env;
 int execute_node(struct AST *root);
 int execute_list(struct AST *root);
 int execute_cmd(char **command);
+int create_function(struct AST *root);
+int execute_function(struct AST *root, char **command);
 
 int do_redir(struct AST *root, struct AST **redir);
 
@@ -199,6 +201,8 @@ int execute_cmd(char **command)
         return 0; // a fix peut etre
     }
 
+	struct AST* func;
+
     // We consider the quote expansion has been done
     if (strcmp(command[0], "true") == 0)
         status = 0;
@@ -222,6 +226,8 @@ int execute_cmd(char **command)
 	else if (strcmp(command[0], "unset") == 0){
 		status = my_unset(command+1);
 	}
+	else if ((func = hash_map_get(env->functions, command[0])))
+		status = execute_function(func, command+1);
     else
         status = execute_non_builtin(command);
 
@@ -537,51 +543,105 @@ int execute_pipeline(struct AST *root)
 }
 
 // ####################
+// #    FUNCTIONS     #
+// ####################
+
+// This function is called when we encounter a function node
+int create_function(struct AST *root)
+{
+	hash_map_insert(env->functions, root->content, dup_ast(root), destroy_AST_void);	
+	return 0;
+}
+
+int execute_function(struct AST *root, char **command)
+{
+    struct AST **redir = create_redir(root);
+
+	char **save_val = calloc(9, sizeof(char*));
+	for(int i = 0; i<9; i++)
+	{
+		char key[2] = { i + 1 + '0', 0};
+		char *val = hash_map_get(env->variables, key);
+		if(val)
+			save_val[i] = strdup(val);
+	}
+
+
+	for(int i = 0; i<9 && command[i]; i++)
+	{
+		char key[2] = { i + 1 + '0', 0};
+		hash_map_insert(env->variables, key, strdup(command[i]), free);
+	}
+
+    int status = do_redir(root->children[0], redir);
+
+    free(redir);
+
+	for(int i = 0; i<9; i++)
+	{
+		char key[2] = { i + 1 + '0', 0};
+		if(save_val[i])
+		{
+			hash_map_insert(env->variables, key, strdup(save_val[i]), free);
+		}
+		else
+		{
+			hash_map_remove(env->variables, key, free);
+		}
+	}
+
+	free(save_val);
+
+	return status;
+}
+
+// ####################
 // #   GENERAL NODE   #
 // ####################
 
 // LOOKUP TABLE
 // Execute the function corresponding to the rule of the node
 int (*execute_node_table[])(struct AST *) = {
-    [AST_LIST] = execute_list,
-    [AST_SIMPLE_CMD] = execute_simple_cmd,
-    [AST_SHELL_CMD] = execute_shell_cmd,
-    [AST_IF] = execute_if,
-    [AST_WHILE] = execute_while,
-    [AST_UNTIL] = execute_until,
-    [AST_FOR] = execute_for,
-    [AST_AND] = execute_and,
-    [AST_OR] = execute_or,
-    [AST_PIPELINE] = execute_pipeline
-    // AST_FUNC
+	[AST_LIST] = execute_list,
+	[AST_SIMPLE_CMD] = execute_simple_cmd,
+	[AST_SHELL_CMD] = execute_shell_cmd,
+	[AST_IF] = execute_if,
+	[AST_WHILE] = execute_while,
+	[AST_UNTIL] = execute_until,
+	[AST_FOR] = execute_for,
+	[AST_AND] = execute_and,
+	[AST_OR] = execute_or,
+	[AST_PIPELINE] = execute_pipeline,
+	[AST_FUNC] = create_function
+		// AST_FUNC
 };
 
 int execute_node(struct AST *root)
 {
-    if (!root)
-        return 0;
+	if (!root)
+		return 0;
 
-    if (env->should_exit == 1)
-        return env->last_exit_code;
+	if (env->should_exit == 1)
+		return env->last_exit_code;
 
-    if (root->rule != AST_VALUE && root->rule != AST_REDIR
-        && root->rule != AST_ASSIGNEMENT)
-    {
-        int status = execute_node_table[root->rule](root);
+	if (root->rule != AST_VALUE && root->rule != AST_REDIR
+			&& root->rule != AST_ASSIGNEMENT)
+	{
+		int status = execute_node_table[root->rule](root);
 
-        env->last_exit_code = status;
+		env->last_exit_code = status;
 
-        return status;
-    }
+		return status;
+	}
 
-    return 0;
+	return 0;
 }
 
 int execute_ast(struct AST *root)
 {
-    if (!root)
-        return 1;
-    env->break_count=0;
+	if (!root)
+		return 1;
+	env->break_count=0;
 	env->continue_count=0;
-    return execute_node(root);
+	return execute_node(root);
 }
