@@ -36,7 +36,7 @@ static void add_word(struct expanded_words *words, char *word)
 {
 	// Allocate new space for the new word
 	words->words = realloc(words->words, sizeof(char *) * (words->count + 2));
-G
+
 	// Add the word
 	words->words[words->count++] = word;
 
