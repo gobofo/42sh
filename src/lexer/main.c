@@ -28,6 +28,8 @@ static const struct type_string_map debug_names[] = {
 
     { L_PAREN, "L_PAREN" }, { R_PAREN, "R_PAREN" },
 
+	{ SUBSHELL, "SUBSHELL" },
+
     { 0, NULL }
 };
 
