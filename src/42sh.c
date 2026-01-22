@@ -10,6 +10,7 @@
 #include "token.h"
 
 struct env *env;
+
 int my_42sh(int argc, char *argv[])
 {
        // PRETTY PRINT A ACTIVER AVEC PRETTY_PRINT=1 dans le terminal
@@ -75,7 +76,8 @@ int my_42sh(int argc, char *argv[])
     return return_val;
 }
 
-int main(int argc,char* argv[]){
+int main(int argc,char* argv[])
+{
      // Ensure random numbers for $RANDOM for two shells launched at the same
     // time
     srand(time(NULL) ^ getpid());
@@ -87,7 +89,7 @@ int main(int argc,char* argv[]){
     hash_map_free(env->variables, free);
 	hash_map_free(env->functions, destroy_AST_void);
     free_export(env->export_variables);
-    free(env);
+    free_env(env);
 
     return exit_code;
 }

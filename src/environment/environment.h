@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "../hash_map/hash_map.h"
 
@@ -44,6 +45,6 @@ struct env
 };
 
 struct env *init_env(int argc, char **argv);
-
+void free_env(struct env *env);
 
 #endif // ! ENVIRONMENT_H
