@@ -368,7 +368,11 @@ struct token *read_input(FILE *file)
 					fputc(c, stream);
 				}
 
-				return flush_stream(stream, &buffer);
+				struct token *tok = flush_stream(stream, &buffer);
+				if (tok)
+					tok->type = SUBSHELL;
+
+				return tok;
 			}
 
 			if (size > 0)
