@@ -8,7 +8,7 @@
 #include "../../src/environment/environment.h"
 #include "../../src/execution/my_cd/my_cd.h"
 
-struct env *env;
+extern struct env *env;
 
 void setup_cd(void) {
     char *argv[] = { "./42sh", NULL };
