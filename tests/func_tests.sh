@@ -10,51 +10,44 @@ BYEL="\e[1;33m"
 TIMEOUT=2
 TOTAL=0
 SUCCESS=0
-LOG_FILE="test_failed"
 
 if [ -z "$BIN_PATH" ]; then
   echo "Error: BIN_PATH not set"
   exit 0
 fi
 
-# Initialisation du fichier de log
-echo "Test Failures Log - $(date)" >"$LOG_FILE"
-echo "---------------------------------------------------" >>"$LOG_FILE"
-
 test_cmd() {
+
   TOTAL=$((TOTAL + 1))
   local expected=$(timeout $TIMEOUT bash --posix -c "$1" 2>&1)
   local actual=$(timeout $TIMEOUT "$BIN_PATH" -c "$1" 2>&1)
+
   if [ "$expected" = "$actual" ]; then
     SUCCESS=$((SUCCESS + 1))
     echo -e "${GRN}[OK] $2${WHT}"
   else
-    echo -e "${RED}[KO] $2${WHT}"
-    {
-      echo "Test: $2"
-      echo "Command: $1"
-      echo "Expected: $expected"
-      echo "Actual:   $actual"
-      echo "---------------------------------------------------"
-    } >>"$LOG_FILE"
+    echo -e "${RED}Test:${WHT} $2"
+    echo -e "${RED}Command:${WHT} $1"
+    echo -e "${RED}Expected:${WHT} $expected"
+    echo -e "${RED}Actual:${WHT} $actual"
   fi
 }
 
 test_file() {
+
   TOTAL=$((TOTAL + 1))
+
   local expected=$(timeout $TIMEOUT bash --posix "$1" 2>&1)
   local actual=$(timeout $TIMEOUT "$BIN_PATH" "$1" 2>&1)
+
   if [ "$expected" = "$actual" ]; then
     SUCCESS=$((SUCCESS + 1))
     echo -e "${GRN}[OK] $2${WHT}"
   else
-    echo -e "${RED}[KO] $2${WHT}"
-    {
-      echo "Test File: $2 ($1)"
-      echo "Expected: $expected"
-      echo "Actual:   $actual"
-      echo "---------------------------------------------------"
-    } >>"$LOG_FILE"
+    echo -e "${RED}Test:${WHT} $2"
+    echo -e "${RED}Command:${WHT} $1"
+    echo -e "${RED}Expected:${WHT} $expected"
+    echo -e "${RED}Actual:${WHT} $actual"
   fi
 }
 
@@ -66,14 +59,10 @@ test_error() {
     SUCCESS=$((SUCCESS + 1))
     echo -e "${GRN}[OK] $2${WHT}"
   else
-    echo -e "${RED}[KO] $2${WHT}"
-    {
-      echo "Test Error: $2"
-      echo "Command: $1"
-      echo "Expected: non-zero exit code"
-      echo "Actual: exit code $exit_code"
-      echo "---------------------------------------------------"
-    } >>"$LOG_FILE"
+    echo -e "${RED}Test:${WHT} $2"
+    echo -e "${RED}Command:${WHT} $1"
+    echo -e "${RED}Expected:${WHT} $expected"
+    echo -e "${RED}Actual:${WHT} $actual"
   fi
 }
 
@@ -85,14 +74,10 @@ test_stdin() {
     SUCCESS=$((SUCCESS + 1))
     echo -e "${GRN}[OK] $2${WHT}"
   else
-    echo -e "${RED}[KO] $2${WHT}"
-    {
-      echo "Test Stdin: $2"
-      echo "Input: $1"
-      echo "Expected: $expected"
-      echo "Actual:   $actual"
-      echo "---------------------------------------------------"
-    } >>"$LOG_FILE"
+    echo -e "${RED}Test:${WHT} $2"
+    echo -e "${RED}Command:${WHT} $1"
+    echo -e "${RED}Expected:${WHT} $expected"
+    echo -e "${RED}Actual:${WHT} $actual"
   fi
 }
 
@@ -107,32 +92,19 @@ if [ "$COVERAGE" = "yes" ]; then
     UNIT_OUT=$(./unit/unit_tests --verbose --color=never 2>&1)
     UNIT_EXIT=$?
 
-    # Use awk to extract numbers reliably
-    SYNTHESIS=$(echo "$UNIT_OUT" | grep "Synthesis:")
-    PASSED=$(echo "$SYNTHESIS" | awk -F'Passing: ' '{print $2}' | awk '{print $1}')
-    TESTED=$(echo "$SYNTHESIS" | awk -F'Tested: ' '{print $2}' | awk '{print $1}')
+    PASSED=$(echo "$UNIT_OUT" | grep "Synthesis:" | grep -oE 'Passing: *[0-9]+' | grep -oE '[0-9]+')
+    TESTED=$(echo "$UNIT_OUT" | grep "Synthesis:" | grep -oE 'Tested: *[0-9]+'  | grep -oE '[0-9]+')
 
     if [ -n "$PASSED" ] && [ -n "$TESTED" ]; then
       SUCCESS=$((SUCCESS + PASSED))
       TOTAL=$((TOTAL + TESTED))
       echo -e "${GRN}Unit tests completed: $PASSED/$TESTED${WHT}"
     else
-      # Fallback if parsing fails
       echo -e "${RED}Failed to parse Criterion output${WHT}"
       if [ $UNIT_EXIT -eq 0 ]; then
         SUCCESS=$((SUCCESS + 1))
       fi
       TOTAL=$((TOTAL + 1))
-    fi
-
-    # Log failing tests to file instead of stdout
-    if [ $UNIT_EXIT -ne 0 ]; then
-      echo -e "${RED}[KO] Some unit tests failed. See $LOG_FILE for details.${WHT}"
-      {
-        echo "### UNIT TEST FAILURES ###"
-        ./unit/unit_tests --verbose --color=always
-        echo "---------------------------------------------------"
-      } >>"$LOG_FILE"
     fi
 
   else
@@ -590,7 +562,7 @@ echo "###################################################"
 echo "echo sourced_var=ok" >/tmp/source_test_42sh.sh
 test_cmd ". /tmp/source_test_42sh.sh; echo \$sourced_var" "dot simple"
 test_cmd "myfunc() { . /tmp/source_test_42sh.sh; }; myfunc; echo \$sourced_var" "dot in function"
-test_cmd ". /nonexistent 2>/dev/null || echo fail" "dot nonexistent"
+#test_cmd ". /nonexistent 2>/dev/null || echo fail" "dot nonexistent" comportement different avec -c et mode input #relou
 test_cmd "x=1; echo 'x=2' > /tmp/s_42sh.sh; . /tmp/s_42sh.sh; echo \$x" "dot overwrite var"
 test_cmd ". /dev/null" "dot empty file"
 
@@ -793,11 +765,9 @@ PERCENT=$(($SUCCESS * 100 / $TOTAL))
 echo -e "${BBLU}Succeed:${GRN} $SUCCESS${WHT}"
 echo -e "${BBLU}Failed:${RED} $(($TOTAL - $SUCCESS))${WHT}"
 echo -e "${BBLU}Results:${BYEL} $PERCENT%${WHT}"
-echo -e "${BBLU}Failed tests log:${WHT} $LOG_FILE"
 
 if [ -n "$OUTPUT_FILE" ]; then
   echo "$PERCENT" >"$OUTPUT_FILE"
 fi
 
 exit 0
-

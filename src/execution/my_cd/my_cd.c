@@ -194,14 +194,15 @@ int my_cd(char **command)
 			return 1;
 		}
 
-		char *target = strdup(old);
+		char *new_pwd = strdup(old);
+		char *new_old = pwd ? strdup(pwd) : strdup("");
 
 		// Swap pwd
-		hash_map_insert(env->variables, "OLDPWD", strdup(pwd), free); 
-		hash_map_insert(env->variables, "PWD", strdup(old), free);
+		hash_map_insert(env->variables, "OLDPWD", new_old, free); 
+		hash_map_insert(env->variables, "PWD", new_pwd, free);
 
 		// Check if paths exists
-		if (chdir(target) != 0)
+		if (chdir(new_pwd) != 0)
 		{
 			fprintf(stderr, "Error: cd: no such file or directory: %s\n",
 					command[0]);
@@ -209,8 +210,7 @@ int my_cd(char **command)
 			return 1;
 		}
 
-		printf("%s\n", target);
-        free(target);
+		printf("%s\n", new_pwd);
 
 		return 0;
     }
@@ -242,9 +242,12 @@ int my_cd(char **command)
 
     char *pwd = hash_map_get(env->variables, "PWD");
 
-
 	// Update the PWD and OLDPWD
-	hash_map_insert(env->variables, "OLDPWD", strdup(pwd), free); 
+	if (pwd != NULL)
+		hash_map_insert(env->variables, "OLDPWD", strdup(pwd), free); 
+	else
+		hash_map_insert(env->variables, "OLDPWD", strdup(""), free); 
+	
 	hash_map_insert(env->variables, "PWD", strdup(path), free);
 
     free(path);
