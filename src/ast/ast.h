@@ -1,6 +1,11 @@
 #ifndef AST_H
 #define AST_H
 
+#define _POSIX_C_SOURCE 200809L
+#include <string.h>
+
+
+
 enum rule
 {
 
@@ -34,6 +39,9 @@ struct AST
 
 struct AST *create_ast(enum rule rule, char *content);
 struct AST *add_children(struct AST *root, struct AST *child);
+struct AST *dup_ast(struct AST *root);
 void destroy_AST(struct AST *root);
+void destroy_AST_void(void *root);
+
 
 #endif /* ! AST_H */

@@ -38,7 +38,7 @@ struct env
     struct export *export_variables;
 
     struct hash_map *variables;
-    // we will have to add another hash_map for functions
+	struct hash_map *functions;
 };
 
 struct env *init_env(int argc, char **argv);

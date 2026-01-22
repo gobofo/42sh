@@ -3,6 +3,7 @@
 
 #include "../../environment/environment.h"
 #include "../../hash_map/hash_map.h"
+#include "../../ast/ast.h"
 #include "stdio.h"
 
 int my_unset(char **command);

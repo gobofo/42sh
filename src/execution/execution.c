@@ -5,6 +5,8 @@ extern struct env *env;
 int execute_node(struct AST *root);
 int execute_list(struct AST *root);
 int execute_cmd(char **command);
+int create_function(struct AST *root);
+int execute_function(struct AST *root, char **command);
 
 int do_redir(struct AST *root, struct AST **redir);
 
@@ -23,31 +25,30 @@ int do_redir(struct AST *root, struct AST **redir);
 
 int variable_assignation(struct AST *root)
 {
-  char *key = strtok(root->content, "=");
-  char *value_raw = strtok(NULL, "");
+	char *key = strtok(root->content, "=");
+	char *value_raw = strtok(NULL, "");
 
-  if (value_raw == NULL)
-    value_raw = "";
+	if (value_raw == NULL)
+		value_raw = "";
 
-  char **expanded = expand(value_raw);
+	char **expanded = expand(value_raw);
 
-  char *value = "";
+	char *value = "";
 
-  if (expanded != NULL && expanded[0] != NULL)
-    value = expanded[0];
+	if (expanded != NULL && expanded[0] != NULL)
+		value = expanded[0];
 
-  bool updated;
-  hash_map_insert(env->variables, key, value, &updated);
+	hash_map_insert(env->variables, key, strdup(value), free);
 
-  if (expanded)
-  {
-    for (int i = 0; expanded[i] != NULL; i++)
-      free(expanded[i]);
+	if (expanded)
+	{
+		for (int i = 0; expanded[i] != NULL; i++)
+			free(expanded[i]);
 
-    free(expanded);
-  }
+		free(expanded);
+	}
 
-  return 0;
+	return 0;
 }
 
 /**
@@ -63,38 +64,38 @@ int variable_assignation(struct AST *root)
 
 char **create_command(struct AST *root)
 {
-  // Is free by caller
-  char **command = calloc(root->count_children + 1, sizeof(char *));
+	// Is free by caller
+	char **command = calloc(root->count_children + 1, sizeof(char *));
 
-  size_t idx = 0;
+	size_t idx = 0;
 
-  for (int i = 0; i < root->count_children; i++)
-  {
-    if (root->children[i]->rule == AST_VALUE)
-    {
-      char **expanded_values = expand(root->children[i]->content);
+	for (int i = 0; i < root->count_children; i++)
+	{
+		if (root->children[i]->rule == AST_VALUE)
+		{
+			char **expanded_values = expand(root->children[i]->content);
 
-      for (int j = 0; expanded_values[j] != NULL; j++)
-      {
-        if (expanded_values[j][0] != '\0'
-            || strcmp(root->children[i]->content, "''") == 0
-            || strcmp(root->children[i]->content, "\"\"") == 0)
-        {
-          command = realloc(command, sizeof(char *) * (idx + 2));
-          command[idx++] = expanded_values[j];
-          command[idx] = NULL;
-        }
-        else
-        {
-          free(expanded_values[j]);
-        }
-      }
+			for (int j = 0; expanded_values[j] != NULL; j++)
+			{
+				if (expanded_values[j][0] != '\0'
+						|| strcmp(root->children[i]->content, "''") == 0
+						|| strcmp(root->children[i]->content, "\"\"") == 0)
+				{
+					command = realloc(command, sizeof(char *) * (idx + 2));
+					command[idx++] = expanded_values[j];
+					command[idx] = NULL;
+				}
+				else
+				{
+					free(expanded_values[j]);
+				}
+			}
 
-      free(expanded_values);
-    }
-  }
+			free(expanded_values);
+		}
+	}
 
-  return command;
+	return command;
 }
 
 /**
@@ -110,18 +111,18 @@ char **create_command(struct AST *root)
 
 struct AST **create_redir(struct AST *root)
 {
-  // Free by the caller
-  struct AST **redir = calloc(root->count_children + 1, sizeof(struct AST *));
+	// Free by the caller
+	struct AST **redir = calloc(root->count_children + 1, sizeof(struct AST *));
 
-  size_t idx = 0;
+	size_t idx = 0;
 
-  for (int i = 0; i < root->count_children; i++)
-  {
-    if (root->children[i]->rule == AST_REDIR)
-      redir[idx++] = root->children[i];
-  }
+	for (int i = 0; i < root->count_children; i++)
+	{
+		if (root->children[i]->rule == AST_REDIR)
+			redir[idx++] = root->children[i];
+	}
 
-  return redir;
+	return redir;
 }
 
 // ####################
@@ -142,62 +143,62 @@ struct AST **create_redir(struct AST *root)
 
 int execute_redir(struct AST *root, struct AST **redir)
 {
-  int fd = -1;
+	int fd = -1;
 
-  // Get the IONumber of the REDIR
-  char ionumber = redir[0]->children[0]->content[0];
-  char *content = strdup(redir[0]->children[0]->content);
-  char *to_free = content;
+	// Get the IONumber of the REDIR
+	char ionumber = redir[0]->children[0]->content[0];
+	char *content = strdup(redir[0]->children[0]->content);
+	char *to_free = content;
 
-  // Check if a IONumber is given if not we keep the default one for each
-  // redir
-  if (ionumber >= '0' && ionumber <= '9')
-  {
-    fd = ionumber - '0';
-    content++;
-  }
+	// Check if a IONumber is given if not we keep the default one for each
+	// redir
+	if (ionumber >= '0' && ionumber <= '9')
+	{
+		fd = ionumber - '0';
+		content++;
+	}
 
-  int status = 0;
+	int status = 0;
 
-  // IF FOR EACH REDIR
-  if (strcmp(content, ">") == 0 || strcmp(content, ">|") == 0)
-    status = redir_replace_in(root, redir, fd == -1 ? 1 : fd);
-  else if (strcmp(content, ">>") == 0)
-    status = redir_append_in(root, redir, fd == -1 ? 1 : fd);
-  else if (strcmp(content, "<") == 0)
-    status = redir_read(root, redir, fd == -1 ? 0 : fd);
-  else if (strcmp(content, ">&") == 0)
-    status = redir_dup(root, redir, fd == -1 ? 1 : fd);
-  else if (strcmp(content, "<&") == 0)
-    status = redir_dup(root, redir, fd == -1 ? 0 : fd);
-  else if (strcmp(content, "<>") == 0)
-    status = redir_open(root, redir, fd == -1 ? 0 : fd);
+	// IF FOR EACH REDIR
+	if (strcmp(content, ">") == 0 || strcmp(content, ">|") == 0)
+		status = redir_replace_in(root, redir, fd == -1 ? 1 : fd);
+	else if (strcmp(content, ">>") == 0)
+		status = redir_append_in(root, redir, fd == -1 ? 1 : fd);
+	else if (strcmp(content, "<") == 0)
+		status = redir_read(root, redir, fd == -1 ? 0 : fd);
+	else if (strcmp(content, ">&") == 0)
+		status = redir_dup(root, redir, fd == -1 ? 1 : fd);
+	else if (strcmp(content, "<&") == 0)
+		status = redir_dup(root, redir, fd == -1 ? 0 : fd);
+	else if (strcmp(content, "<>") == 0)
+		status = redir_open(root, redir, fd == -1 ? 0 : fd);
 
-  free(to_free);
+	free(to_free);
 
-  if (status != 0)
-    return status;
+	if (status != 0)
+		return status;
 
-  return status;
+	return status;
 }
 
 // The recursiv function to execute the various REDIR
 int do_redir(struct AST *root, struct AST **redir)
 {
-  if (redir && *redir)
-    return execute_redir(root, redir);
+	if (redir && *redir)
+		return execute_redir(root, redir);
 
-  if (root->rule == AST_SIMPLE_CMD)
-  {
-    char **command = create_command(root);
-    int status = execute_cmd(command);
+	if (root->rule == AST_SIMPLE_CMD)
+	{
+		char **command = create_command(root);
+		int status = execute_cmd(command);
 
-    return status;
-  }
+		return status;
+	}
 
-  int status = execute_node(root);
+	int status = execute_node(root);
 
-  return status;
+	return status;
 }
 
 // ###############################
@@ -206,102 +207,105 @@ int do_redir(struct AST *root, struct AST **redir)
 
 int execute_cmd(char **command)
 {
-  int status = 0;
+	int status = 0;
 
-  if (!command || command[0] == NULL)
-  {
-    free(command);
-    return 0; // a fix peut etre
-  }
+	if (!command || command[0] == NULL)
+	{
+		free(command);
+		return 0; // a fix peut etre
+	}
 
-  // We consider the quote expansion has been done
-  if (strcmp(command[0], "true") == 0)
-    status = 0;
-  else if (strcmp(command[0], "false") == 0)
-    status = 1;
-  else if (strcmp(command[0], "echo") == 0)
-    status = my_echo(command + 1);
-  else if (strcmp(command[0], "cd") == 0)
-    status = my_cd(command + 1);
-  else if (strcmp(command[0], "exit") == 0)
-  {
-    status = my_exit(command + 1);
-    env->should_exit = 1;
-  }
-  else if (strcmp(command[0], "break") == 0)
-  {
-    status = my_break(command + 1);
-  }
-  else if (strcmp(command[0], "continue") == 0)
-  {
-    status = my_continue(command + 1);
-  }
-  else if (strcmp(command[0], "unset") == 0)
-  {
-    status = my_unset(command + 1);
-  }
-  else if (strcmp(command[0], "export") == 0)
-    status = my_export(command + 1);
-  else
-    status = execute_non_builtin(command);
+	struct AST* func;
 
-  for (int i = 0; command[i] != NULL; i++)
-    free(command[i]);
+	// We consider the quote expansion has been done
+	if (strcmp(command[0], "true") == 0)
+		status = 0;
+	else if (strcmp(command[0], "false") == 0)
+		status = 1;
+	else if (strcmp(command[0], "echo") == 0)
+		status = my_echo(command + 1);
+	else if (strcmp(command[0], "cd") == 0)
+		status = my_cd(command + 1);
+	else if (strcmp(command[0], "exit") == 0)
+	{
+		status = my_exit(command + 1);
+		env->should_exit = 1;
+	}
+	else if (strcmp(command[0], "break")==0){
+		status=my_break(command+1);
+	}
+	else if (strcmp(command[0], "continue")==0){
+		status=my_continue(command+1);
+	}
+	else if (strcmp(command[0], "unset") == 0){
+		status = my_unset(command+1);
+	}
+	else if (strcmp(command[0], "export") == 0)
+		status = my_export(command + 1);
+	else if ((func = hash_map_get(env->functions, command[0])))
+		status = execute_function(func, command+1);
+	else
+		status = execute_non_builtin(command);
 
-  free(command);
+	for (int i = 0; command[i] != NULL; i++)
+	{
+		free(command[i]);
+	}
 
-  env->last_exit_code = status;
-  return status;
+	free(command);
+
+	env->last_exit_code = status;
+	return status;
 }
 
 int execute_simple_cmd(struct AST *root)
 {
-  if (env->should_exit == 1)
-    return env->last_exit_code;
+	if (env->should_exit == 1)
+		return env->last_exit_code;
 
-  // In a command, some variables can be assigned but only with some specific
-  // conditions: THERE CAN BE ONLY ASSIGNMENTS IN THE COMMAND
-  int is_assignment = 1;
+	// In a command, some variables can be assigned but only with some specific
+	// conditions: THERE CAN BE ONLY ASSIGNMENTS IN THE COMMAND
+	int is_assignment = 1;
 
-  for (int i = 0; i < root->count_children; i++)
-  {
-    if (root->children[i]->rule != AST_ASSIGNEMENT)
-    {
-      is_assignment = 0;
-      break;
-    }
-  }
+	for (int i = 0; i < root->count_children; i++)
+	{
+		if (root->children[i]->rule != AST_ASSIGNEMENT)
+		{
+			is_assignment = 0;
+			break;
+		}
+	}
 
-  // We have only assignments to execute
-  if (is_assignment == 1)
-  {
-    int status = 0;
-    for (int i = 0; i < root->count_children; i++)
-      status = variable_assignation(root->children[i]);
+	// We have only assignments to execute
+	if (is_assignment == 1)
+	{
+		int status = 0;
+		for (int i = 0; i < root->count_children; i++)
+			status = variable_assignation(root->children[i]);
 
-    return status;
-  }
+		return status;
+	}
 
-  struct AST **redir = create_redir(root);
-  int status = do_redir(root, redir);
+	struct AST **redir = create_redir(root);
+	int status = do_redir(root, redir);
 
-  free(redir);
+	free(redir);
 
-  return status;
+	return status;
 }
 
 int execute_shell_cmd(struct AST *root)
 {
-  if (env->should_exit == 1)
-    return env->last_exit_code;
+	if (env->should_exit == 1)
+		return env->last_exit_code;
 
-  struct AST **redir = create_redir(root);
+	struct AST **redir = create_redir(root);
 
-  int status = do_redir(root->children[0], redir);
+	int status = do_redir(root->children[0], redir);
 
-  free(redir);
+	free(redir);
 
-  return status;
+	return status;
 }
 
 // ##################
@@ -310,19 +314,19 @@ int execute_shell_cmd(struct AST *root)
 
 int execute_if(struct AST *root)
 {
-  if (env->should_exit == 1)
-    return env->last_exit_code;
+	if (env->should_exit == 1)
+		return env->last_exit_code;
 
-  int condition = execute_node(root->children[0]);
+	int condition = execute_node(root->children[0]);
 
-  int status = 0;
+	int status = 0;
 
-  if (condition == 0)
-    status = execute_node(root->children[1]);
-  else if (root->count_children > 2)
-    status = execute_node(root->children[2]);
+	if (condition == 0)
+		status = execute_node(root->children[1]);
+	else if (root->count_children > 2)
+		status = execute_node(root->children[2]);
 
-  return status;
+	return status;
 }
 
 // ############
@@ -331,155 +335,155 @@ int execute_if(struct AST *root)
 
 int execute_while(struct AST *root)
 {
-  env->boucle_count++;
-  if (env->should_exit == 1)
-    return env->last_exit_code;
+	env->boucle_count++;
+	if (env->should_exit == 1)
+		return env->last_exit_code;
 
-  int status = 0;
+	int status = 0;
 
-  while (!execute_node(root->children[0]) && env->break_count == 0)
-  {
-    status = execute_node(root->children[1]);
+	while (!execute_node(root->children[0]) && env->break_count == 0)
+	{
+		status = execute_node(root->children[1]);
 
-    if(env->continue_count != 0) {
-      env->continue_count--;
-      if(env->continue_count != 0) {
-        break;
-      }
-    }
+		if(env->continue_count != 0) {
+			env->continue_count--;
+			if(env->continue_count != 0) {
+				break;
+			}
+		}
 
-    if (env->break_count > 0) {
-      break;
-    }
-  }
+		if (env->break_count > 0) {
+			break;
+		}
+	}
 
-  if (env->break_count)
-    env->break_count--;
+	if (env->break_count)
+		env->break_count--;
 
-  env->boucle_count--;
-  return status;
+	env->boucle_count--;
+	return status;
 }
 
 static int execute_until(struct AST *root)
 {
-  env->boucle_count++;
-  if (env->should_exit == 1)
-    return env->last_exit_code;
+	env->boucle_count++;
+	if (env->should_exit == 1)
+		return env->last_exit_code;
 
-  int status = 0;
+	int status = 0;
 
-  while (execute_node(root->children[0]) && env->break_count == 0)
-  {
-    status = execute_node(root->children[1]);
-    if(env->continue_count != 0) {
-      env->continue_count--;
-      if(env->continue_count != 0) {
-        break;
-      }
-    }
-    if (env->break_count > 0) {
-      break;
-    }
+	while (execute_node(root->children[0]) && env->break_count == 0)
+	{
+		status = execute_node(root->children[1]);
+		if(env->continue_count != 0) {
+			env->continue_count--;
+			if(env->continue_count != 0) {
+				break;
+			}
+		}
+		if (env->break_count > 0) {
+			break;
+		}
 
-  }
-  if (env->break_count)
-    env->break_count--;
+	}
+	if (env->break_count)
+		env->break_count--;
 
-  env->boucle_count--;
-  return status;
+	env->boucle_count--;
+	return status;
 }
 
 static char **create_for_args(struct AST *root)
 {
-  char **args = calloc(1, sizeof(char *));
+	char **args = calloc(1, sizeof(char *));
 
-  size_t idx = 0;
+	size_t idx = 0;
 
-  for (int i = 1; i < root->count_children - 1; i++)
-  {
-    char **expanded_values = expand(root->children[i]->content);
-    if (expanded_values == NULL)
-      continue;
+	for (int i = 1; i < root->count_children - 1; i++)
+	{
+		char **expanded_values = expand(root->children[i]->content);
+		if (expanded_values == NULL)
+			continue;
 
-    for (int j = 0; expanded_values[j] != NULL; j++)
-    {
-      if (expanded_values[j][0] != '\0'
-          || strcmp(root->children[i]->content, "''") == 0
-          || strcmp(root->children[i]->content, "\"\"") == 0)
-      {
-        args = realloc(args, sizeof(char *) * (idx + 2));
-        args[idx++] = expanded_values[j];
-        args[idx] = NULL;
-      }
-      else
-      {
-        free(expanded_values[j]);
-      }
-    }
+		for (int j = 0; expanded_values[j] != NULL; j++)
+		{
+			if (expanded_values[j][0] != '\0'
+					|| strcmp(root->children[i]->content, "''") == 0
+					|| strcmp(root->children[i]->content, "\"\"") == 0)
+			{
+				args = realloc(args, sizeof(char *) * (idx + 2));
+				args[idx++] = expanded_values[j];
+				args[idx] = NULL;
+			}
+			else
+			{
+				free(expanded_values[j]);
+			}
+		}
 
-    free(expanded_values);
-  }
+		free(expanded_values);
+	}
 
-  return args;
+	return args;
 }
 
 static int execute_for(struct AST *root)
 {
-  env->boucle_count++;
-  char *var = root->children[0]->content;
+	env->boucle_count++;
+	char *var = root->children[0]->content;
 
-  // Check if the identifier as a valid name
-  if (is_valid_name(var) == 0)
-  {
-    fprintf(stderr, "Error: %s: not a valid identifier\n", var);
+	// Check if the identifier as a valid name
+	if (is_valid_name(var) == 0)
+	{
+		fprintf(stderr, "Error: %s: not a valid identifier\n", var);
 
-    env->should_exit = 1;
-    env->last_exit_code = 1;
-  }
+		env->should_exit = 1;
+		env->last_exit_code = 1;
+	}
 
-  if (env->should_exit == 1)
-    return env->last_exit_code;
+	if (env->should_exit == 1)
+		return env->last_exit_code;
 
-  int exit_code = 0;
+	int exit_code = 0;
 
-  char **args = create_for_args(root);
+	char **args = create_for_args(root);
 
-  // The first children is name of the identifier so we go from the second to
-  // the before last child, the last beeing the command to execute inside
-  for (int i = 0; args[i] != NULL; i++)
-  {
-    bool updated = true;
-    hash_map_insert(env->variables, var, args[i], &updated);
+	// The first children is name of the identifier so we go from the second to
+	// the before last child, the last beeing the command to execute inside
+	for (int i = 0; args[i] != NULL; i++)
+	{
+		hash_map_insert(env->variables, var, strdup(args[i]), free);
 
-    exit_code = execute_node(root->children[root->count_children - 1]);
+		exit_code = execute_node(root->children[root->count_children - 1]);
 
-    if(env->continue_count != 0) {
-      env->continue_count--;
-      if(env->continue_count != 0) {
-        break;
+		if(env->continue_count != 0) {
+			env->continue_count--;
+			if(env->continue_count != 0) {
+				break;
 
-      }
-    }
-    if (env->break_count > 0) {
-      break;
-    }
+			}
+		}
+		if (env->break_count > 0) {
+			break;
+		}
 
-  }
+	}
 
-  if (args)
-  {
-    for (int i = 0; args[i] != NULL; i++)
-      free(args[i]);
+	if (args)
+	{
+		for (int i = 0; args[i] != NULL; i++)
+			free(args[i]);
 
-    free(args);
-  }
+		free(args);
+	}
 
-  if (env->break_count > 0)
-    env->break_count--;
+	if (env->break_count > 0)
+		env->break_count--;
 
-  env->boucle_count--;
-  return exit_code;
+	env->boucle_count--;
+	return exit_code;
 }
+
 
 // #################
 // #   OPERATORS   #
@@ -487,26 +491,26 @@ static int execute_for(struct AST *root)
 
 int execute_or(struct AST *root)
 {
-  if (env->should_exit == 1)
-    return env->last_exit_code;
+	if (env->should_exit == 1)
+		return env->last_exit_code;
 
-  int status = execute_node(root->children[0]);
-  if (status != 0)
-    return execute_node(root->children[1]);
+	int status = execute_node(root->children[0]);
+	if (status != 0)
+		return execute_node(root->children[1]);
 
-  return status;
+	return status;
 }
 
 int execute_and(struct AST *root)
 {
-  if (env->should_exit == 1)
-    return env->last_exit_code;
+	if (env->should_exit == 1)
+		return env->last_exit_code;
 
-  int status = execute_node(root->children[0]);
-  if (status == 0)
-    return execute_node(root->children[1]);
+	int status = execute_node(root->children[0]);
+	if (status == 0)
+		return execute_node(root->children[1]);
 
-  return status;
+	return status;
 }
 
 // ############
@@ -515,15 +519,15 @@ int execute_and(struct AST *root)
 
 int execute_list(struct AST *root)
 {
-  if (env->should_exit == 1)
-    return env->last_exit_code;
+	if (env->should_exit == 1)
+		return env->last_exit_code;
 
-  int status = 0;
+	int status = 0;
 
-  for (int i = 0; i < root->count_children && env->break_count == 0 && env->continue_count==0;i++)
-    status = execute_node(root->children[i]);
+	for (int i = 0; i < root->count_children && env->break_count == 0 && env->continue_count==0;i++)
+		status = execute_node(root->children[i]);
 
-  return status;
+	return status;
 }
 
 // ################
@@ -532,117 +536,170 @@ int execute_list(struct AST *root)
 
 static pid_t exec_fork(struct AST *root, int intput_pipe, int output_pipe)
 {
-  pid_t pid = fork();
+	pid_t pid = fork();
 
-  if (pid != 0)
-    return pid;
+	if (pid != 0)
+		return pid;
 
-  if (intput_pipe != -1)
-  {
-    if (dup2(intput_pipe, STDIN_FILENO) == -1)
-    {
-      fprintf(stderr, "Error: dup2\n");
-      return 1;
-    }
+	if (intput_pipe != -1)
+	{
+		if (dup2(intput_pipe, STDIN_FILENO) == -1)
+		{
+			fprintf(stderr, "Error: dup2\n");
+			return 1;
+		}
 
-    close(intput_pipe);
-  }
+		close(intput_pipe);
+	}
 
-  if (output_pipe != -1)
-  {
-    if (dup2(output_pipe, STDOUT_FILENO) == -1)
-    {
-      fprintf(stderr, "Error: dup2\n");
-      return 1;
-    }
+	if (output_pipe != -1)
+	{
+		if (dup2(output_pipe, STDOUT_FILENO) == -1)
+		{
+			fprintf(stderr, "Error: dup2\n");
+			return 1;
+		}
 
-    close(output_pipe);
-  }
+		close(output_pipe);
+	}
 
-  _exit(execute_node(root));
+	_exit(execute_node(root));
 }
 
 int execute_pipeline(struct AST *root)
 {
-  if (env->should_exit == 1)
-    return env->last_exit_code;
+	if (env->should_exit == 1)
+		return env->last_exit_code;
 
-  if (root->count_children == 1)
-  {
-    if (root->is_neg)
-      return !execute_node(root->children[0]);
+	if (root->count_children == 1)
+	{
+		if (root->is_neg)
+			return !execute_node(root->children[0]);
 
-    return execute_node(root->children[0]);
-  }
+		return execute_node(root->children[0]);
+	}
 
-  int last_output = -1;
+	int last_output = -1;
 
-  pid_t *tab_pid = malloc(root->count_children * sizeof(pid_t));
+	pid_t *tab_pid = malloc(root->count_children * sizeof(pid_t));
 
-  for (int i = 0; i < root->count_children; i++)
-  {
-    int fd[2];
+	for (int i = 0; i < root->count_children; i++)
+	{
+		int fd[2];
 
-    if (i < root->count_children - 1)
-    {
-      if (pipe(fd) == -1)
-      {
-        free(tab_pid);
-        fprintf(stderr, "Error: pipe\n");
-        return 1;
-      }
-    }
+		if (i < root->count_children - 1)
+		{
+			if (pipe(fd) == -1)
+			{
+				free(tab_pid);
+				fprintf(stderr, "Error: pipe\n");
+				return 1;
+			}
+		}
 
-    int intput_pipe = -1;
-    int output_pipe = -1;
+		int intput_pipe = -1;
+		int output_pipe = -1;
 
-    if (i != 0)
-      intput_pipe = last_output;
+		if (i != 0)
+			intput_pipe = last_output;
 
-    if (i != root->count_children - 1)
-      output_pipe = fd[1];
+		if (i != root->count_children - 1)
+			output_pipe = fd[1];
 
-    tab_pid[i] = exec_fork(root->children[i], intput_pipe, output_pipe);
-    if (last_output != -1)
-      close(last_output);
+		tab_pid[i] = exec_fork(root->children[i], intput_pipe, output_pipe);
+		if (last_output != -1)
+			close(last_output);
 
-    if (i < root->count_children - 1)
-    {
-      close(fd[1]);
-      last_output = fd[0];
-    }
-  }
+		if (i < root->count_children - 1)
+		{
+			close(fd[1]);
+			last_output = fd[0];
+		}
+	}
 
-  int wstatus;
+	int wstatus;
 
-  for (int i = 0; i < root->count_children; i++)
-    waitpid(tab_pid[i], &wstatus, 0);
+	for (int i = 0; i < root->count_children; i++)
+		waitpid(tab_pid[i], &wstatus, 0);
 
-  int res = WEXITSTATUS(wstatus);
+	int res = WEXITSTATUS(wstatus);
 
-  free(tab_pid);
+	free(tab_pid);
 
-  if (root->is_neg)
-    return !res;
+	if (root->is_neg)
+		return !res;
 
-  return res;
+	return res;
 }
 // ################
 // #   SUBSHELL   #
 // ################
 
 int  execute_subshell(struct AST *root){
-  pid_t pid =fork();
+	pid_t pid =fork();
 
-  if(pid==0){
-    _exit(execute_node(root->children[0]));
-  }
-  int wstatus;
-  waitpid(pid, &wstatus, 0);
-  int res = WEXITSTATUS(wstatus);
-  return res;
+	if(pid==0){
+		_exit(execute_node(root->children[0]));
+	}
+	int wstatus;
+	waitpid(pid, &wstatus, 0);
+	int res = WEXITSTATUS(wstatus);
+	return res;
 }
 
+
+// ####################
+// #    FUNCTIONS     #
+// ####################
+
+// This function is called when we encounter a function node
+int create_function(struct AST *root)
+{
+	hash_map_insert(env->functions, root->content, dup_ast(root), destroy_AST_void);	
+	return 0;
+}
+
+int execute_function(struct AST *root, char **command)
+{
+	struct AST **redir = create_redir(root);
+
+	char **save_val = calloc(9, sizeof(char*));
+	for(int i = 0; i<9; i++)
+	{
+		char key[2] = { i + 1 + '0', 0};
+		char *val = hash_map_get(env->variables, key);
+		if(val)
+			save_val[i] = strdup(val);
+	}
+
+
+	for(int i = 0; i<9 && command[i]; i++)
+	{
+		char key[2] = { i + 1 + '0', 0};
+		hash_map_insert(env->variables, key, strdup(command[i]), free);
+	}
+
+	int status = do_redir(root->children[0], redir);
+
+	free(redir);
+
+	for(int i = 0; i<9; i++)
+	{
+		char key[2] = { i + 1 + '0', 0};
+		if(save_val[i])
+		{
+			hash_map_insert(env->variables, key, strdup(save_val[i]), free);
+		}
+		else
+		{
+			hash_map_remove(env->variables, key, free);
+		}
+	}
+
+	free(save_val);
+
+	return status;
+}
 
 // ####################
 // #   GENERAL NODE   #
@@ -651,48 +708,48 @@ int  execute_subshell(struct AST *root){
 // LOOKUP TABLE
 // Execute the function corresponding to the rule of the node
 int (*execute_node_table[])(struct AST *) = {
-  [AST_LIST] = execute_list,
-  [AST_SIMPLE_CMD] = execute_simple_cmd,
-  [AST_SHELL_CMD] = execute_shell_cmd,
-  [AST_IF] = execute_if,
-  [AST_WHILE] = execute_while,
-  [AST_UNTIL] = execute_until,
-  [AST_FOR] = execute_for,
-  [AST_AND] = execute_and,
-  [AST_OR] = execute_or,
-  [AST_PIPELINE] = execute_pipeline,
-  [AST_FUNC] = execute_pipeline,
-  [AST_SUB] = execute_subshell
+	[AST_LIST] = execute_list,
+	[AST_SIMPLE_CMD] = execute_simple_cmd,
+	[AST_SHELL_CMD] = execute_shell_cmd,
+	[AST_IF] = execute_if,
+	[AST_WHILE] = execute_while,
+	[AST_UNTIL] = execute_until,
+	[AST_FOR] = execute_for,
+	[AST_AND] = execute_and,
+	[AST_OR] = execute_or,
+	[AST_PIPELINE] = execute_pipeline,
+	[AST_SUB] = execute_subshell,
+	[AST_FUNC] = create_function
 };
 
 int execute_node(struct AST *root)
 {
-  if (!root)
-    return 0;
+	if (!root)
+			return 0;
 
-  if (env->should_exit == 1)
-    return env->last_exit_code;
+	if (env->should_exit == 1)
+		return env->last_exit_code;
 
-  if (root->rule != AST_VALUE && root->rule != AST_REDIR
-      && root->rule != AST_ASSIGNEMENT)
-  {
-    int status = execute_node_table[root->rule](root);
+	if (root->rule != AST_VALUE && root->rule != AST_REDIR
+			&& root->rule != AST_ASSIGNEMENT)
+	{
+		int status = execute_node_table[root->rule](root);
 
-    env->last_exit_code = status;
+		env->last_exit_code = status;
 
-    return status;
-  }
+		return status;
+	}
 
-  return 0;
+	return 0;
 }
 
 int execute_ast(struct AST *root)
 {
-  if (!root)
-    return 1;
-  env->break_count = 0;
-  env->boucle_count=0;
-  env->continue_count=0;
+	if (!root)
+		return 1;
+	env->break_count = 0;
+	env->boucle_count=0;
+	env->continue_count=0;
 
-  return execute_node(root);
+	return execute_node(root);
 }

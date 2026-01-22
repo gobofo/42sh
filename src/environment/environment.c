@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 #include "environment.h"
 #include <stdio.h>
 
@@ -19,6 +20,7 @@ struct env *init_env(int argc, char **argv)
 
     // Creates the hash_map to store the variables
     env->variables = hash_map_init(64);
+	env->functions = hash_map_init(64);
 
     // When the shell is launched no command as been launched so the last exit
     // code is 0
@@ -44,7 +46,6 @@ struct env *init_env(int argc, char **argv)
         env->argc = 0;
     }
 
-    bool update;
 
     char *oldpwd = getenv("OLDPWD");
     char *pwd = getenv("PWD");
@@ -55,10 +56,10 @@ struct env *init_env(int argc, char **argv)
 
     // ENV Variables Predefined when the shell is launched
     if (oldpwd)
-        hash_map_insert(env->variables, "OLDPWD", oldpwd, &update);
+        hash_map_insert(env->variables, "OLDPWD", strdup(oldpwd), free);
 
-    hash_map_insert(env->variables, "PWD", pwd ? pwd : ".", &update);
-    hash_map_insert(env->variables, "IFS", ifs, &update);
+    hash_map_insert(env->variables, "PWD", strdup(pwd ? pwd : "."), free);
+    hash_map_insert(env->variables, "IFS", strdup(ifs), free);
 
     struct export* export_variables= create_export();
     env->export_variables=export_variables;

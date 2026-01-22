@@ -183,10 +183,8 @@ int my_cd(char **command)
         return 2;
     }
 
-    if (strcmp(command[0], "-") == 0)
-    {
-        bool update;
-
+	if (strcmp(command[0], "-") == 0)
+	{
         char *pwd = hash_map_get(env->variables, "PWD");
         char *old = hash_map_get(env->variables, "OLDPWD");
 		
@@ -196,11 +194,11 @@ int my_cd(char **command)
 			return 1;
 		}
 
-        char *target = strdup(old);
+		char *target = strdup(old);
 
-		// Swap the pwd
-        hash_map_insert(env->variables, "OLDPWD", pwd, &update);
-        hash_map_insert(env->variables, "PWD", target, &update);
+		// Swap pwd
+		hash_map_insert(env->variables, "OLDPWD", strdup(pwd), free); 
+		hash_map_insert(env->variables, "PWD", strdup(old), free);
 
 		// Check if paths exists
 		if (chdir(target) != 0)
@@ -244,11 +242,10 @@ int my_cd(char **command)
 
     char *pwd = hash_map_get(env->variables, "PWD");
 
-    bool update;
 
-    // Update the PWD and OLDPWD
-    hash_map_insert(env->variables, "OLDPWD", pwd ? pwd : "", &update);
-    hash_map_insert(env->variables, "PWD", path, &update);
+	// Update the PWD and OLDPWD
+	hash_map_insert(env->variables, "OLDPWD", strdup(pwd), free); 
+	hash_map_insert(env->variables, "PWD", strdup(path), free);
 
     free(path);
 
