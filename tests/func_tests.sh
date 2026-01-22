@@ -10,11 +10,16 @@ BYEL="\e[1;33m"
 TIMEOUT=2
 TOTAL=0
 SUCCESS=0
+LOG_FILE="test_failed"
 
 if [ -z "$BIN_PATH" ]; then
   echo "Error: BIN_PATH not set"
   exit 0
 fi
+
+# Initialisation du fichier de log
+echo "Test Failures Log - $(date)" > "$LOG_FILE"
+echo "---------------------------------------------------" >> "$LOG_FILE"
 
 test_cmd()
 {
@@ -23,10 +28,16 @@ test_cmd()
     local actual=$(timeout $TIMEOUT "$BIN_PATH" -c "$1" 2>&1)
 	if [ "$expected" = "$actual" ]; then
 		SUCCESS=$((SUCCESS + 1))
+        echo -e "${GRN}[OK] $2${WHT}"
 	else
-		echo -e "${RED}$2${WHT}"
-		echo -e "${RED}Expected:${WHT} $expected"
-		echo -e "${RED}Actual:${WHT} $actual"
+		echo -e "${RED}[KO] $2${WHT}"
+        {
+            echo "Test: $2"
+            echo "Command: $1"
+            echo "Expected: $expected"
+            echo "Actual:   $actual"
+            echo "---------------------------------------------------"
+        } >> "$LOG_FILE"
 	fi
 }
 
@@ -37,10 +48,15 @@ test_file()
     local actual=$(timeout $TIMEOUT "$BIN_PATH" "$1" 2>&1)
 	if [ "$expected" = "$actual" ]; then
 		SUCCESS=$((SUCCESS + 1))
+        echo -e "${GRN}[OK] $2${WHT}"
 	else
-		echo -e "${RED}$2${WHT}"
-		echo -e "${RED}Expected:${WHT} $expected"
-		echo -e "${RED}Actual:${WHT} $actual"
+		echo -e "${RED}[KO] $2${WHT}"
+        {
+            echo "Test File: $2 ($1)"
+            echo "Expected: $expected"
+            echo "Actual:   $actual"
+            echo "---------------------------------------------------"
+        } >> "$LOG_FILE"
 	fi
 }
 
@@ -51,10 +67,16 @@ test_error()
     local exit_code=$?
 	if [ $exit_code -ne 0 ]; then
 		SUCCESS=$((SUCCESS + 1))
+        echo -e "${GRN}[OK] $2${WHT}"
 	else
-		echo -e "${RED}$2${WHT}"
-		echo -e "${RED}Expected:${WHT} non-zero exit code"
-		echo -e "${RED}Actual: exit code ${WHT}$exit_code"
+		echo -e "${RED}[KO] $2${WHT}"
+        {
+            echo "Test Error: $2"
+            echo "Command: $1"
+            echo "Expected: non-zero exit code"
+            echo "Actual: exit code $exit_code"
+            echo "---------------------------------------------------"
+        } >> "$LOG_FILE"
 	fi
 }
 
@@ -65,23 +87,31 @@ test_stdin()
     local actual=$(echo "$1" | timeout $TIMEOUT "$BIN_PATH" 2>&1)
 	if [ "$expected" = "$actual" ]; then
 		SUCCESS=$((SUCCESS + 1))
+        echo -e "${GRN}[OK] $2${WHT}"
 	else
-		echo -e "${RED}$2${WHT}"
-		echo -e "${RED}Expected:${WHT} $expected"
-		echo -e "${RED}Actual:${WHT} $actual"
+		echo -e "${RED}[KO] $2${WHT}"
+        {
+            echo "Test Stdin: $2"
+            echo "Input: $1"
+            echo "Expected: $expected"
+            echo "Actual:   $actual"
+            echo "---------------------------------------------------"
+        } >> "$LOG_FILE"
 	fi
 }
 
 if [ "$COVERAGE" = "yes" ]; then
 
-	echo RUNNING UNIT TESTS
+	echo "###################################################"
+	echo "RUNNING UNIT TESTS"
+	echo "###################################################"
 
 	if [ -f "unit/unit_tests" ]; then
 
 		UNIT_OUT=$(./unit/unit_tests --verbose --color=never 2>&1)
         UNIT_EXIT=$?
 
-        # Use awk to extract numbers reliably [cite: 176]
+        # Use awk to extract numbers reliably
         SYNTHESIS=$(echo "$UNIT_OUT" | grep "Synthesis:")
         PASSED=$(echo "$SYNTHESIS" | awk -F'Passing: ' '{print $2}' | awk '{print $1}')
         TESTED=$(echo "$SYNTHESIS" | awk -F'Tested: ' '{print $2}' | awk '{print $1}')
@@ -99,10 +129,14 @@ if [ "$COVERAGE" = "yes" ]; then
             TOTAL=$((TOTAL + 1))
         fi
 
-        # Display the actual failing tests in color if the binary failed
+        # Log failing tests to file instead of stdout
         if [ $UNIT_EXIT -ne 0 ]; then
-             echo -e "${RED}Details of Unit Test Failures:${WHT}"
-             ./unit/unit_tests --verbose --color=always
+             echo -e "${RED}[KO] Some unit tests failed. See $LOG_FILE for details.${WHT}"
+             {
+                 echo "### UNIT TEST FAILURES ###"
+                 ./unit/unit_tests --verbose --color=always
+                 echo "---------------------------------------------------"
+             } >> "$LOG_FILE"
         fi
 
 	else
@@ -764,6 +798,7 @@ PERCENT=$(($SUCCESS * 100 / $TOTAL))
 echo -e "${BBLU}Succeed:${GRN} $SUCCESS${WHT}"
 echo -e "${BBLU}Failed:${RED} $(($TOTAL - $SUCCESS))${WHT}"
 echo -e "${BBLU}Results:${BYEL} $PERCENT%${WHT}"
+echo -e "${BBLU}Failed tests log:${WHT} $LOG_FILE"
 
 if [ -n "$OUTPUT_FILE" ]; then
   echo "$PERCENT" >"$OUTPUT_FILE"
