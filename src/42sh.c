@@ -10,14 +10,9 @@
 #include "token.h"
 
 struct env *env;
-
-int main(int argc, char *argv[])
+int my_42sh(int argc, char *argv[])
 {
-    // Ensure random numbers for $RANDOM for two shells launched at the same
-    // time
-    srand(time(NULL) ^ getpid());
-
-    // PRETTY PRINT A ACTIVER AVEC PRETTY_PRINT=1 dans le terminal
+       // PRETTY PRINT A ACTIVER AVEC PRETTY_PRINT=1 dans le terminal
     int pretty_print = 0;
 
     char *pretty_print_value = getenv("PRETTY_PRINT");
@@ -33,7 +28,6 @@ int main(int argc, char *argv[])
         return 2;
     }
 
-    env = init_env(argc, argv);
 
 	struct lexer *lexer = init_lexer(file);
 	if (!lexer)
@@ -66,20 +60,35 @@ int main(int argc, char *argv[])
 		env->last_exit_code = execute_ast(ast);
 		destroy_AST(ast);
 
+		if (env->should_exit == 1)
+			break;
+
 		free_token(lexer->current);
 		lexer = get_token(lexer);
-
 	}
 
     int return_val = env->last_exit_code;
-    hash_map_free(env->variables, free);
-	hash_map_free(env->functions, destroy_AST_void);
-
-    free_export(env->export_variables);
-    free(env);
+    
 	free_lexer(lexer);
-
     fclose(file);
 
     return return_val;
 }
+
+int main(int argc,char* argv[]){
+     // Ensure random numbers for $RANDOM for two shells launched at the same
+    // time
+    srand(time(NULL) ^ getpid());
+    env = init_env(argc, argv);
+    int exit_code = my_42sh(argc,argv);
+
+
+    //free env
+    hash_map_free(env->variables, free);
+	hash_map_free(env->functions, destroy_AST_void);
+    free_export(env->export_variables);
+    free(env);
+
+    return exit_code;
+}
+

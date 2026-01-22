@@ -26,5 +26,3 @@ rm -rf tests/.deps >/dev/null
 
 rm $(find src -name "Makefile" -o -name "Makefile.in") >/dev/null
 rm -rf $(find src -type d -name ".deps") >/dev/null
-
-cat tests/test_failed

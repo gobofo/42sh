@@ -45,13 +45,16 @@ static const char *get_type(enum types type)
 
 static void print_lexing(const char *input)
 {
-    if (!input) return;
+    if (!input)
+		return;
 
     FILE *stream = fmemopen((void *)input, strlen(input), "r");
-    if (!stream) return;
+    if (!stream)
+		return;
 
     struct lexer *lexer = init_lexer(stream);
-    if (!lexer) {
+    if (!lexer)
+	{
         fclose(stream);
         return;
     }
@@ -59,9 +62,16 @@ static void print_lexing(const char *input)
     while (lexer->current != NULL)
     {
         printf("[%s](%s)\n", lexer->current->content, get_type(lexer->current->type));
+
+		struct token *to_free = lexer->current;
         
         if (get_token(lexer) == NULL || lexer->current == NULL)
-            break;
+		{
+			free_token(to_free);
+			break;
+		}
+		
+		free_token(to_free);
     }
 
     free_lexer(lexer);

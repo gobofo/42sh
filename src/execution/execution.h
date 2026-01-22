@@ -24,6 +24,8 @@
 #include "my_continue/my_continue.h"
 #include "my_unset/my_unset.h"
 #include "my_export/my_export.h"
+#include "my_dot/my_dot.h"
+#include "../42sh.h"
 
 
 int execute_ast(struct AST *root);
