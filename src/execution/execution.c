@@ -14,6 +14,15 @@ int do_redir(struct AST *root, struct AST **redir);
 // #   UTILS   #
 // #############
 
+
+
+int my_return(char **command)
+{
+	env->should_return = 1;
+	return atoi(command[0]);
+}
+
+
 /**
  * @brief		Creates a new entry in the hash_map of the environment
  *
@@ -242,6 +251,8 @@ int execute_cmd(char **command)
 	}
 	else if (strcmp(command[0], "export") == 0)
 		status = my_export(command + 1);
+	else if (strcmp(command[0], "return") == 0)
+		status = my_return(command + 1);
 	else if ((func = hash_map_get(env->functions, command[0])))
 		status = execute_function(func, command+1);
 	else
@@ -341,7 +352,7 @@ int execute_while(struct AST *root)
 
 	int status = 0;
 
-	while (!execute_node(root->children[0]) && env->break_count == 0)
+	while (!execute_node(root->children[0]) && env->break_count == 0 && env->should_return == 0)
 	{
 		status = execute_node(root->children[1]);
 
@@ -352,7 +363,7 @@ int execute_while(struct AST *root)
 			}
 		}
 
-		if (env->break_count > 0) {
+		if (env->break_count > 0 || env->should_return != 0) {
 			break;
 		}
 	}
@@ -372,7 +383,7 @@ static int execute_until(struct AST *root)
 
 	int status = 0;
 
-	while (execute_node(root->children[0]) && env->break_count == 0)
+	while (execute_node(root->children[0]) && env->break_count == 0 && env->should_return == 0)
 	{
 		status = execute_node(root->children[1]);
 		if(env->continue_count != 0) {
@@ -381,7 +392,7 @@ static int execute_until(struct AST *root)
 				break;
 			}
 		}
-		if (env->break_count > 0) {
+		if (env->break_count > 0 || env->should_return != 0) {
 			break;
 		}
 
@@ -460,10 +471,9 @@ static int execute_for(struct AST *root)
 			env->continue_count--;
 			if(env->continue_count != 0) {
 				break;
-
 			}
 		}
-		if (env->break_count > 0) {
+		if (env->break_count > 0 || env->should_return != 0) {
 			break;
 		}
 
@@ -524,7 +534,7 @@ int execute_list(struct AST *root)
 
 	int status = 0;
 
-	for (int i = 0; i < root->count_children && env->break_count == 0 && env->continue_count==0;i++)
+	for (int i = 0; i < root->count_children && env->break_count == 0 && env->continue_count==0 && env->should_return==0;i++)
 		status = execute_node(root->children[i]);
 
 	return status;
@@ -680,6 +690,8 @@ int execute_function(struct AST *root, char **command)
 	}
 
 	int status = do_redir(root->children[0], redir);
+	
+	env->should_return = 0;
 
 	free(redir);
 
