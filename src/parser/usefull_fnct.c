@@ -49,8 +49,8 @@ char *donne_entre_paren(struct token *token){
     
     char *res = malloc(sizeof(char) * (strlen(token->content) - 2)); //ya le \0
 
-    memcpy(res, token->content + 2, strlen(token->content - 3)); /// $(aaaaa) strlen = 8
-    res[strlen(token->content) - 2] = '\0';
+    memcpy(res, token->content + 2, strlen(token->content) - 3); /// $(aaaaa) strlen = 8
+    res[strlen(token->content) - 3] = '\0';
 
     return res;
 }
