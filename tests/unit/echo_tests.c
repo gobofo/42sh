@@ -83,7 +83,7 @@ Test(echo_tests, flag_n_double)
 {
     char *argv[] = { strdup("-n"), strdup("-n"), NULL };
     my_echo(argv);
-    cr_assert_stdout_eq_str("-n");
+    cr_assert_stdout_eq_str("");
     free(argv[0]);
     free(argv[1]);
 }
