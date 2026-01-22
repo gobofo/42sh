@@ -13,10 +13,10 @@
 
 struct redir
 {
-	char *type;
+    char *type;
 
-	int flags;
-	int fd;
+    int flags;
+    int fd;
 };
 
 int execute_redir(struct AST *root, struct AST **redir);

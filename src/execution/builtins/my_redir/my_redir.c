@@ -2,9 +2,9 @@
 
 int do_redir(struct AST *root, struct AST **redir);
 
-//###############
-//#   HELPERS   #
-//###############
+// ###############
+// #   HELPERS   #
+// ###############
 
 /**
  * @brief			Mimics all the directions working with a file
@@ -20,8 +20,8 @@ int do_redir(struct AST *root, struct AST **redir);
  * @return			Succes or Failure (0 or 1)
  */
 
-static int general_redir(struct AST *root, struct AST **redir,
-		int fd, int flags)
+static int general_redir(struct AST *root, struct AST **redir, int fd,
+                         int flags)
 {
     int fd_file = open(redir[0]->children[1]->content, flags, 0644);
 
@@ -60,7 +60,6 @@ static int general_redir(struct AST *root, struct AST **redir,
  *
  * @return			Succes or Failure (0 or 1)
  */
-
 
 static int redir_dup(struct AST *root, struct AST **redir, int fd)
 {
@@ -105,9 +104,9 @@ static int redir_dup(struct AST *root, struct AST **redir, int fd)
     return status;
 }
 
-//#################
-//#   MAIN FUNC   #
-//#################
+// #################
+// #   MAIN FUNC   #
+// #################
 
 /**
  * @brief		Executes a redir
@@ -121,59 +120,56 @@ static int redir_dup(struct AST *root, struct AST **redir, int fd)
  * @return		Exit code
  */
 
-struct redir redirs_table[] =
-{
-	{">", O_CREAT | O_WRONLY | O_TRUNC, 1},
-	{">|", O_CREAT | O_WRONLY | O_TRUNC, 1},
-	{">>", O_CREAT | O_WRONLY | O_APPEND, 1},
-	{"<", O_RDONLY, 0},
-	{"<>", O_RDWR | O_CREAT, 0},
-	{"<&", 0, 0},
-	{">&", 0, 1},
-	{NULL, 0, -1}
-};
+struct redir redirs_table[] = { { ">", O_CREAT | O_WRONLY | O_TRUNC, 1 },
+                                { ">|", O_CREAT | O_WRONLY | O_TRUNC, 1 },
+                                { ">>", O_CREAT | O_WRONLY | O_APPEND, 1 },
+                                { "<", O_RDONLY, 0 },
+                                { "<>", O_RDWR | O_CREAT, 0 },
+                                { "<&", 0, 0 },
+                                { ">&", 0, 1 },
+                                { NULL, 0, -1 } };
 
 int execute_redir(struct AST *root, struct AST **redir)
 {
-	int fd = -1;
+    int fd = -1;
 
-	// Get the IONumber of the REDIR
-	char ionumber = redir[0]->children[0]->content[0];
-	char *content = strdup(redir[0]->children[0]->content);
-	char *to_free = content;
+    // Get the IONumber of the REDIR
+    char ionumber = redir[0]->children[0]->content[0];
+    char *content = strdup(redir[0]->children[0]->content);
+    char *to_free = content;
 
-	// Check if a IONumber is given if not we keep the default one for each
-	// redir
-	if (ionumber >= '0' && ionumber <= '9')
-	{
-		fd = ionumber - '0';
-		content++;
-	}
+    // Check if a IONumber is given if not we keep the default one for each
+    // redir
+    if (ionumber >= '0' && ionumber <= '9')
+    {
+        fd = ionumber - '0';
+        content++;
+    }
 
-	int status = 0;
+    int status = 0;
 
-	int flags = 0; 
-	
-	for (int i = 0; redirs_table[i].type != NULL; i++)
-	{
-		if (strcmp(content, redirs_table[i].type) == 0)
-		{
-			if (fd == -1)
-				fd = redirs_table[i].fd;
+    int flags = 0;
 
-			flags = redirs_table[i].flags;
-		}
-	}
+    for (int i = 0; redirs_table[i].type != NULL; i++)
+    {
+        if (strcmp(content, redirs_table[i].type) == 0)
+        {
+            if (fd == -1)
+                fd = redirs_table[i].fd;
 
-	if (strcmp(content, ">&") == 0 || strcmp(content, "<&") == 0 )
-		status = redir_dup(root, redir, fd);
-	else
-		status = general_redir(root, redir, fd, flags);
+            flags = redirs_table[i].flags;
+        }
+    }
 
-	free(to_free);
+    if (strcmp(content, ">&") == 0 || strcmp(content, "<&") == 0)
+        status = redir_dup(root, redir, fd);
+    else
+        status = general_redir(root, redir, fd, flags);
 
-	if (status != 0)
-		return status;
+    free(to_free);
 
-	return status;
+    if (status != 0)
+        return status;
+
+    return status;
 }
