@@ -99,10 +99,14 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__dirstamp = $(am__leading_dot)dirstamp
 am_unit_tests_OBJECTS = unit_tests-lexer_tests.$(OBJEXT) \
-	unit_tests-echo_tests.$(OBJEXT) \
+	unit_tests-echo_tests.$(OBJEXT) unit_tests-cd_tests.$(OBJEXT) \
+	$(top_builddir)/src/environment/unit_tests-environment.$(OBJEXT) \
+	$(top_builddir)/src/hash_map/unit_tests-hash_map.$(OBJEXT) \
+	$(top_builddir)/src/hash_map/unit_tests-hash.$(OBJEXT) \
 	$(top_builddir)/src/lexer/unit_tests-lexer.$(OBJEXT) \
 	$(top_builddir)/src/lexer/unit_tests-lexer_utils.$(OBJEXT) \
 	$(top_builddir)/src/execution/my_echo/unit_tests-my_echo.$(OBJEXT) \
+	$(top_builddir)/src/execution/my_cd/unit_tests-my_cd.$(OBJEXT) \
 	$(top_builddir)/src/unit_tests-utils.$(OBJEXT)
 unit_tests_OBJECTS = $(am_unit_tests_OBJECTS)
 unit_tests_DEPENDENCIES =
@@ -125,9 +129,14 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade =  \
 	$(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Po \
+	$(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Po \
+	$(top_builddir)/src/execution/my_cd/$(DEPDIR)/unit_tests-my_cd.Po \
 	$(top_builddir)/src/execution/my_echo/$(DEPDIR)/unit_tests-my_echo.Po \
+	$(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Po \
+	$(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Po \
 	$(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer.Po \
 	$(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer_utils.Po \
+	./$(DEPDIR)/unit_tests-cd_tests.Po \
 	./$(DEPDIR)/unit_tests-echo_tests.Po \
 	./$(DEPDIR)/unit_tests-lexer_tests.Po
 am__mv = mv -f
@@ -269,9 +278,14 @@ top_srcdir = ../..
 unit_tests_SOURCES = \
     lexer_tests.c \
 	echo_tests.c \
+	cd_tests.c \
+    $(top_srcdir)/src/environment/environment.c \
+    $(top_srcdir)/src/hash_map/hash_map.c \
+    $(top_srcdir)/src/hash_map/hash.c \
     $(top_srcdir)/src/lexer/lexer.c \
     $(top_srcdir)/src/lexer/lexer_utils.c \
 	$(top_srcdir)/src/execution/my_echo/my_echo.c \
+	$(top_srcdir)/src/execution/my_cd/my_cd.c \
     $(top_srcdir)/src/utils.c
 
 unit_tests_CFLAGS = -std=c99 -pedantic -Werror -Wall -Wextra -Wvla
@@ -312,6 +326,27 @@ $(am__aclocal_m4_deps):
 
 clean-checkPROGRAMS:
 	-$(am__rm_f) $(check_PROGRAMS)
+$(top_builddir)/src/environment/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/src/environment
+	@: >>$(top_builddir)/src/environment/$(am__dirstamp)
+$(top_builddir)/src/environment/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/src/environment/$(DEPDIR)
+	@: >>$(top_builddir)/src/environment/$(DEPDIR)/$(am__dirstamp)
+$(top_builddir)/src/environment/unit_tests-environment.$(OBJEXT):  \
+	$(top_builddir)/src/environment/$(am__dirstamp) \
+	$(top_builddir)/src/environment/$(DEPDIR)/$(am__dirstamp)
+$(top_builddir)/src/hash_map/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/src/hash_map
+	@: >>$(top_builddir)/src/hash_map/$(am__dirstamp)
+$(top_builddir)/src/hash_map/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/src/hash_map/$(DEPDIR)
+	@: >>$(top_builddir)/src/hash_map/$(DEPDIR)/$(am__dirstamp)
+$(top_builddir)/src/hash_map/unit_tests-hash_map.$(OBJEXT):  \
+	$(top_builddir)/src/hash_map/$(am__dirstamp) \
+	$(top_builddir)/src/hash_map/$(DEPDIR)/$(am__dirstamp)
+$(top_builddir)/src/hash_map/unit_tests-hash.$(OBJEXT):  \
+	$(top_builddir)/src/hash_map/$(am__dirstamp) \
+	$(top_builddir)/src/hash_map/$(DEPDIR)/$(am__dirstamp)
 $(top_builddir)/src/lexer/$(am__dirstamp):
 	@$(MKDIR_P) $(top_builddir)/src/lexer
 	@: >>$(top_builddir)/src/lexer/$(am__dirstamp)
@@ -333,6 +368,15 @@ $(top_builddir)/src/execution/my_echo/$(DEPDIR)/$(am__dirstamp):
 $(top_builddir)/src/execution/my_echo/unit_tests-my_echo.$(OBJEXT):  \
 	$(top_builddir)/src/execution/my_echo/$(am__dirstamp) \
 	$(top_builddir)/src/execution/my_echo/$(DEPDIR)/$(am__dirstamp)
+$(top_builddir)/src/execution/my_cd/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/src/execution/my_cd
+	@: >>$(top_builddir)/src/execution/my_cd/$(am__dirstamp)
+$(top_builddir)/src/execution/my_cd/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/src/execution/my_cd/$(DEPDIR)
+	@: >>$(top_builddir)/src/execution/my_cd/$(DEPDIR)/$(am__dirstamp)
+$(top_builddir)/src/execution/my_cd/unit_tests-my_cd.$(OBJEXT):  \
+	$(top_builddir)/src/execution/my_cd/$(am__dirstamp) \
+	$(top_builddir)/src/execution/my_cd/$(DEPDIR)/$(am__dirstamp)
 $(top_builddir)/src/$(am__dirstamp):
 	@$(MKDIR_P) $(top_builddir)/src
 	@: >>$(top_builddir)/src/$(am__dirstamp)
@@ -350,16 +394,24 @@ unit_tests$(EXEEXT): $(unit_tests_OBJECTS) $(unit_tests_DEPENDENCIES) $(EXTRA_un
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f $(top_builddir)/src/*.$(OBJEXT)
+	-rm -f $(top_builddir)/src/environment/*.$(OBJEXT)
+	-rm -f $(top_builddir)/src/execution/my_cd/*.$(OBJEXT)
 	-rm -f $(top_builddir)/src/execution/my_echo/*.$(OBJEXT)
+	-rm -f $(top_builddir)/src/hash_map/*.$(OBJEXT)
 	-rm -f $(top_builddir)/src/lexer/*.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
 include $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Po # am--include-marker
+include $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Po # am--include-marker
+include $(top_builddir)/src/execution/my_cd/$(DEPDIR)/unit_tests-my_cd.Po # am--include-marker
 include $(top_builddir)/src/execution/my_echo/$(DEPDIR)/unit_tests-my_echo.Po # am--include-marker
+include $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Po # am--include-marker
+include $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Po # am--include-marker
 include $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer.Po # am--include-marker
 include $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer_utils.Po # am--include-marker
+include ./$(DEPDIR)/unit_tests-cd_tests.Po # am--include-marker
 include ./$(DEPDIR)/unit_tests-echo_tests.Po # am--include-marker
 include ./$(DEPDIR)/unit_tests-lexer_tests.Po # am--include-marker
 
@@ -413,6 +465,62 @@ unit_tests-echo_tests.obj: echo_tests.c
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o unit_tests-echo_tests.obj `if test -f 'echo_tests.c'; then $(CYGPATH_W) 'echo_tests.c'; else $(CYGPATH_W) '$(srcdir)/echo_tests.c'; fi`
 
+unit_tests-cd_tests.o: cd_tests.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT unit_tests-cd_tests.o -MD -MP -MF $(DEPDIR)/unit_tests-cd_tests.Tpo -c -o unit_tests-cd_tests.o `test -f 'cd_tests.c' || echo '$(srcdir)/'`cd_tests.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/unit_tests-cd_tests.Tpo $(DEPDIR)/unit_tests-cd_tests.Po
+#	$(AM_V_CC)source='cd_tests.c' object='unit_tests-cd_tests.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o unit_tests-cd_tests.o `test -f 'cd_tests.c' || echo '$(srcdir)/'`cd_tests.c
+
+unit_tests-cd_tests.obj: cd_tests.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT unit_tests-cd_tests.obj -MD -MP -MF $(DEPDIR)/unit_tests-cd_tests.Tpo -c -o unit_tests-cd_tests.obj `if test -f 'cd_tests.c'; then $(CYGPATH_W) 'cd_tests.c'; else $(CYGPATH_W) '$(srcdir)/cd_tests.c'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/unit_tests-cd_tests.Tpo $(DEPDIR)/unit_tests-cd_tests.Po
+#	$(AM_V_CC)source='cd_tests.c' object='unit_tests-cd_tests.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o unit_tests-cd_tests.obj `if test -f 'cd_tests.c'; then $(CYGPATH_W) 'cd_tests.c'; else $(CYGPATH_W) '$(srcdir)/cd_tests.c'; fi`
+
+$(top_builddir)/src/environment/unit_tests-environment.o: $(top_builddir)/src/environment/environment.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/environment/unit_tests-environment.o -MD -MP -MF $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Tpo -c -o $(top_builddir)/src/environment/unit_tests-environment.o `test -f '$(top_builddir)/src/environment/environment.c' || echo '$(srcdir)/'`$(top_builddir)/src/environment/environment.c
+	$(AM_V_at)$(am__mv) $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Tpo $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Po
+#	$(AM_V_CC)source='$(top_builddir)/src/environment/environment.c' object='$(top_builddir)/src/environment/unit_tests-environment.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/environment/unit_tests-environment.o `test -f '$(top_builddir)/src/environment/environment.c' || echo '$(srcdir)/'`$(top_builddir)/src/environment/environment.c
+
+$(top_builddir)/src/environment/unit_tests-environment.obj: $(top_builddir)/src/environment/environment.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/environment/unit_tests-environment.obj -MD -MP -MF $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Tpo -c -o $(top_builddir)/src/environment/unit_tests-environment.obj `if test -f '$(top_builddir)/src/environment/environment.c'; then $(CYGPATH_W) '$(top_builddir)/src/environment/environment.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/environment/environment.c'; fi`
+	$(AM_V_at)$(am__mv) $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Tpo $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Po
+#	$(AM_V_CC)source='$(top_builddir)/src/environment/environment.c' object='$(top_builddir)/src/environment/unit_tests-environment.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/environment/unit_tests-environment.obj `if test -f '$(top_builddir)/src/environment/environment.c'; then $(CYGPATH_W) '$(top_builddir)/src/environment/environment.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/environment/environment.c'; fi`
+
+$(top_builddir)/src/hash_map/unit_tests-hash_map.o: $(top_builddir)/src/hash_map/hash_map.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/hash_map/unit_tests-hash_map.o -MD -MP -MF $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Tpo -c -o $(top_builddir)/src/hash_map/unit_tests-hash_map.o `test -f '$(top_builddir)/src/hash_map/hash_map.c' || echo '$(srcdir)/'`$(top_builddir)/src/hash_map/hash_map.c
+	$(AM_V_at)$(am__mv) $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Tpo $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Po
+#	$(AM_V_CC)source='$(top_builddir)/src/hash_map/hash_map.c' object='$(top_builddir)/src/hash_map/unit_tests-hash_map.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/hash_map/unit_tests-hash_map.o `test -f '$(top_builddir)/src/hash_map/hash_map.c' || echo '$(srcdir)/'`$(top_builddir)/src/hash_map/hash_map.c
+
+$(top_builddir)/src/hash_map/unit_tests-hash_map.obj: $(top_builddir)/src/hash_map/hash_map.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/hash_map/unit_tests-hash_map.obj -MD -MP -MF $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Tpo -c -o $(top_builddir)/src/hash_map/unit_tests-hash_map.obj `if test -f '$(top_builddir)/src/hash_map/hash_map.c'; then $(CYGPATH_W) '$(top_builddir)/src/hash_map/hash_map.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/hash_map/hash_map.c'; fi`
+	$(AM_V_at)$(am__mv) $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Tpo $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Po
+#	$(AM_V_CC)source='$(top_builddir)/src/hash_map/hash_map.c' object='$(top_builddir)/src/hash_map/unit_tests-hash_map.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/hash_map/unit_tests-hash_map.obj `if test -f '$(top_builddir)/src/hash_map/hash_map.c'; then $(CYGPATH_W) '$(top_builddir)/src/hash_map/hash_map.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/hash_map/hash_map.c'; fi`
+
+$(top_builddir)/src/hash_map/unit_tests-hash.o: $(top_builddir)/src/hash_map/hash.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/hash_map/unit_tests-hash.o -MD -MP -MF $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Tpo -c -o $(top_builddir)/src/hash_map/unit_tests-hash.o `test -f '$(top_builddir)/src/hash_map/hash.c' || echo '$(srcdir)/'`$(top_builddir)/src/hash_map/hash.c
+	$(AM_V_at)$(am__mv) $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Tpo $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Po
+#	$(AM_V_CC)source='$(top_builddir)/src/hash_map/hash.c' object='$(top_builddir)/src/hash_map/unit_tests-hash.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/hash_map/unit_tests-hash.o `test -f '$(top_builddir)/src/hash_map/hash.c' || echo '$(srcdir)/'`$(top_builddir)/src/hash_map/hash.c
+
+$(top_builddir)/src/hash_map/unit_tests-hash.obj: $(top_builddir)/src/hash_map/hash.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/hash_map/unit_tests-hash.obj -MD -MP -MF $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Tpo -c -o $(top_builddir)/src/hash_map/unit_tests-hash.obj `if test -f '$(top_builddir)/src/hash_map/hash.c'; then $(CYGPATH_W) '$(top_builddir)/src/hash_map/hash.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/hash_map/hash.c'; fi`
+	$(AM_V_at)$(am__mv) $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Tpo $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Po
+#	$(AM_V_CC)source='$(top_builddir)/src/hash_map/hash.c' object='$(top_builddir)/src/hash_map/unit_tests-hash.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/hash_map/unit_tests-hash.obj `if test -f '$(top_builddir)/src/hash_map/hash.c'; then $(CYGPATH_W) '$(top_builddir)/src/hash_map/hash.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/hash_map/hash.c'; fi`
+
 $(top_builddir)/src/lexer/unit_tests-lexer.o: $(top_builddir)/src/lexer/lexer.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/lexer/unit_tests-lexer.o -MD -MP -MF $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer.Tpo -c -o $(top_builddir)/src/lexer/unit_tests-lexer.o `test -f '$(top_builddir)/src/lexer/lexer.c' || echo '$(srcdir)/'`$(top_builddir)/src/lexer/lexer.c
 	$(AM_V_at)$(am__mv) $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer.Tpo $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer.Po
@@ -454,6 +562,20 @@ $(top_builddir)/src/execution/my_echo/unit_tests-my_echo.obj: $(top_builddir)/sr
 #	$(AM_V_CC)source='$(top_builddir)/src/execution/my_echo/my_echo.c' object='$(top_builddir)/src/execution/my_echo/unit_tests-my_echo.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/execution/my_echo/unit_tests-my_echo.obj `if test -f '$(top_builddir)/src/execution/my_echo/my_echo.c'; then $(CYGPATH_W) '$(top_builddir)/src/execution/my_echo/my_echo.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/execution/my_echo/my_echo.c'; fi`
+
+$(top_builddir)/src/execution/my_cd/unit_tests-my_cd.o: $(top_builddir)/src/execution/my_cd/my_cd.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/execution/my_cd/unit_tests-my_cd.o -MD -MP -MF $(top_builddir)/src/execution/my_cd/$(DEPDIR)/unit_tests-my_cd.Tpo -c -o $(top_builddir)/src/execution/my_cd/unit_tests-my_cd.o `test -f '$(top_builddir)/src/execution/my_cd/my_cd.c' || echo '$(srcdir)/'`$(top_builddir)/src/execution/my_cd/my_cd.c
+	$(AM_V_at)$(am__mv) $(top_builddir)/src/execution/my_cd/$(DEPDIR)/unit_tests-my_cd.Tpo $(top_builddir)/src/execution/my_cd/$(DEPDIR)/unit_tests-my_cd.Po
+#	$(AM_V_CC)source='$(top_builddir)/src/execution/my_cd/my_cd.c' object='$(top_builddir)/src/execution/my_cd/unit_tests-my_cd.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/execution/my_cd/unit_tests-my_cd.o `test -f '$(top_builddir)/src/execution/my_cd/my_cd.c' || echo '$(srcdir)/'`$(top_builddir)/src/execution/my_cd/my_cd.c
+
+$(top_builddir)/src/execution/my_cd/unit_tests-my_cd.obj: $(top_builddir)/src/execution/my_cd/my_cd.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/execution/my_cd/unit_tests-my_cd.obj -MD -MP -MF $(top_builddir)/src/execution/my_cd/$(DEPDIR)/unit_tests-my_cd.Tpo -c -o $(top_builddir)/src/execution/my_cd/unit_tests-my_cd.obj `if test -f '$(top_builddir)/src/execution/my_cd/my_cd.c'; then $(CYGPATH_W) '$(top_builddir)/src/execution/my_cd/my_cd.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/execution/my_cd/my_cd.c'; fi`
+	$(AM_V_at)$(am__mv) $(top_builddir)/src/execution/my_cd/$(DEPDIR)/unit_tests-my_cd.Tpo $(top_builddir)/src/execution/my_cd/$(DEPDIR)/unit_tests-my_cd.Po
+#	$(AM_V_CC)source='$(top_builddir)/src/execution/my_cd/my_cd.c' object='$(top_builddir)/src/execution/my_cd/unit_tests-my_cd.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/execution/my_cd/unit_tests-my_cd.obj `if test -f '$(top_builddir)/src/execution/my_cd/my_cd.c'; then $(CYGPATH_W) '$(top_builddir)/src/execution/my_cd/my_cd.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/execution/my_cd/my_cd.c'; fi`
 
 $(top_builddir)/src/unit_tests-utils.o: $(top_builddir)/src/utils.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/unit_tests-utils.o -MD -MP -MF $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Tpo -c -o $(top_builddir)/src/unit_tests-utils.o `test -f '$(top_builddir)/src/utils.c' || echo '$(srcdir)/'`$(top_builddir)/src/utils.c
@@ -587,8 +709,14 @@ distclean-generic:
 	-test . = "$(srcdir)" || $(am__rm_f) $(CONFIG_CLEAN_VPATH_FILES)
 	-$(am__rm_f) $(top_builddir)/src/$(DEPDIR)/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/$(am__dirstamp)
+	-$(am__rm_f) $(top_builddir)/src/environment/$(DEPDIR)/$(am__dirstamp)
+	-$(am__rm_f) $(top_builddir)/src/environment/$(am__dirstamp)
+	-$(am__rm_f) $(top_builddir)/src/execution/my_cd/$(DEPDIR)/$(am__dirstamp)
+	-$(am__rm_f) $(top_builddir)/src/execution/my_cd/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/execution/my_echo/$(DEPDIR)/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/execution/my_echo/$(am__dirstamp)
+	-$(am__rm_f) $(top_builddir)/src/hash_map/$(DEPDIR)/$(am__dirstamp)
+	-$(am__rm_f) $(top_builddir)/src/hash_map/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/lexer/$(DEPDIR)/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/lexer/$(am__dirstamp)
 
@@ -601,9 +729,14 @@ clean-am: clean-checkPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Po
+	-rm -f $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Po
+	-rm -f $(top_builddir)/src/execution/my_cd/$(DEPDIR)/unit_tests-my_cd.Po
 	-rm -f $(top_builddir)/src/execution/my_echo/$(DEPDIR)/unit_tests-my_echo.Po
+	-rm -f $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Po
+	-rm -f $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Po
 	-rm -f $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer.Po
 	-rm -f $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer_utils.Po
+	-rm -f ./$(DEPDIR)/unit_tests-cd_tests.Po
 	-rm -f ./$(DEPDIR)/unit_tests-echo_tests.Po
 	-rm -f ./$(DEPDIR)/unit_tests-lexer_tests.Po
 	-rm -f Makefile
@@ -652,9 +785,14 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 	-rm -f $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Po
+	-rm -f $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Po
+	-rm -f $(top_builddir)/src/execution/my_cd/$(DEPDIR)/unit_tests-my_cd.Po
 	-rm -f $(top_builddir)/src/execution/my_echo/$(DEPDIR)/unit_tests-my_echo.Po
+	-rm -f $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Po
+	-rm -f $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Po
 	-rm -f $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer.Po
 	-rm -f $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer_utils.Po
+	-rm -f ./$(DEPDIR)/unit_tests-cd_tests.Po
 	-rm -f ./$(DEPDIR)/unit_tests-echo_tests.Po
 	-rm -f ./$(DEPDIR)/unit_tests-lexer_tests.Po
 	-rm -f Makefile
