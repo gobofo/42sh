@@ -27,6 +27,7 @@ struct env
 
     int break_count;
 	int continue_count;
+    int boucle_count;
     // Stores the number of args passed to the shell
     int argc;
 

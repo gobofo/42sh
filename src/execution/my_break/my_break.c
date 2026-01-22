@@ -6,7 +6,7 @@ extern struct env *env;
 
 int my_break(char **command)
 {
-    if (command && command[1] != NULL)
+    if (command[0] && command[1] != NULL)
     {
         fprintf(stderr, "Error: break: too many arguments");
         return 2;
