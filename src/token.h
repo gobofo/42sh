@@ -43,7 +43,10 @@ enum types
     R_BRACE,
 
     L_PAREN,
-    R_PAREN
+    R_PAREN,
+
+    //SUBSHELL
+    SUBSHELL
 };
 
 struct token
