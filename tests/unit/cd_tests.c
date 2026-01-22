@@ -6,7 +6,7 @@
 #include <unistd.h>
 
 #include "../../src/environment/environment.h"
-#include "../../src/execution/my_cd/my_cd.h"
+#include "../../src/execution/builtins/my_cd/my_cd.h"
 
 extern struct env *env;
 
