@@ -8,17 +8,6 @@ static int execute_function(struct AST *root, char **command);
 
 struct builtin builtins_table[];
 
-int my_true(char **command)
-{
-	(void)command;
-	return 0;
-}
-
-int my_false(char **command)
-{
-	(void)command;
-	return 1;
-}
 // #############
 // #   UTILS   #
 // #############
