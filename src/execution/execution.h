@@ -15,6 +15,8 @@
 #include "../parser/parser.h"
 #include "../42sh.h"
 
+#include "execution_utils.c"
+
 #include "execute_command/execute_command.h"
 
 #include "builtins/my_break/my_break.h"
