@@ -1,41 +1,9 @@
-Test Failures Log - jeu. 22 janv. 2026 03:05:54 CET
+Test Failures Log - jeu. 22 janv. 2026 03:34:15 CET
 ---------------------------------------------------
 Test: cd without PWD
 Command: unset PWD; cd /tmp; pwd
 Expected: /tmp
 Actual:   timeout: the monitored command dumped core
----------------------------------------------------
-Test: export basic
-Command: export MYVAR=test; env | grep MYVAR
-Expected: MYVAR=test
-Actual:   MYVAR=MYVAR
----------------------------------------------------
-Test: export to child
-Command: export X=1; sh -c 'echo $X'
-Expected: 1
-Actual:   X
----------------------------------------------------
-Test: export empty
-Command: export EMPTY=; env | grep EMPTY
-Expected: EMPTY=
-Actual:   EMPTY=EMPTY
----------------------------------------------------
-Test: export special name
-Command: export _VAR123=ok; echo $_VAR123
-Expected: ok
-Actual:   _VAR123
----------------------------------------------------
-Test: export with spaces
-Command: export VAR='a b c'; sh -c 'echo $VAR'
-Expected: a b c
-Actual:   VAR
----------------------------------------------------
-Test: unset exported
-Command: export x=1; unset x; echo "$x"
-Expected: 
-Actual:   
-free(): double free detected in tcache 2
-timeout: the monitored command dumped core
 ---------------------------------------------------
 Test: function argc
 Command: f() { echo $#; }; f a b c
@@ -237,6 +205,6 @@ Actual: exit code 0
 ---------------------------------------------------
 Test: pid expansion
 Command: echo $$
-Expected: 231487
-Actual:   231490
+Expected: 258173
+Actual:   258176
 ---------------------------------------------------
