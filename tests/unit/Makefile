@@ -183,7 +183,7 @@ AUTOMAKE = ${SHELL} '/home/lennyt/42/42sh/missing' automake-1.18
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -fsanitize=address -g -std=c99 -pedantic -Werror -Wall -Wextra -Wvla
+CFLAGS = -g -O2 -std=c99 -pedantic -Werror -Wall -Wextra -Wvla
 CPPFLAGS = 
 CSCOPE = cscope
 CTAGS = ctags

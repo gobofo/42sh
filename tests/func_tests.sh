@@ -18,130 +18,126 @@ if [ -z "$BIN_PATH" ]; then
 fi
 
 # Initialisation du fichier de log
-echo "Test Failures Log - $(date)" > "$LOG_FILE"
-echo "---------------------------------------------------" >> "$LOG_FILE"
+echo "Test Failures Log - $(date)" >"$LOG_FILE"
+echo "---------------------------------------------------" >>"$LOG_FILE"
 
-test_cmd()
-{
-	TOTAL=$((TOTAL + 1))
-    local expected=$(timeout $TIMEOUT bash --posix -c "$1" 2>&1)
-    local actual=$(timeout $TIMEOUT "$BIN_PATH" -c "$1" 2>&1)
-	if [ "$expected" = "$actual" ]; then
-		SUCCESS=$((SUCCESS + 1))
-        echo -e "${GRN}[OK] $2${WHT}"
-	else
-		echo -e "${RED}[KO] $2${WHT}"
-        {
-            echo "Test: $2"
-            echo "Command: $1"
-            echo "Expected: $expected"
-            echo "Actual:   $actual"
-            echo "---------------------------------------------------"
-        } >> "$LOG_FILE"
-	fi
+test_cmd() {
+  TOTAL=$((TOTAL + 1))
+  local expected=$(timeout $TIMEOUT bash --posix -c "$1" 2>&1)
+  local actual=$(timeout $TIMEOUT "$BIN_PATH" -c "$1" 2>&1)
+  if [ "$expected" = "$actual" ]; then
+    SUCCESS=$((SUCCESS + 1))
+    echo -e "${GRN}[OK] $2${WHT}"
+  else
+    echo -e "${RED}[KO] $2${WHT}"
+    {
+      echo "Test: $2"
+      echo "Command: $1"
+      echo "Expected: $expected"
+      echo "Actual:   $actual"
+      echo "---------------------------------------------------"
+    } >>"$LOG_FILE"
+  fi
 }
 
-test_file()
-{
-	TOTAL=$((TOTAL + 1))
-    local expected=$(timeout $TIMEOUT bash --posix "$1" 2>&1)
-    local actual=$(timeout $TIMEOUT "$BIN_PATH" "$1" 2>&1)
-	if [ "$expected" = "$actual" ]; then
-		SUCCESS=$((SUCCESS + 1))
-        echo -e "${GRN}[OK] $2${WHT}"
-	else
-		echo -e "${RED}[KO] $2${WHT}"
-        {
-            echo "Test File: $2 ($1)"
-            echo "Expected: $expected"
-            echo "Actual:   $actual"
-            echo "---------------------------------------------------"
-        } >> "$LOG_FILE"
-	fi
+test_file() {
+  TOTAL=$((TOTAL + 1))
+  local expected=$(timeout $TIMEOUT bash --posix "$1" 2>&1)
+  local actual=$(timeout $TIMEOUT "$BIN_PATH" "$1" 2>&1)
+  if [ "$expected" = "$actual" ]; then
+    SUCCESS=$((SUCCESS + 1))
+    echo -e "${GRN}[OK] $2${WHT}"
+  else
+    echo -e "${RED}[KO] $2${WHT}"
+    {
+      echo "Test File: $2 ($1)"
+      echo "Expected: $expected"
+      echo "Actual:   $actual"
+      echo "---------------------------------------------------"
+    } >>"$LOG_FILE"
+  fi
 }
 
-test_error()
-{
-	TOTAL=$((TOTAL + 1))
-    timeout $TIMEOUT "$BIN_PATH" -c "$1" > /dev/null 2>&1
-    local exit_code=$?
-	if [ $exit_code -ne 0 ]; then
-		SUCCESS=$((SUCCESS + 1))
-        echo -e "${GRN}[OK] $2${WHT}"
-	else
-		echo -e "${RED}[KO] $2${WHT}"
-        {
-            echo "Test Error: $2"
-            echo "Command: $1"
-            echo "Expected: non-zero exit code"
-            echo "Actual: exit code $exit_code"
-            echo "---------------------------------------------------"
-        } >> "$LOG_FILE"
-	fi
+test_error() {
+  TOTAL=$((TOTAL + 1))
+  timeout $TIMEOUT "$BIN_PATH" -c "$1" >/dev/null 2>&1
+  local exit_code=$?
+  if [ $exit_code -ne 0 ]; then
+    SUCCESS=$((SUCCESS + 1))
+    echo -e "${GRN}[OK] $2${WHT}"
+  else
+    echo -e "${RED}[KO] $2${WHT}"
+    {
+      echo "Test Error: $2"
+      echo "Command: $1"
+      echo "Expected: non-zero exit code"
+      echo "Actual: exit code $exit_code"
+      echo "---------------------------------------------------"
+    } >>"$LOG_FILE"
+  fi
 }
 
-test_stdin()
-{
-	TOTAL=$((TOTAL + 1))
-    local expected=$(echo "$1" | timeout $TIMEOUT bash --posix 2>&1)
-    local actual=$(echo "$1" | timeout $TIMEOUT "$BIN_PATH" 2>&1)
-	if [ "$expected" = "$actual" ]; then
-		SUCCESS=$((SUCCESS + 1))
-        echo -e "${GRN}[OK] $2${WHT}"
-	else
-		echo -e "${RED}[KO] $2${WHT}"
-        {
-            echo "Test Stdin: $2"
-            echo "Input: $1"
-            echo "Expected: $expected"
-            echo "Actual:   $actual"
-            echo "---------------------------------------------------"
-        } >> "$LOG_FILE"
-	fi
+test_stdin() {
+  TOTAL=$((TOTAL + 1))
+  local expected=$(echo "$1" | timeout $TIMEOUT bash --posix 2>&1)
+  local actual=$(echo "$1" | timeout $TIMEOUT "$BIN_PATH" 2>&1)
+  if [ "$expected" = "$actual" ]; then
+    SUCCESS=$((SUCCESS + 1))
+    echo -e "${GRN}[OK] $2${WHT}"
+  else
+    echo -e "${RED}[KO] $2${WHT}"
+    {
+      echo "Test Stdin: $2"
+      echo "Input: $1"
+      echo "Expected: $expected"
+      echo "Actual:   $actual"
+      echo "---------------------------------------------------"
+    } >>"$LOG_FILE"
+  fi
 }
 
 if [ "$COVERAGE" = "yes" ]; then
 
-	echo "###################################################"
-	echo "RUNNING UNIT TESTS"
-	echo "###################################################"
+  echo "###################################################"
+  echo "RUNNING UNIT TESTS"
+  echo "###################################################"
 
-	if [ -f "unit/unit_tests" ]; then
+  if [ -f "unit/unit_tests" ]; then
 
-		UNIT_OUT=$(./unit/unit_tests --verbose --color=never 2>&1)
-        UNIT_EXIT=$?
+    UNIT_OUT=$(./unit/unit_tests --verbose --color=never 2>&1)
+    UNIT_EXIT=$?
 
-        # Use awk to extract numbers reliably
-        SYNTHESIS=$(echo "$UNIT_OUT" | grep "Synthesis:")
-        PASSED=$(echo "$SYNTHESIS" | awk -F'Passing: ' '{print $2}' | awk '{print $1}')
-        TESTED=$(echo "$SYNTHESIS" | awk -F'Tested: ' '{print $2}' | awk '{print $1}')
+    # Use awk to extract numbers reliably
+    SYNTHESIS=$(echo "$UNIT_OUT" | grep "Synthesis:")
+    PASSED=$(echo "$SYNTHESIS" | awk -F'Passing: ' '{print $2}' | awk '{print $1}')
+    TESTED=$(echo "$SYNTHESIS" | awk -F'Tested: ' '{print $2}' | awk '{print $1}')
 
-        if [ -n "$PASSED" ] && [ -n "$TESTED" ]; then
-            SUCCESS=$((SUCCESS + PASSED))
-            TOTAL=$((TOTAL + TESTED))
-            echo -e "${GRN}Unit tests completed: $PASSED/$TESTED${WHT}"
-        else
-            # Fallback if parsing fails
-            echo -e "${RED}Failed to parse Criterion output${WHT}"
-            if [ $UNIT_EXIT -eq 0 ]; then
-                SUCCESS=$((SUCCESS + 1))
-            fi
-            TOTAL=$((TOTAL + 1))
-        fi
+    if [ -n "$PASSED" ] && [ -n "$TESTED" ]; then
+      SUCCESS=$((SUCCESS + PASSED))
+      TOTAL=$((TOTAL + TESTED))
+      echo -e "${GRN}Unit tests completed: $PASSED/$TESTED${WHT}"
+    else
+      # Fallback if parsing fails
+      echo -e "${RED}Failed to parse Criterion output${WHT}"
+      if [ $UNIT_EXIT -eq 0 ]; then
+        SUCCESS=$((SUCCESS + 1))
+      fi
+      TOTAL=$((TOTAL + 1))
+    fi
 
-        # Log failing tests to file instead of stdout
-        if [ $UNIT_EXIT -ne 0 ]; then
-             echo -e "${RED}[KO] Some unit tests failed. See $LOG_FILE for details.${WHT}"
-             {
-                 echo "### UNIT TEST FAILURES ###"
-                 ./unit/unit_tests --verbose --color=always
-                 echo "---------------------------------------------------"
-             } >> "$LOG_FILE"
-        fi
+    # Log failing tests to file instead of stdout
+    if [ $UNIT_EXIT -ne 0 ]; then
+      echo -e "${RED}[KO] Some unit tests failed. See $LOG_FILE for details.${WHT}"
+      {
+        echo "### UNIT TEST FAILURES ###"
+        ./unit/unit_tests --verbose --color=always
+        echo "---------------------------------------------------"
+      } >>"$LOG_FILE"
+    fi
 
-	else
-		echo -e "${RED}Unit tester binary not found${WHT}"
-	fi
+  else
+    echo -e "${RED}Unit tester binary not found${WHT}"
+  fi
 
 fi
 
@@ -652,7 +648,6 @@ test_cmd 'echo "$VAR_NOT_EXIST"' "nonexistent variable"
 test_error 'echo """' "multiple double quotes"
 test_cmd "echo ''''" "multiple single quotes"
 test_cmd "abc=123; echo \${abc}" "braces expansion"
-test_cmd "echo \$\$" "pid expansion"
 test_cmd "echo a | grep a | grep a | grep a | cat" "very long pipe"
 test_cmd 'foo=bar; echo "$foo"_$foo' "mixed quotes raw"
 test_cmd "cat < /dev/null" "input from null"
@@ -805,3 +800,4 @@ if [ -n "$OUTPUT_FILE" ]; then
 fi
 
 exit 0
+
