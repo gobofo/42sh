@@ -38,7 +38,7 @@ char *get_string_of_node(struct AST *ast)
     case AST_FUNC:
         return ast->content;
     case AST_SUB:
-        return "SUBSHELL"
+        return "SUBSHELL";
     default:
         return "";
     }
