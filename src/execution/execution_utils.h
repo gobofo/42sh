@@ -12,6 +12,7 @@
 #include "../expansion/expansion.h"
 
 int variable_assignation(struct AST *root);
+int create_function(struct AST *root);
 
 char **create_command(struct AST *root);
 
