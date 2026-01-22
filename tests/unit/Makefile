@@ -100,6 +100,7 @@ CONFIG_CLEAN_VPATH_FILES =
 am__dirstamp = $(am__leading_dot)dirstamp
 am_unit_tests_OBJECTS = unit_tests-lexer_tests.$(OBJEXT) \
 	unit_tests-echo_tests.$(OBJEXT) unit_tests-cd_tests.$(OBJEXT) \
+	unit_tests-unset_tests.$(OBJEXT) \
 	$(top_builddir)/src/environment/unit_tests-environment.$(OBJEXT) \
 	$(top_builddir)/src/hash_map/unit_tests-hash_map.$(OBJEXT) \
 	$(top_builddir)/src/hash_map/unit_tests-hash.$(OBJEXT) \
@@ -107,6 +108,8 @@ am_unit_tests_OBJECTS = unit_tests-lexer_tests.$(OBJEXT) \
 	$(top_builddir)/src/lexer/unit_tests-lexer_utils.$(OBJEXT) \
 	$(top_builddir)/src/execution/my_echo/unit_tests-my_echo.$(OBJEXT) \
 	$(top_builddir)/src/execution/my_cd/unit_tests-my_cd.$(OBJEXT) \
+	$(top_builddir)/src/execution/my_unset/unit_tests-my_unset.$(OBJEXT) \
+	$(top_builddir)/src/ast/unit_tests-ast.$(OBJEXT) \
 	$(top_builddir)/src/unit_tests-utils.$(OBJEXT)
 unit_tests_OBJECTS = $(am_unit_tests_OBJECTS)
 unit_tests_DEPENDENCIES =
@@ -129,16 +132,19 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade =  \
 	$(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Po \
+	$(top_builddir)/src/ast/$(DEPDIR)/unit_tests-ast.Po \
 	$(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Po \
 	$(top_builddir)/src/execution/my_cd/$(DEPDIR)/unit_tests-my_cd.Po \
 	$(top_builddir)/src/execution/my_echo/$(DEPDIR)/unit_tests-my_echo.Po \
+	$(top_builddir)/src/execution/my_unset/$(DEPDIR)/unit_tests-my_unset.Po \
 	$(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Po \
 	$(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Po \
 	$(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer.Po \
 	$(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer_utils.Po \
 	./$(DEPDIR)/unit_tests-cd_tests.Po \
 	./$(DEPDIR)/unit_tests-echo_tests.Po \
-	./$(DEPDIR)/unit_tests-lexer_tests.Po
+	./$(DEPDIR)/unit_tests-lexer_tests.Po \
+	./$(DEPDIR)/unit_tests-unset_tests.Po
 am__mv = mv -f
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -279,6 +285,7 @@ unit_tests_SOURCES = \
     lexer_tests.c \
 	echo_tests.c \
 	cd_tests.c \
+	unset_tests.c \
     $(top_srcdir)/src/environment/environment.c \
     $(top_srcdir)/src/hash_map/hash_map.c \
     $(top_srcdir)/src/hash_map/hash.c \
@@ -286,6 +293,8 @@ unit_tests_SOURCES = \
     $(top_srcdir)/src/lexer/lexer_utils.c \
 	$(top_srcdir)/src/execution/my_echo/my_echo.c \
 	$(top_srcdir)/src/execution/my_cd/my_cd.c \
+	$(top_srcdir)/src/execution/my_unset/my_unset.c \
+    $(top_srcdir)/src/ast/ast.c \
     $(top_srcdir)/src/utils.c
 
 unit_tests_CFLAGS = -std=c99 -pedantic -Werror -Wall -Wextra -Wvla
@@ -377,6 +386,24 @@ $(top_builddir)/src/execution/my_cd/$(DEPDIR)/$(am__dirstamp):
 $(top_builddir)/src/execution/my_cd/unit_tests-my_cd.$(OBJEXT):  \
 	$(top_builddir)/src/execution/my_cd/$(am__dirstamp) \
 	$(top_builddir)/src/execution/my_cd/$(DEPDIR)/$(am__dirstamp)
+$(top_builddir)/src/execution/my_unset/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/src/execution/my_unset
+	@: >>$(top_builddir)/src/execution/my_unset/$(am__dirstamp)
+$(top_builddir)/src/execution/my_unset/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/src/execution/my_unset/$(DEPDIR)
+	@: >>$(top_builddir)/src/execution/my_unset/$(DEPDIR)/$(am__dirstamp)
+$(top_builddir)/src/execution/my_unset/unit_tests-my_unset.$(OBJEXT):  \
+	$(top_builddir)/src/execution/my_unset/$(am__dirstamp) \
+	$(top_builddir)/src/execution/my_unset/$(DEPDIR)/$(am__dirstamp)
+$(top_builddir)/src/ast/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/src/ast
+	@: >>$(top_builddir)/src/ast/$(am__dirstamp)
+$(top_builddir)/src/ast/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/src/ast/$(DEPDIR)
+	@: >>$(top_builddir)/src/ast/$(DEPDIR)/$(am__dirstamp)
+$(top_builddir)/src/ast/unit_tests-ast.$(OBJEXT):  \
+	$(top_builddir)/src/ast/$(am__dirstamp) \
+	$(top_builddir)/src/ast/$(DEPDIR)/$(am__dirstamp)
 $(top_builddir)/src/$(am__dirstamp):
 	@$(MKDIR_P) $(top_builddir)/src
 	@: >>$(top_builddir)/src/$(am__dirstamp)
@@ -394,9 +421,11 @@ unit_tests$(EXEEXT): $(unit_tests_OBJECTS) $(unit_tests_DEPENDENCIES) $(EXTRA_un
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f $(top_builddir)/src/*.$(OBJEXT)
+	-rm -f $(top_builddir)/src/ast/*.$(OBJEXT)
 	-rm -f $(top_builddir)/src/environment/*.$(OBJEXT)
 	-rm -f $(top_builddir)/src/execution/my_cd/*.$(OBJEXT)
 	-rm -f $(top_builddir)/src/execution/my_echo/*.$(OBJEXT)
+	-rm -f $(top_builddir)/src/execution/my_unset/*.$(OBJEXT)
 	-rm -f $(top_builddir)/src/hash_map/*.$(OBJEXT)
 	-rm -f $(top_builddir)/src/lexer/*.$(OBJEXT)
 
@@ -404,9 +433,11 @@ distclean-compile:
 	-rm -f *.tab.c
 
 include $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Po # am--include-marker
+include $(top_builddir)/src/ast/$(DEPDIR)/unit_tests-ast.Po # am--include-marker
 include $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Po # am--include-marker
 include $(top_builddir)/src/execution/my_cd/$(DEPDIR)/unit_tests-my_cd.Po # am--include-marker
 include $(top_builddir)/src/execution/my_echo/$(DEPDIR)/unit_tests-my_echo.Po # am--include-marker
+include $(top_builddir)/src/execution/my_unset/$(DEPDIR)/unit_tests-my_unset.Po # am--include-marker
 include $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Po # am--include-marker
 include $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Po # am--include-marker
 include $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer.Po # am--include-marker
@@ -414,6 +445,7 @@ include $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer_utils.Po # am--incl
 include ./$(DEPDIR)/unit_tests-cd_tests.Po # am--include-marker
 include ./$(DEPDIR)/unit_tests-echo_tests.Po # am--include-marker
 include ./$(DEPDIR)/unit_tests-lexer_tests.Po # am--include-marker
+include ./$(DEPDIR)/unit_tests-unset_tests.Po # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -478,6 +510,20 @@ unit_tests-cd_tests.obj: cd_tests.c
 #	$(AM_V_CC)source='cd_tests.c' object='unit_tests-cd_tests.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o unit_tests-cd_tests.obj `if test -f 'cd_tests.c'; then $(CYGPATH_W) 'cd_tests.c'; else $(CYGPATH_W) '$(srcdir)/cd_tests.c'; fi`
+
+unit_tests-unset_tests.o: unset_tests.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT unit_tests-unset_tests.o -MD -MP -MF $(DEPDIR)/unit_tests-unset_tests.Tpo -c -o unit_tests-unset_tests.o `test -f 'unset_tests.c' || echo '$(srcdir)/'`unset_tests.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/unit_tests-unset_tests.Tpo $(DEPDIR)/unit_tests-unset_tests.Po
+#	$(AM_V_CC)source='unset_tests.c' object='unit_tests-unset_tests.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o unit_tests-unset_tests.o `test -f 'unset_tests.c' || echo '$(srcdir)/'`unset_tests.c
+
+unit_tests-unset_tests.obj: unset_tests.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT unit_tests-unset_tests.obj -MD -MP -MF $(DEPDIR)/unit_tests-unset_tests.Tpo -c -o unit_tests-unset_tests.obj `if test -f 'unset_tests.c'; then $(CYGPATH_W) 'unset_tests.c'; else $(CYGPATH_W) '$(srcdir)/unset_tests.c'; fi`
+	$(AM_V_at)$(am__mv) $(DEPDIR)/unit_tests-unset_tests.Tpo $(DEPDIR)/unit_tests-unset_tests.Po
+#	$(AM_V_CC)source='unset_tests.c' object='unit_tests-unset_tests.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o unit_tests-unset_tests.obj `if test -f 'unset_tests.c'; then $(CYGPATH_W) 'unset_tests.c'; else $(CYGPATH_W) '$(srcdir)/unset_tests.c'; fi`
 
 $(top_builddir)/src/environment/unit_tests-environment.o: $(top_builddir)/src/environment/environment.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/environment/unit_tests-environment.o -MD -MP -MF $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Tpo -c -o $(top_builddir)/src/environment/unit_tests-environment.o `test -f '$(top_builddir)/src/environment/environment.c' || echo '$(srcdir)/'`$(top_builddir)/src/environment/environment.c
@@ -576,6 +622,34 @@ $(top_builddir)/src/execution/my_cd/unit_tests-my_cd.obj: $(top_builddir)/src/ex
 #	$(AM_V_CC)source='$(top_builddir)/src/execution/my_cd/my_cd.c' object='$(top_builddir)/src/execution/my_cd/unit_tests-my_cd.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/execution/my_cd/unit_tests-my_cd.obj `if test -f '$(top_builddir)/src/execution/my_cd/my_cd.c'; then $(CYGPATH_W) '$(top_builddir)/src/execution/my_cd/my_cd.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/execution/my_cd/my_cd.c'; fi`
+
+$(top_builddir)/src/execution/my_unset/unit_tests-my_unset.o: $(top_builddir)/src/execution/my_unset/my_unset.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/execution/my_unset/unit_tests-my_unset.o -MD -MP -MF $(top_builddir)/src/execution/my_unset/$(DEPDIR)/unit_tests-my_unset.Tpo -c -o $(top_builddir)/src/execution/my_unset/unit_tests-my_unset.o `test -f '$(top_builddir)/src/execution/my_unset/my_unset.c' || echo '$(srcdir)/'`$(top_builddir)/src/execution/my_unset/my_unset.c
+	$(AM_V_at)$(am__mv) $(top_builddir)/src/execution/my_unset/$(DEPDIR)/unit_tests-my_unset.Tpo $(top_builddir)/src/execution/my_unset/$(DEPDIR)/unit_tests-my_unset.Po
+#	$(AM_V_CC)source='$(top_builddir)/src/execution/my_unset/my_unset.c' object='$(top_builddir)/src/execution/my_unset/unit_tests-my_unset.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/execution/my_unset/unit_tests-my_unset.o `test -f '$(top_builddir)/src/execution/my_unset/my_unset.c' || echo '$(srcdir)/'`$(top_builddir)/src/execution/my_unset/my_unset.c
+
+$(top_builddir)/src/execution/my_unset/unit_tests-my_unset.obj: $(top_builddir)/src/execution/my_unset/my_unset.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/execution/my_unset/unit_tests-my_unset.obj -MD -MP -MF $(top_builddir)/src/execution/my_unset/$(DEPDIR)/unit_tests-my_unset.Tpo -c -o $(top_builddir)/src/execution/my_unset/unit_tests-my_unset.obj `if test -f '$(top_builddir)/src/execution/my_unset/my_unset.c'; then $(CYGPATH_W) '$(top_builddir)/src/execution/my_unset/my_unset.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/execution/my_unset/my_unset.c'; fi`
+	$(AM_V_at)$(am__mv) $(top_builddir)/src/execution/my_unset/$(DEPDIR)/unit_tests-my_unset.Tpo $(top_builddir)/src/execution/my_unset/$(DEPDIR)/unit_tests-my_unset.Po
+#	$(AM_V_CC)source='$(top_builddir)/src/execution/my_unset/my_unset.c' object='$(top_builddir)/src/execution/my_unset/unit_tests-my_unset.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/execution/my_unset/unit_tests-my_unset.obj `if test -f '$(top_builddir)/src/execution/my_unset/my_unset.c'; then $(CYGPATH_W) '$(top_builddir)/src/execution/my_unset/my_unset.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/execution/my_unset/my_unset.c'; fi`
+
+$(top_builddir)/src/ast/unit_tests-ast.o: $(top_builddir)/src/ast/ast.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/ast/unit_tests-ast.o -MD -MP -MF $(top_builddir)/src/ast/$(DEPDIR)/unit_tests-ast.Tpo -c -o $(top_builddir)/src/ast/unit_tests-ast.o `test -f '$(top_builddir)/src/ast/ast.c' || echo '$(srcdir)/'`$(top_builddir)/src/ast/ast.c
+	$(AM_V_at)$(am__mv) $(top_builddir)/src/ast/$(DEPDIR)/unit_tests-ast.Tpo $(top_builddir)/src/ast/$(DEPDIR)/unit_tests-ast.Po
+#	$(AM_V_CC)source='$(top_builddir)/src/ast/ast.c' object='$(top_builddir)/src/ast/unit_tests-ast.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/ast/unit_tests-ast.o `test -f '$(top_builddir)/src/ast/ast.c' || echo '$(srcdir)/'`$(top_builddir)/src/ast/ast.c
+
+$(top_builddir)/src/ast/unit_tests-ast.obj: $(top_builddir)/src/ast/ast.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/ast/unit_tests-ast.obj -MD -MP -MF $(top_builddir)/src/ast/$(DEPDIR)/unit_tests-ast.Tpo -c -o $(top_builddir)/src/ast/unit_tests-ast.obj `if test -f '$(top_builddir)/src/ast/ast.c'; then $(CYGPATH_W) '$(top_builddir)/src/ast/ast.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/ast/ast.c'; fi`
+	$(AM_V_at)$(am__mv) $(top_builddir)/src/ast/$(DEPDIR)/unit_tests-ast.Tpo $(top_builddir)/src/ast/$(DEPDIR)/unit_tests-ast.Po
+#	$(AM_V_CC)source='$(top_builddir)/src/ast/ast.c' object='$(top_builddir)/src/ast/unit_tests-ast.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/ast/unit_tests-ast.obj `if test -f '$(top_builddir)/src/ast/ast.c'; then $(CYGPATH_W) '$(top_builddir)/src/ast/ast.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/ast/ast.c'; fi`
 
 $(top_builddir)/src/unit_tests-utils.o: $(top_builddir)/src/utils.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/unit_tests-utils.o -MD -MP -MF $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Tpo -c -o $(top_builddir)/src/unit_tests-utils.o `test -f '$(top_builddir)/src/utils.c' || echo '$(srcdir)/'`$(top_builddir)/src/utils.c
@@ -709,12 +783,16 @@ distclean-generic:
 	-test . = "$(srcdir)" || $(am__rm_f) $(CONFIG_CLEAN_VPATH_FILES)
 	-$(am__rm_f) $(top_builddir)/src/$(DEPDIR)/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/$(am__dirstamp)
+	-$(am__rm_f) $(top_builddir)/src/ast/$(DEPDIR)/$(am__dirstamp)
+	-$(am__rm_f) $(top_builddir)/src/ast/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/environment/$(DEPDIR)/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/environment/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/execution/my_cd/$(DEPDIR)/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/execution/my_cd/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/execution/my_echo/$(DEPDIR)/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/execution/my_echo/$(am__dirstamp)
+	-$(am__rm_f) $(top_builddir)/src/execution/my_unset/$(DEPDIR)/$(am__dirstamp)
+	-$(am__rm_f) $(top_builddir)/src/execution/my_unset/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/hash_map/$(DEPDIR)/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/hash_map/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/lexer/$(DEPDIR)/$(am__dirstamp)
@@ -729,9 +807,11 @@ clean-am: clean-checkPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Po
+	-rm -f $(top_builddir)/src/ast/$(DEPDIR)/unit_tests-ast.Po
 	-rm -f $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Po
 	-rm -f $(top_builddir)/src/execution/my_cd/$(DEPDIR)/unit_tests-my_cd.Po
 	-rm -f $(top_builddir)/src/execution/my_echo/$(DEPDIR)/unit_tests-my_echo.Po
+	-rm -f $(top_builddir)/src/execution/my_unset/$(DEPDIR)/unit_tests-my_unset.Po
 	-rm -f $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Po
 	-rm -f $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Po
 	-rm -f $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer.Po
@@ -739,6 +819,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/unit_tests-cd_tests.Po
 	-rm -f ./$(DEPDIR)/unit_tests-echo_tests.Po
 	-rm -f ./$(DEPDIR)/unit_tests-lexer_tests.Po
+	-rm -f ./$(DEPDIR)/unit_tests-unset_tests.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -785,9 +866,11 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 	-rm -f $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Po
+	-rm -f $(top_builddir)/src/ast/$(DEPDIR)/unit_tests-ast.Po
 	-rm -f $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Po
 	-rm -f $(top_builddir)/src/execution/my_cd/$(DEPDIR)/unit_tests-my_cd.Po
 	-rm -f $(top_builddir)/src/execution/my_echo/$(DEPDIR)/unit_tests-my_echo.Po
+	-rm -f $(top_builddir)/src/execution/my_unset/$(DEPDIR)/unit_tests-my_unset.Po
 	-rm -f $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Po
 	-rm -f $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Po
 	-rm -f $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer.Po
@@ -795,6 +878,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/unit_tests-cd_tests.Po
 	-rm -f ./$(DEPDIR)/unit_tests-echo_tests.Po
 	-rm -f ./$(DEPDIR)/unit_tests-lexer_tests.Po
+	-rm -f ./$(DEPDIR)/unit_tests-unset_tests.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
