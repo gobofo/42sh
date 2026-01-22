@@ -679,18 +679,22 @@ int execute_function(struct AST *root, char **command)
 	int save_argc = env->argc;
 
 	env->argv = calloc(10, sizeof(char*));
-	env->argv[0] = save_argv[0];
-	env->argc = 1;
+	if(save_argv)
+		env->argv[0] = save_argv[0];
+	env->argc = 0;
 
 	for(int i = 0; i<8 && command[i]; i++){
 		env->argv[i+1] = command[i];
 		env->argc++;
 	}
 
-	int status = do_redir(root->children[0], redir);
+	struct AST *func = dup_ast(root);
+
+	int status = do_redir(func->children[0], redir);
 	
 	env->should_return = 0;
 
+	destroy_AST(func);
 	free(env->argv);
 	env->argv = save_argv;
 	env->argc = save_argc;

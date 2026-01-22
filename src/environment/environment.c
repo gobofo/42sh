@@ -34,12 +34,12 @@ struct env *init_env(int argc, char **argv)
     // Init the args of the shell
     if (argc > 2 && strcmp(argv[1], "-c") == 0)
     {
-        env->argv = &argv[3];
+        env->argv = argv + 2;
         env->argc = (argc > 3) ? argc - 3 : 0;
     }
     else if (argc > 1)
     {
-        env->argv = &argv[2];
+        env->argv = argv + 1;
         env->argc = argc - 2;
     }
     else
@@ -47,6 +47,7 @@ struct env *init_env(int argc, char **argv)
         env->argv = NULL;
         env->argc = 0;
     }
+
 
 
     char *oldpwd = getenv("OLDPWD");
