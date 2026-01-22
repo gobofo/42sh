@@ -24,6 +24,7 @@ struct env
     // Stores the last exit code of the shell
     int last_exit_code;
 	int should_exit;
+	int should_return;
 
     int break_count;
 	int continue_count;
