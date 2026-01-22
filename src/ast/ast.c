@@ -43,6 +43,24 @@ struct AST *add_children(struct AST *root, struct AST *child)
     return root;
 }
 
+
+struct AST *dup_ast(struct AST *root)
+{
+	struct AST *dup = malloc(sizeof(struct AST));
+	memcpy(dup, root, sizeof(struct AST));
+
+	dup->children = malloc(sizeof(struct AST*) * root->max_children);
+	if(root->content)
+		dup->content = strdup(root->content);
+
+	for(int i = 0; i<root->count_children; i++)
+	{
+		dup->children[i] = dup_ast(root->children[i]);
+	}
+	return dup;
+}
+
+
 void destroy_AST(struct AST *root)
 { // detruit l'AST (free)
     if (root == NULL)
@@ -53,4 +71,9 @@ void destroy_AST(struct AST *root)
     free(root->content);
     free(root->children);
     free(root);
+}
+
+void destroy_AST_void(void *root)
+{
+	destroy_AST(root);
 }

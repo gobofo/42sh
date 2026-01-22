@@ -72,8 +72,9 @@ int main(int argc, char *argv[])
 	}
 
     int return_val = env->last_exit_code;
+    hash_map_free(env->variables, free);
+	hash_map_free(env->functions, destroy_AST_void);
 
-    hash_map_free(env->variables);
     free_export(env->export_variables);
     free(env);
 	free_lexer(lexer);
