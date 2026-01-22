@@ -1,65 +1,35 @@
-Test Failures Log - jeu. 22 janv. 2026 03:34:15 CET
+Test Failures Log - jeu. 22 janv. 2026 04:19:16 CET
+---------------------------------------------------
+Test: argc no args
+Command: echo $#
+Expected: 0
+Actual:   #
 ---------------------------------------------------
 Test: cd without PWD
 Command: unset PWD; cd /tmp; pwd
 Expected: /tmp
-Actual:   timeout: the monitored command dumped core
+Actual:   timeout: la commande surveillée a renvoyé un core dump
 ---------------------------------------------------
 Test: function argc
 Command: f() { echo $#; }; f a b c
 Expected: 3
-Actual:   0
+Actual:   #
 ---------------------------------------------------
 Test: function all args
 Command: f() { echo $@; }; f a b c
 Expected: a b c
 Actual:   
 ---------------------------------------------------
-Test: function return
-Command: f() { return 42; }; f; echo $?
-Expected: 42
-Actual:   Error: command not found: return
-127
----------------------------------------------------
-Test: function return stops
-Command: f() { echo start; return 0; echo end; }; f
-Expected: start
-Actual:   start
-Error: command not found: return
-end
----------------------------------------------------
 Test: function redefine itself
 Command: f() { f() { echo v2; }; echo v1; }; f; f
 Expected: v1
 v2
-Actual:   timeout: the monitored command dumped core
----------------------------------------------------
-Test: function return in if
-Command: f() { if true; then return 10; fi; echo fail; }; f; echo $?
-Expected: 10
-Actual:   Error: command not found: return
-fail
-0
+Actual:   timeout: la commande surveillée a renvoyé un core dump
 ---------------------------------------------------
 Test: function args with spaces
 Command: f() { echo $*; }; f 'a b' c
 Expected: a b c
 Actual:   
----------------------------------------------------
-Test: function return logic
-Command: f() { echo pre; return 0; echo post; }; f && echo success
-Expected: pre
-success
-Actual:   pre
-Error: command not found: return
-post
-success
----------------------------------------------------
-Test: function dynamic return
-Command: f() { return $1; }; f 5 && echo no || echo yes
-Expected: yes
-Actual:   Error: command not found: return
-yes
 ---------------------------------------------------
 Test: function capture output
 Command: f() { echo a; }; var=$(f); echo $var
@@ -114,7 +84,7 @@ Actual:   Error: Parsing
 ---------------------------------------------------
 Test: command sub cat file
 Command: echo $(cat /etc/hostname)
-Expected: lenny-garuru
+Expected: yann-garuda
 Actual:   Error: Parsing
 ---------------------------------------------------
 Test: command sub spaces
@@ -202,9 +172,4 @@ Test Error: multiple double quotes
 Command: echo """
 Expected: non-zero exit code
 Actual: exit code 0
----------------------------------------------------
-Test: pid expansion
-Command: echo $$
-Expected: 258173
-Actual:   258176
 ---------------------------------------------------
