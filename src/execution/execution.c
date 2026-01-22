@@ -242,6 +242,8 @@ int execute_cmd(char **command)
 	}
 	else if (strcmp(command[0], "export") == 0)
 		status = my_export(command + 1);
+	else if (strcmp(command[0], ".") == 0)
+		status = my_dot(command);
 	else if ((func = hash_map_get(env->functions, command[0])))
 		status = execute_function(func, command+1);
 	else
