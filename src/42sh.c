@@ -60,9 +60,11 @@ int my_42sh(int argc, char *argv[])
 		env->last_exit_code = execute_ast(ast);
 		destroy_AST(ast);
 
+		if (env->should_exit == 1)
+			break;
+
 		free_token(lexer->current);
 		lexer = get_token(lexer);
-
 	}
 
     int return_val = env->last_exit_code;
