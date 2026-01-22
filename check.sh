@@ -1,5 +1,5 @@
 autoreconf --install >/dev/null
-./configure #CFLAGS="-fsanitize=address -g" >/dev/null
+./configure CFLAGS="-fsanitize=address -g" >/dev/null
 
 BIN_PATH="$(pwd)/src/42sh" OUTPUT_FILE="$(pwd)/out" make check
 make clean >/dev/null
@@ -27,4 +27,4 @@ rm -rf tests/.deps >/dev/null
 rm $(find src -name "Makefile" -o -name "Makefile.in") >/dev/null
 rm -rf $(find src -type d -name ".deps") >/dev/null
 
-cat tests/test_failed
+cat tests/
