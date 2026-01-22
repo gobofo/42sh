@@ -27,15 +27,61 @@ static int is_special_char(char c)
     return c == '$' || c == '`' || c == '"' || c == '\\' || c == '\n';
 }
 
-// Determines if the char is a digit
-static int is_digit(char c)
+/**
+ * @brief 		Makes sure that the identifier is valid
+ *
+ * When the user tries to expand, he can pass some invalid variable names to
+ * try to expand. but it should not be able to cuz the name is invalid.
+ * Tho we need to check for its validty.
+ *
+ * @param name	The identifier to check
+ *
+ * @return		Success or Failure (1 or 0)
+ */
+
+static int is_valid_identifier(char *name)
 {
-    return c >= '0' && c <= '9';
+	if (name == NULL || name[0] == '\0')
+		return 0;
+
+	// The variable we try to expand can be a positional arg
+	if (isdigit(name[0]))
+	{
+		for (int i = 0; name[i] != '\0'; i++)
+		{
+			if (isdigit(name[i]) == 0)
+				return 0;
+		}
+
+		return 1;
+	}
+
+	// Else the name can only start with a letter or a _
+	if (isalpha(name[0]) == 0 && name[0] != '_')
+		return 0;
+
+	for (int i = 1; name[i] != '\0'; i++)
+	{
+		if (isalnum(name[i]) == 0 && name[i] != '_')
+			return 0;
+	}
+
+	return 1;
 }
 
 // ##########################
 // #   VARIABLE EXPANSION   #
 // ##########################
+
+/**
+ * @brief 			Expands the "$@"
+ *
+ * When the special variable is @, it has a special interaction when the user
+ * wants to expand it. When its quoted it returns a list of all words inside
+ * instead of creating a single string with all words seperated by a space.
+ *
+ * @param context	The context of the expansion
+ */
 
 static void expand_at_quoted(struct expansion_context *context)
 {
@@ -124,7 +170,7 @@ static int is_special_variable(struct expansion_context *context,
     }
     // If the string is a single digit then it makes part of the args passed
     // going from 1 to 9
-    else if (is_digit(str[*i]))
+    else if (isdigit(str[*i]))
     {
         int idx = str[*i] - '0';
 
@@ -178,14 +224,24 @@ static void expand_variable(struct expansion_context *context,
 
         if (str[*i] == '}')
             (*i)++;
+
+		fclose(var);
+
+		if (is_valid_identifier(var_name) == 0)
+		{
+			fprintf(stderr, "Error: ${%s}: bad substitution\n", var_name);
+			free(var_name);
+
+			exit(2);
+		}
     }
     else
     {
         while (str[*i] != '\0' && (isalnum(str[*i]) || str[*i] == '_'))
             fputc(str[(*i)++], var);
-    }
 
-    fclose(var);
+		fclose(var);
+    }
 
     // These also make part of the special variables but are not composed of
     // only a character
