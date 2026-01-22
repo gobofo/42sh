@@ -16,7 +16,7 @@
 
 struct env *init_env(int argc, char **argv)
 {
-    struct env *env = malloc(sizeof(struct env));
+    struct env *env = calloc(1, sizeof(struct env));
 
     // Creates the hash_map to store the variables
     env->variables = hash_map_init(64);
@@ -28,6 +28,8 @@ struct env *init_env(int argc, char **argv)
 
 	// Keep track if the use calls the exit command
 	env->should_exit = 0;
+
+	env->should_return = 0;
 
     // Init the args of the shell
     if (argc > 2 && strcmp(argv[1], "-c") == 0)
