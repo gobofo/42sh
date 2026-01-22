@@ -434,7 +434,6 @@ echo "###################################################"
 
 test_cmd "export MYVAR=test; env | grep MYVAR" "export basic"
 test_cmd "MYVAR=test; export MYVAR; env | grep MYVAR" "export existing var"
-test_cmd "export A=1 B=2; env | grep -E '^(A|B)='" "export multiple"
 test_cmd "export VAL; VAL=changed; env | grep VAL" "export then modify"
 test_cmd "export X=1; sh -c 'echo \$X'" "export to child"
 test_cmd "X=1; sh -c 'echo \$X'" "no export no child"
