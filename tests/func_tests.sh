@@ -250,6 +250,15 @@ test_cmd "cat /etc/hostname 2>/dev/null" "redirect stderr"
 test_cmd "echo visible 2>/dev/null" "redirect stderr no effect"
 
 echo "###################################################"
+echo "STEP 2 - REDIR RESTORATION"
+echo "###################################################"
+
+test_cmd "echo hello > /tmp/42sh_rest; echo world; cat /tmp/42sh_rest" "redir restoration"
+test_cmd "ls /nonexistent_file 2>&1 > /dev/null" "add stderr in stdout"
+test_cmd "echo multi > /tmp/42sh_m1 > /tmp/42sh_m2; cat /tmp/42sh_m1; cat /tmp/42sh_m2" "multiple output redir"
+test_cmd "echo 'input' > /tmp/42sh_in; cat < /tmp/42sh_in > /tmp/42sh_out; cat /tmp/42sh_out" "double redir"
+
+echo "###################################################"
 echo "STEP 2 - PIPELINES"
 echo "###################################################"
 
@@ -263,6 +272,23 @@ test_cmd "true | false" "pipe true false (exit 1)"
 test_cmd "false | true" "pipe false true (exit 0)"
 test_cmd "echo test | grep test > /dev/null" "pipe with grep"
 test_cmd "cat /etc/hostname | cat" "cat pipe cat"
+
+echo "###################################################"
+echo "STEP 2 - PIPELINE STATUS"
+echo "###################################################"
+
+test_cmd "true | true | false; echo \$?" "pipe status last command"
+test_cmd "false | false | true; echo \$?" "pipe status propagation"
+test_cmd "! true | false; echo \$?" "neg pipestatus"
+test_cmd "false && echo 'no' | cat" "pipe with and"
+test_cmd "true || echo 'no' | cat" "pipe with or"
+
+echo "###################################################"
+echo "STEP 3 - EXIT STATUS & PIPE"
+echo "###################################################"
+
+test_cmd "(exit 42); echo \$?" "42" "subshell exit status"
+test_cmd "f() { return 10; }; f; echo \$?" "10" "function return status"
 
 echo "###################################################"
 echo "STEP 2 - NEGATION"
@@ -388,14 +414,30 @@ test_cmd 'echo ${1}' "positional 1 empty"
 test_cmd 'echo "$VAR_NOT_EXIST"' "nonexistent variable"
 
 echo "###################################################"
+echo "STEP 2 - VAR EXPANSION & QUOTING"
+echo "###################################################"
+
+test_cmd "VAR=WORLD; echo \"HELLO '\$VAR'\"" "expansion inside single-in-double quotes"
+test_cmd "echo \"\\\$ \\\" \\\\\"" "escaped special chars in double quotes"
+test_cmd "var=123; echo \${var}456" "braces expansion concatenation"
+test_cmd "EMPTY_VAR=; echo \"begin\${EMPTY_VAR}end\"" "empty variable in quotes"
+
+echo "###################################################"
+echo "STEP 2 - SPECIAL PARAMETERS"
+echo "###################################################"
+
+test_cmd "echo \$UID | grep -E '^[0-9]+$' > /dev/null && echo 'is_numeric'" "UID"
+test_cmd "! false; echo \$?" "exit status"
+
+echo "###################################################"
 echo "STEP 2 - IDENTIFIER VALIDATION"
 echo "###################################################"
 
-test_error 'echo ${1var}' "braces: invalid name starting with digit"
-test_error 'echo ${var-hyphen}' "braces: invalid hyphen"
-test_error 'echo ${}' "braces: empty name"
-test_error '1var=value' "assignment: invalid name"
-test_error 'for 1i in a; do echo $1i; done' "for: invalid identifier"
+test_error 'echo ${1var}' "invalid name starting with digit"
+test_error 'echo ${var-hyphen}' "invalid hyphen"
+test_error 'echo ${}' "empty name"
+test_error '1var=value' "invalid name"
+test_error 'for 1i in a; do echo $1i; done' "invalid identifier"
 
 echo "###################################################"
 echo "STEP 2 - FOR LOOPS"
@@ -453,6 +495,14 @@ test_cmd "cd /tmp; cd -; pwd" "cd dash"
 test_cmd "unset PWD; cd /tmp; pwd" "cd without PWD"
 
 echo "###################################################"
+echo "STEP 3 - CD & ENVIRONMENT SYNC"
+echo "###################################################"
+
+test_cmd "cd /tmp; FIRST=\$PWD; cd /; echo \"\$OLDPWD\" | grep -q \"\$FIRST\" && echo 'OLDPWD_OK'" "cd updates OLDPWD"
+test_cmd "cd /tmp; cd /; cd - > /dev/null; pwd" "cd dash restoration"
+test_cmd "mkdir -p /tmp/test_dir; ln -s /tmp/test_dir /tmp/link; cd /tmp/link; echo \"\$PWD\"" "path with symlink"
+
+echo "###################################################"
 echo "STEP 3 - EXPORT BUILTIN"
 echo "###################################################"
 
@@ -464,6 +514,14 @@ test_cmd "X=1; sh -c 'echo \$X'" "no export no child"
 test_cmd "export EMPTY=; env | grep EMPTY" "export empty"
 test_cmd "export _VAR123=ok; echo \$_VAR123" "export special name"
 test_cmd "export VAR='a b c'; sh -c 'echo \$VAR'" "export with spaces"
+
+echo "###################################################"
+echo "STEP 3 - EXPORT PERSISTENCE"
+echo "###################################################"
+
+test_cmd "export GLOBAL_VAR=42; (echo \$GLOBAL_VAR)" "export visible in subshell"
+test_cmd "export ENV_VAR=hello; env | grep -q 'ENV_VAR=hello' && echo 'passed'" "export to external env"
+test_cmd "export NEW_VAR=val; echo \$NEW_VAR" "export with assignment"
 
 echo "###################################################"
 echo "STEP 3 - UNSET BUILTIN"
@@ -478,6 +536,13 @@ test_cmd "f() { echo ok; }; unset -f f; f 2>/dev/null || echo deleted" "unset fu
 test_cmd 'x=1; unset -v x; echo $x' "unset with -v"
 
 echo "###################################################"
+echo "STEP 3 - VARIABLE SCOPE (UNSET & LOCAL)"
+echo "###################################################"
+
+test_cmd "VAR=val; (unset VAR; echo \"sub:\$VAR\"); echo \"parent:\$VAR\"" "sub:
+parent:val" "unset in subshell isolation"
+
+echo "###################################################"
 echo "STEP 3 - CONTINUE/BREAK"
 echo "###################################################"
 
@@ -488,6 +553,13 @@ test_cmd "for i in 1 2; do for j in a b; do if [ \$j = a ]; then break; fi; echo
 test_cmd "for i in 1 2; do for j in a b; do if [ \$j = a ]; then break 1; fi; echo \$i\$j; done; done" "break 1 explicit"
 test_cmd "for i in 1 2; do for j in a b; do break 2; echo fail; done; echo fail2; done" "break 2 nested"
 test_cmd "for i in 1 2; do continue 1; echo fail; done" "continue 1 explicit"
+
+echo "###################################################"
+echo "STEP 3 - CONTINUE & BREAK IN NESTED LOOPS"
+echo "###################################################"
+
+test_cmd "for i in 1 2; do for j in a b; do echo \$i\$j; break 2; done; done" "break 2 nested loops"
+test_cmd "for i in 1 2; do for j in a b; do continue 2; echo 'fail'; done; done" "continue 2 nested loops"
 
 echo "###################################################"
 echo "STEP 3 - COMMAND BLOCKS"
@@ -521,6 +593,14 @@ test_cmd "(exit 12) || echo fail" "subshell exit propagation"
 test_cmd "(exit 0) && echo ok" "subshell exit 0 propagation"
 
 echo "###################################################"
+echo "STEP 3 - SUBSHELL ISOLATION"
+echo "###################################################"
+
+test_cmd "VAR=parent; (VAR=child; echo \$VAR); echo \$VAR" "subshell variable isolation"
+test_cmd "START=\$PWD; (cd /tmp); if [ \"\$PWD\" = \"\$START\" ]; then echo 'cd_isolated'; fi" "subshell cd isolation"
+test_cmd "(exit 123); echo \$?" "subshell exit status"
+
+echo "###################################################"
 echo "STEP 3 - FUNCTIONS BASIC"
 echo "###################################################"
 
@@ -552,6 +632,14 @@ test_cmd "f() { return \$1; }; f 5 && echo no || echo yes" "function dynamic ret
 test_cmd "f() { echo a; }; var=\$(f); echo \$var" "function capture output"
 
 echo "###################################################"
+echo "STEP 3 - FUNCTION PERSISTENCE"
+echo "###################################################"
+
+test_cmd "f() { echo 'alive'; }; f; f" "function double call"
+test_cmd "outer() { inner() { echo 'nested'; }; }; outer; inner" "nested function definition"
+test_cmd "f() { echo 'to_file'; }; f > /tmp/42sh_func_out; cat /tmp/42sh_func_out" "function output redirection"
+
+echo "###################################################"
 echo "STEP 3 - COMMAND SUBSTITUTION"
 echo "###################################################"
 
@@ -576,6 +664,21 @@ test_cmd "echo \$(for i in 1 2; do echo \$i; done)" "command sub for"
 test_cmd "x=\$(echo -n); echo \"|\$x|\"" "command sub empty"
 test_cmd "echo \$(cat /dev/null)" "command sub null"
 test_cmd "f() { echo \$(echo inner); }; f" "command sub in function"
+
+echo "###################################################"
+echo "STEP 3 - COMMAND SUBSTITUTION NESTING"
+echo "###################################################"
+
+test_cmd "echo \$(echo \$(echo deep))" "nested command substitution"
+test_cmd "echo \"result: \$(echo 'spaced words')\"" "quoted command substitution"
+
+echo "###################################################"
+echo "STEP 3 - COMPLEX COMMAND SUBSTITUTION"
+echo "###################################################"
+
+test_cmd "echo \"\$(echo hello)\"" "hello" "cmdsub strips newline"
+test_cmd "x=\$(echo 'multiple words'); echo \"\$x\"" "multiple words" "cmdsub assignment"
+test_cmd "echo \$(echo hello > /tmp/42sh_sub; cat /tmp/42sh_sub)" "hello" "cmdsub with internal redirect"
 
 echo "###################################################"
 echo "STEP 3 - DOT COMMAND"
