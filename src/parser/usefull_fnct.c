@@ -110,10 +110,12 @@ bool verif_subshell(struct lexer *lexer){
         char *command[] = { "./src/42sh", "-c", content }; //nouvelle cmd 
 
         if (my_42sh_verif(3, command)){ //le parsing est bon
+            printf("test");
             free(content);
             _exit(0);
         }
 
+        printf("test pas ok ");
         free(content);//le parsing est mauvais
         _exit(1);
 
@@ -122,18 +124,13 @@ bool verif_subshell(struct lexer *lexer){
     else{
 
         int wstatus;
-        int child_pid = waitpid(pid, &wstatus, 0); //attend l'enfant
-
-        if (child_pid == -1) //err
-        {
+        waitpid(pid, &wstatus, 0); //attend l'enfant
+        if (WEXITSTATUS(wstatus) == 1)//err
             return false;
-        }
 
-        if (WIFEXITED(wstatus) == 1)//err
-            return false;
+        return true;
 
     }
 
-    return true;
 
 }
