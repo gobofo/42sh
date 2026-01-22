@@ -113,3 +113,10 @@ struct AST **create_redir(struct AST *root)
 
 	return redir;
 }
+
+// This function is called when we encounter a function node
+int create_function(struct AST *root)
+{
+	hash_map_insert(env->functions, root->content, dup_ast(root), destroy_AST_void);	
+	return 0;
+}

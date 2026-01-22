@@ -467,6 +467,7 @@ static int execute_pipeline(struct AST *root)
 
 	return res;
 }
+
 // ################
 // #   SUBSHELL   #
 // ################
@@ -487,14 +488,6 @@ static int  execute_subshell(struct AST *root){
 // ####################
 // #    FUNCTIONS     #
 // ####################
-
-// This function is called when we encounter a function node
-static int create_function(struct AST *root)
-{
-	hash_map_insert(env->functions, root->content, dup_ast(root), destroy_AST_void);	
-	return 0;
-}
-
 
 static int execute_function(struct AST *root, char **command)
 {
