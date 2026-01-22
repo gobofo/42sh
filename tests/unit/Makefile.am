@@ -1,4 +1,5 @@
 check_PROGRAMS = unit_tests
+
 unit_tests_SOURCES = \
     lexer_tests.c \
 	echo_tests.c \
@@ -15,7 +16,6 @@ unit_tests_SOURCES = \
 	$(top_srcdir)/src/execution/builtins/my_export/my_export.c \
 	$(top_srcdir)/src/execution/builtins/my_unset/my_unset.c \
     $(top_srcdir)/src/utils.c
-
 
 unit_tests_CFLAGS = -std=c99 -pedantic -Werror -Wall -Wextra -Wvla
 unit_tests_LDADD = -lcriterion

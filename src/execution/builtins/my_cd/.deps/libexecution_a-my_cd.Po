@@ -1,9 +1,10 @@
-my_cd/libexecution_a-my_cd.o: my_cd/my_cd.c /usr/include/stdc-predef.h \
- my_cd/my_cd.h /usr/include/stdio.h /usr/include/bits/libc-header-start.h \
- /usr/include/features.h /usr/include/features-time64.h \
- /usr/include/bits/wordsize.h /usr/include/bits/timesize.h \
- /usr/include/sys/cdefs.h /usr/include/bits/long-double.h \
- /usr/include/gnu/stubs.h /usr/include/gnu/stubs-64.h \
+builtins/my_cd/libexecution_a-my_cd.o: builtins/my_cd/my_cd.c \
+ /usr/include/stdc-predef.h builtins/my_cd/my_cd.h /usr/include/stdio.h \
+ /usr/include/bits/libc-header-start.h /usr/include/features.h \
+ /usr/include/features-time64.h /usr/include/bits/wordsize.h \
+ /usr/include/bits/timesize.h /usr/include/sys/cdefs.h \
+ /usr/include/bits/long-double.h /usr/include/gnu/stubs.h \
+ /usr/include/gnu/stubs-64.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stddef.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdarg.h \
  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
@@ -19,12 +20,13 @@ my_cd/libexecution_a-my_cd.o: my_cd/my_cd.c /usr/include/stdc-predef.h \
  /usr/include/unistd.h /usr/include/bits/posix_opt.h \
  /usr/include/bits/environments.h /usr/include/bits/confname.h \
  /usr/include/bits/getopt_posix.h /usr/include/bits/getopt_core.h \
- /usr/include/bits/unistd_ext.h my_cd/../../environment/environment.h \
- my_cd/../../environment/../hash_map/hash_map.h \
+ /usr/include/bits/unistd_ext.h \
+ builtins/my_cd/../../../environment/environment.h \
+ builtins/my_cd/../../../environment/../hash_map/hash_map.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdbool.h \
- my_cd/../../hash_map/hash_map.h
+ builtins/my_cd/../../../hash_map/hash_map.h
 /usr/include/stdc-predef.h:
-my_cd/my_cd.h:
+builtins/my_cd/my_cd.h:
 /usr/include/stdio.h:
 /usr/include/bits/libc-header-start.h:
 /usr/include/features.h:
@@ -63,7 +65,7 @@ my_cd/my_cd.h:
 /usr/include/bits/getopt_posix.h:
 /usr/include/bits/getopt_core.h:
 /usr/include/bits/unistd_ext.h:
-my_cd/../../environment/environment.h:
-my_cd/../../environment/../hash_map/hash_map.h:
+builtins/my_cd/../../../environment/environment.h:
+builtins/my_cd/../../../environment/../hash_map/hash_map.h:
 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdbool.h:
-my_cd/../../hash_map/hash_map.h:
+builtins/my_cd/../../../hash_map/hash_map.h:

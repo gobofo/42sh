@@ -1,6 +1,6 @@
-../../src/execution/my_cd/unit_tests-my_cd.o: \
- ../../src/execution/my_cd/my_cd.c /usr/include/stdc-predef.h \
- ../../src/execution/my_cd/my_cd.h /usr/include/stdio.h \
+../../src/execution/builtins/my_cd/unit_tests-my_cd.o: \
+ ../../src/execution/builtins/my_cd/my_cd.c /usr/include/stdc-predef.h \
+ ../../src/execution/builtins/my_cd/my_cd.h /usr/include/stdio.h \
  /usr/include/bits/libc-header-start.h /usr/include/features.h \
  /usr/include/features-time64.h /usr/include/bits/wordsize.h \
  /usr/include/bits/timesize.h /usr/include/sys/cdefs.h \
@@ -22,12 +22,12 @@
  /usr/include/bits/environments.h /usr/include/bits/confname.h \
  /usr/include/bits/getopt_posix.h /usr/include/bits/getopt_core.h \
  /usr/include/bits/unistd_ext.h \
- ../../src/execution/my_cd/../../environment/environment.h \
- ../../src/execution/my_cd/../../environment/../hash_map/hash_map.h \
+ ../../src/execution/builtins/my_cd/../../../environment/environment.h \
+ ../../src/execution/builtins/my_cd/../../../environment/../hash_map/hash_map.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdbool.h \
- ../../src/execution/my_cd/../../hash_map/hash_map.h
+ ../../src/execution/builtins/my_cd/../../../hash_map/hash_map.h
 /usr/include/stdc-predef.h:
-../../src/execution/my_cd/my_cd.h:
+../../src/execution/builtins/my_cd/my_cd.h:
 /usr/include/stdio.h:
 /usr/include/bits/libc-header-start.h:
 /usr/include/features.h:
@@ -66,7 +66,7 @@
 /usr/include/bits/getopt_posix.h:
 /usr/include/bits/getopt_core.h:
 /usr/include/bits/unistd_ext.h:
-../../src/execution/my_cd/../../environment/environment.h:
-../../src/execution/my_cd/../../environment/../hash_map/hash_map.h:
+../../src/execution/builtins/my_cd/../../../environment/environment.h:
+../../src/execution/builtins/my_cd/../../../environment/../hash_map/hash_map.h:
 /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdbool.h:
-../../src/execution/my_cd/../../hash_map/hash_map.h:
+../../src/execution/builtins/my_cd/../../../hash_map/hash_map.h:
