@@ -79,6 +79,12 @@ struct token *create_token(char *str)
         }
     }
 
+	if (str[0] == '$' && str[1] == '(')
+	{
+		token->type = SUBSHELL;
+		return token;
+	}
+
     // If we get there then it is either an assignment either a random word
     char *delim = strchr(str, '=');
 

@@ -107,7 +107,7 @@ err:
 }
 
 //(16) rule_for = 'for' WORD ( [';']
-//                          | [ {'\n'} 'in' { WORD } ( ';' | '\n' ) ] )
+//                          | [ {'\n'} 'in' { ( WORD | SUBSHELL) } ( ';' | '\n' ) ] )
 //{'\n'} 'do' compound_list 'done'
 
 struct AST *rule_for(struct lexer **lexer)
@@ -155,6 +155,14 @@ struct AST *rule_for(struct lexer **lexer)
                 struct AST *word =
                     create_ast(AST_VALUE, strdup(donne_content(*lexer))); //prend la valeur du mot
                 ast = add_children(ast, word);
+
+                //pour gerer les subshell
+
+                if (donne_type(*lexer) == SUBSHELL && !verif_subshell(*lexer)){
+
+                    goto err;
+
+                }
 
                 *lexer = eat(*lexer);
             }

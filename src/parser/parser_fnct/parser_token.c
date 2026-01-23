@@ -61,7 +61,7 @@ err:
 }
 
 //(22) element =
-//        WORD
+//        ( WORD | SUBSHELL )
 //        | redirection
 
 struct AST *element(struct lexer **lexer)
@@ -69,6 +69,16 @@ struct AST *element(struct lexer **lexer)
     if (is_valid_word(*lexer))//cas 1
     {
         struct AST *ast = create_ast(AST_VALUE, strdup(donne_content(*lexer)));//recup la valeur du word
+
+        //pour gerer les subshell
+
+        if (donne_type(*lexer) == SUBSHELL && !verif_subshell(*lexer)){
+
+            destroy_AST(ast);
+            return NULL;
+
+        }
+
         *lexer = eat(*lexer);//mange le word
         return ast;
     }

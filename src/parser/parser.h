@@ -64,24 +64,24 @@ funcdec = WORD '(' ')' {'\n'} shell_command ;
 
 (15) rule_until = 'until' compound_list 'do' compound_list 'done'
 
-(16) rule_for = 'for' WORD ( [';'] | [ {'\n'} 'in' { WORD } ( ';' | '\n' ) ] )
+(16) rule_for = 'for' WORD ( [';'] | [ {'\n'} 'in' { ( WORD | SUBSHELL ) } ( ';' | '\n' ) ] )
 {'\n'} 'do' compound_list 'done'
 
 (17) compound_list = {'\n'} and_or { ( ';' | '\n' ) {'\n'} and_or } [';'] {'\n'}
 
 (18) simple_command =
           prefix {prefix}
-(19)    | {prefix} WORD { element }
+(19)    | {prefix} ( WORD | SUBSHELL ) { element }
 
 (20) prefix =
         redirection
         | ASSIGNEMENT_WORD
 
 (21) redirection = [IONUMBER] ( '>' | '<' | '>>' | '>&' | '<&' | '>|' | '<>' )
-WORD
+( WORD | SUBSHELL )
 
 (22) element =
-        WORD
+        ( WORD | SUBSHELL )
         | redirection
 */
 
