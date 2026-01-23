@@ -153,7 +153,7 @@ err:
 
 //(18) simple_command =
 //         prefix {prefix}
-//(19)    | {prefix} WORD { element }
+//(19)    | {prefix} ( WORD | SUBSHELL ) { element }
 
 struct AST *simple_command(struct lexer **lexer)
 {
@@ -187,6 +187,14 @@ struct AST *simple_command(struct lexer **lexer)
         child = create_ast(AST_VALUE, strdup(donne_content(*lexer))); //prend la valeur du WORDS
 
         ast = add_children(ast, child);
+
+        //pour gerer les subshell
+
+        if (donne_type(*lexer) == SUBSHELL && !verif_subshell(*lexer)){
+
+            goto err;
+
+        }
 
         *lexer = eat(*lexer);
 

@@ -1,7 +1,3 @@
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "../ast/ast.h"
 #include "print_parser.h"
 
@@ -41,6 +37,8 @@ char *get_string_of_node(struct AST *ast)
         return ast->content;
     case AST_FUNC:
         return ast->content;
+    case AST_SUB:
+        return "SUBSHELL";
     default:
         return "";
     }
@@ -78,6 +76,8 @@ char *get_color_of_node(struct AST *ast)
         return "#E74C3C";
     case AST_FUNC:
         return "#E74C3C";
+    case AST_SUB:
+        return "#E67E22";
 
     default:
         return "";

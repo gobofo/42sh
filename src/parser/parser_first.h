@@ -4,7 +4,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "parser_follow.h"
+#include "../token.h"
+#include "parser_first.h"
 
 /* ============= FIRST ============= */
 

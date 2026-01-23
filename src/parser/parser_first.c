@@ -1,5 +1,4 @@
-#include "../token.h"
-#include "parser_first.h"
+#include "parser_follow.h"
 
 bool first_list(struct token *token)
 {
@@ -89,7 +88,7 @@ bool first_simple_command(struct token *token)
     if (!token)
         return false;
     enum types type = token->type;
-    return first_prefix(token) || type==WORDS;
+    return first_prefix(token) || type==WORDS || type == SUBSHELL;
 }
 
 bool first_prefix(struct token *token)
@@ -112,7 +111,7 @@ bool first_element(struct token *token)
     if (!token)
         return false;
     enum types type = token->type;
-    return type==WORDS || first_redirection(token);
+    return type==WORDS || first_redirection(token) || type == SUBSHELL;
 }
 
 
