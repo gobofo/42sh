@@ -14,14 +14,11 @@ int do_redir(struct AST *root, struct AST **redir);
 // #   UTILS   #
 // #############
 
-
-
 int my_return(char **command)
 {
 	env->should_return = 1;
 	return atoi(command[0]);
 }
-
 
 /**
  * @brief		Creates a new entry in the hash_map of the environment
@@ -232,9 +229,15 @@ int execute_cmd(char **command)
 	else if (strcmp(command[0], "false") == 0)
 		status = 1;
 	else if (strcmp(command[0], "echo") == 0)
+	{
 		status = my_echo(command + 1);
+		fflush(stdout);
+	}
 	else if (strcmp(command[0], "cd") == 0)
+	{
 		status = my_cd(command + 1);
+		fflush(stdout);	
+	}
 	else if (strcmp(command[0], "exit") == 0)
 	{
 		status = my_exit(command + 1);
@@ -300,7 +303,22 @@ int execute_simple_cmd(struct AST *root)
 	}
 
 	struct AST **redir = create_redir(root);
+
+	int saved_stdout = dup(STDOUT_FILENO);
+    int saved_stderr = dup(STDERR_FILENO);
+    int saved_stdin  = dup(STDIN_FILENO);
+
 	int status = do_redir(root, redir);
+
+	// 3. RESTORE the shell's FDs immediately
+    dup2(saved_stdout, STDOUT_FILENO);
+    dup2(saved_stderr, STDERR_FILENO);
+    dup2(saved_stdin, STDIN_FILENO);
+
+    // 4. Close the temporary copies to avoid leaking FDs
+    close(saved_stdout);
+    close(saved_stderr);
+    close(saved_stdin);
 
 	free(redir);
 
@@ -671,46 +689,37 @@ int create_function(struct AST *root)
 	return 0;
 }
 
+
 int execute_function(struct AST *root, char **command)
 {
 	struct AST **redir = create_redir(root);
 
-	char **save_val = calloc(9, sizeof(char*));
-	for(int i = 0; i<9; i++)
-	{
-		char key[2] = { i + 1 + '0', 0};
-		char *val = hash_map_get(env->variables, key);
-		if(val)
-			save_val[i] = strdup(val);
+	char **save_argv = env->argv;
+
+	int save_argc = env->argc;
+
+	env->argv = calloc(10, sizeof(char*));
+	if(save_argv)
+		env->argv[0] = save_argv[0];
+	env->argc = 0;
+
+	for(int i = 0; i<8 && command[i]; i++){
+		env->argv[i+1] = command[i];
+		env->argc++;
 	}
 
+	struct AST *func = dup_ast(root);
 
-	for(int i = 0; i<9 && command[i]; i++)
-	{
-		char key[2] = { i + 1 + '0', 0};
-		hash_map_insert(env->variables, key, strdup(command[i]), free);
-	}
-
-	int status = do_redir(root->children[0], redir);
+	int status = do_redir(func->children[0], redir);
 	
 	env->should_return = 0;
 
+	destroy_AST(func);
+	free(env->argv);
+	env->argv = save_argv;
+	env->argc = save_argc;
+
 	free(redir);
-
-	for(int i = 0; i<9; i++)
-	{
-		char key[2] = { i + 1 + '0', 0};
-		if(save_val[i])
-		{
-			hash_map_insert(env->variables, key, strdup(save_val[i]), free);
-		}
-		else
-		{
-			hash_map_remove(env->variables, key, free);
-		}
-	}
-
-	free(save_val);
 
 	return status;
 }
