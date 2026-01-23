@@ -2,39 +2,23 @@
 
 extern struct env *env;
 
-static char **separate_white_space(char *output)
-{
-    if (output == NULL)
-        return NULL;
-    char *copy = strdup(output);
+//####################
+//#   WORDS STRUCT   #
+//####################
 
-    int count = 0;
-    char *temp = strdup(output);
-    char *token = strtok(temp, " \t\n");
-    while (token != NULL)
-    {
-        count++;
-        token = strtok(NULL, " \t\n");
-    }
-    free(temp);
-    char **result = malloc(sizeof(char *) * (count + 1));
-    int i = 0;
-    token = strtok(copy, " \t\n");
-    while (token != NULL)
-    {
-        result[i] = strdup(token);
-        i++;
-        token = strtok(NULL, " \t\n\r");
-    }
-    result[i] = NULL;
-    free(copy);
-    return result;
-}
+/**
+ * @brief			Adds a word into the list of words of the current string
+ * 					being expanded
+ *
+ * @param words		The list of words
+ * @param word		The word to store
+ */
 
 static void add_word(struct expanded_words *words, char *word)
 {
     // Allocate new space for the new word
-    words->words = realloc(words->words, sizeof(char *) * (words->count + 2));
+    words->words = realloc(words->words,
+			sizeof(char *) * (words->count + 2));
 
     // Add the word
     words->words[words->count++] = word;
