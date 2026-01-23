@@ -47,3 +47,52 @@ int is_valid_identifier(char *name)
 
     return 1;
 }
+
+/**
+ * @brief			Seperates a string into an array of strings using white
+ * 					spaces
+ *
+ * @param output	The string we want to split
+ *
+ * @return 			The array of the slipted string
+ */
+
+char **separate_white_space(char *output)
+{
+    if (output == NULL)
+        return NULL;
+
+    char *copy = strdup(output);
+
+    int count = 0;
+
+    char *temp = strdup(output);
+    char *token = strtok(temp, " \t\n");
+
+    while (token != NULL)
+    {
+        count++;
+        token = strtok(NULL, " \t\n");
+    }
+
+    free(temp);
+
+    char **result = malloc(sizeof(char *) * (count + 1));
+
+    int i = 0;
+
+    token = strtok(copy, " \t\n");
+
+    while (token != NULL)
+    {
+        result[i] = strdup(token);
+        i++;
+        token = strtok(NULL, " \t\n\r");
+    }
+
+    result[i] = NULL;
+
+    free(copy);
+
+    return result;
+}
