@@ -55,46 +55,10 @@ static int is_special_char(char c)
     return c == '$' || c == '`' || c == '"' || c == '\\' || c == '\n';
 }
 
-/**
- * @brief 		Makes sure that the identifier is valid
- *
- * When the user tries to expand, he can pass some invalid variable names to
- * try to expand. but it should not be able to cuz the name is invalid.
- * Tho we need to check for its validty.
- *
- * @param name	The identifier to check
- *
- * @return		Success or Failure (1 or 0)
- */
-
-static int is_valid_identifier(char *name)
+// Determines if the char is a digit
+static int is_digit(char c)
 {
-	if (name == NULL || name[0] == '\0')
-		return 0;
-
-	// The variable we try to expand can be a positional arg
-	if (isdigit(name[0]))
-	{
-		for (int i = 0; name[i] != '\0'; i++)
-		{
-			if (isdigit(name[i]) == 0)
-				return 0;
-		}
-
-		return 1;
-	}
-
-	// Else the name can only start with a letter or a _
-	if (isalpha(name[0]) == 0 && name[0] != '_')
-		return 0;
-
-	for (int i = 1; name[i] != '\0'; i++)
-	{
-		if (isalnum(name[i]) == 0 && name[i] != '_')
-			return 0;
-	}
-
-	return 1;
+    return c >= '0' && c <= '9';
 }
 
 // ##########################
@@ -116,15 +80,6 @@ static void expand_subshell(struct expansion_context *context,char** list_sub)
   }
   // We open the stream for the next words
 }
-/**
- * @brief 			Expands the "$@"
- *
- * When the special variable is @, it has a special interaction when the user
- * wants to expand it. When its quoted it returns a list of all words inside
- * instead of creating a single string with all words seperated by a space.
- *
- * @param context	The context of the expansion
- */
 
 static void expand_at_quoted(struct expansion_context *context)
 {
@@ -139,7 +94,7 @@ static void expand_at_quoted(struct expansion_context *context)
 	*(context)->size = 0;
 
 	// We add each argument as a separate word
-	for (int i = 1; i <= env->argc; i++)
+	for (int i = 0; i < env->argc; i++)
 		add_word(context->words, strdup(env->argv[i]));
 
 	// We open the stream for the next words
@@ -199,11 +154,11 @@ static int is_special_variable(struct expansion_context *context,
 		}
 		else
 		{
-			for (int j = 1; j <= env->argc; j++)
+			for (int j = 0; j < env->argc; j++)
 			{
 				fputs(env->argv[j], context->stream);
 
-				if (j < env->argc)
+				if (j < env->argc - 1)
 					fputc(' ', context->stream);
 			}
 		}
@@ -213,15 +168,15 @@ static int is_special_variable(struct expansion_context *context,
     }
     // If the string is a single digit then it makes part of the args passed
     // going from 1 to 9
-    else if (isdigit(str[*i]))
+    else if (is_digit(str[*i]))
     {
-        int idx = str[*i] - '0';
+/*        int idx = str[*i] - '0';
 
-        if (idx > 0 && idx <= env->argc)
-            fputs(env->argv[idx], context->stream);
+        if (idx > 0 && (idx - 1) < env->argc)
+            fputs(env->argv[idx - 1], context->stream);
 
         (*i)++;
-	    return 1;
+	    return 1;*/
     }
 
     return 0;
@@ -267,16 +222,6 @@ static void expand_variable(struct expansion_context *context,
 
         if (str[*i] == '}')
             (*i)++;
-
-		fclose(var);
-
-		if (is_valid_identifier(var_name) == 0)
-		{
-			fprintf(stderr, "Error: ${%s}: bad substitution\n", var_name);
-			free(var_name);
-
-			exit(2);
-		}
     }
     else
     {
@@ -319,8 +264,7 @@ static void expand_variable(struct expansion_context *context,
       //fork recupere stdout->val echo $(echo a)
     }
 
-		fclose(var);
-    }
+    fclose(var);
 
     // These also make part of the special variables but are not composed of
     // only a character
