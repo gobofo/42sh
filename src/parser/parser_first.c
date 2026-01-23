@@ -1,5 +1,4 @@
 #include "../token.h"
-#include "parser_first.h"
 
 bool first_list(struct token *token)
 {
