@@ -11,6 +11,8 @@
 #include <unistd.h>
 
 #include "command_sub.h"
+#include "expansion_utils.h"
+
 #include "../environment/environment.h"
 
 struct expanded_words

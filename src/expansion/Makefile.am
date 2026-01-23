@@ -1,10 +1,8 @@
 #lib_LIBRARIES = libexpansion.a
 
-libexpansion_a_SOURCES = \
-	expansion.c \
-	expansion.h \
-	command_sub.c \
-	command_sub.h
+libexpansion_a_SOURCES = expansion.c expansion.h \
+						 command_sub.c command_sub.h \
+						 expansion_utils.c expansion_utils.h
 
 libexpansion_a_CPPFLAGS = -I$(top_srcdir)/src
 
