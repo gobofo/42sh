@@ -64,10 +64,15 @@ char *extract_parentheses_content(struct token *token, int *cmpt){
         *cmpt += 1;
     }
 
-    if (content[*cmpt] != '\0'){
-        *cmpt += 1;
-    }
+    if (content[*cmpt] == '\0'){
 
+        free(res);
+        return NULL;
+
+    }
+        
+    
+    *cmpt += 1;
     int nb_parenthese = 1;
     int i = 0;
 
@@ -126,11 +131,6 @@ char *extract_parentheses_content(struct token *token, int *cmpt){
 
     }
 
-    if (content[*cmpt] != '\0' && nb_parenthese != 0){
-        free(res);
-        return NULL;
-    }
-
     if (i >= capacity){//pour le realloc
 
         capacity *= 2;
@@ -139,7 +139,6 @@ char *extract_parentheses_content(struct token *token, int *cmpt){
     }
 
     res[i] = '\0';
-    i += 1;
 
     return res;
 
@@ -201,14 +200,14 @@ bool verif_subshell(struct lexer *lexer){
 
         int cmpt = 0;
 
-        char *content = extract_parentheses_content(get_current_token(lexer), &cmpt); //contenu entre les paren
-
         int len = strlen(lexer->current->content);
 
         while (cmpt < len){
 
-            if (content == NULL){
-                _exit(1);
+            char *content = extract_parentheses_content(get_current_token(lexer), &cmpt); //contenu entre les paren
+
+            if (content == NULL){ //pas de $()
+                _exit(0);
             }
 
             char *command[] = { "./src/42sh", "-c", content, NULL }; //nouvelle cmd 
@@ -219,22 +218,9 @@ bool verif_subshell(struct lexer *lexer){
             }
 
             free(content);
-            content = extract_parentheses_content(get_current_token(lexer), &cmpt);
 
         }
 
-        if (content == NULL){
-            _exit(1);
-        }
-
-        char *command[] = { "./src/42sh", "-c", content, NULL }; //nouvelle cmd 
-
-        if (!my_42sh_verif(3, command)){ //le parsing pas bon
-            free(content);
-            _exit(1);
-        }
-
-        free(content);//le parsing est bon
         _exit(0);
 
     }
