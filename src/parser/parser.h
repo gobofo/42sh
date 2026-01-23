@@ -17,7 +17,11 @@
 
 /* ============= FIRST ============= */
 
-#include "parser_first.h"
+#include "parser_firsts/first_command.h"
+#include "parser_firsts/first_condition.h"
+#include "parser_firsts/first_loop.h"
+#include "parser_firsts/first_sequence.h"
+#include "parser_firsts/first_token.h"
 
 /* ============= FOLLOW ============= */
 
