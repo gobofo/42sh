@@ -56,6 +56,14 @@ static void expand_subshell(struct expansion_context *context, char **list_sub)
     }
 }
 
+/**
+ * @brief 			Expands the subshells and commands substitution
+ *
+ * @param context	The current context (words already expanded, ...)
+ * @param str		The string in which we read
+ * @param i			The index in the string
+ */
+
 static void handle_subshell(struct expansion_context *context,
 		char *str, size_t *i)
 {
@@ -128,7 +136,7 @@ static void expand_at_quoted(struct expansion_context *context)
  * If we found a special variables, we extend it and indicate we found a special
  * variable
  *
- * @param stream	The stream in which we extend the variable
+ * @param context	The current context (words already expanded, ...)
  * @param str		The str we are reading and we want to extend it
  * @param i			The index in the current string
  *
@@ -210,7 +218,7 @@ static int is_special_variable(struct expansion_context *context, char *str,
  *   variable until the next $ or we find a non alphanum char
  * - ${name} where we need to expand everything in the {}
  *
- * @param stream	The stream in which we store the expansion
+ * @param context	The current context (words already expanded, ...)
  * @param str		The string in which we read
  * @param i			The index in the string
  */
