@@ -27,9 +27,17 @@ static void add_word(struct expanded_words *words, char *word)
     words->words[words->count] = NULL;
 }
 
-// ##########################
-// #   VARIABLE EXPANSION   #
-// ##########################
+//################
+//#   SUBSHELL   #
+//################
+
+/**
+ * @brief 				Converts the list given by the subshell and expands it
+ * 						to a single string
+ *
+ * @param context		The current context (words already expanded, ...)
+ * @param list_sub		The list of words to expand as a single one
+ */
 
 static void expand_subshell(struct expansion_context *context, char **list_sub)
 {
@@ -47,6 +55,10 @@ static void expand_subshell(struct expansion_context *context, char **list_sub)
         i++;
     }
 }
+
+// ##########################
+// #   VARIABLE EXPANSION   #
+// ##########################
 
 static void expand_at_quoted(struct expansion_context *context)
 {
@@ -174,43 +186,44 @@ static void expand_variable(struct expansion_context *context, char *str,
 
     if (str[*i] == '(')
     {
-        int count_par = 1;
+		int nested = 1;
 
+		char *sub_buffer = NULL;
+		size_t sub_size = 0;
+
+		FILE *subshell = open_memstream(&sub_buffer, &sub_size);
+
+		// We skip the (
+		(*i)++;
+
+		while (str[*i] != '\0' && nested > 0)
+		{
+			if (str[*i] == '(')
+				nested++;
+			if (str[*i] == ')')
+				nested--;
+
+			if (nested == 0)
+				break;
+
+			fputc(str[(*i)++], subshell);
+		}
+
+		// Skip the )
         (*i)++;
-        char *sub_string = malloc(strlen(str));
-        int k = 0;
-        while (str[*i] != '\0' && (count_par > 0))
-        {
-            if (str[*i] == '(')
-            {
-                count_par++;
-            }
-            if (str[*i] == ')')
-            {
-                count_par--;
-            }
-            if (count_par == 0)
-            {
-                break;
-            }
-            sub_string[k] = str[(*i)++];
-            k++;
-        }
-        sub_string[k] = '\0';
 
-        (*i)++;
+		fclose(subshell);
 
-        char *output = expand_command_substitution(sub_string);
+        char *output = expand_command_substitution(sub_buffer);
         char **list_sub = separate_white_space(output);
 
         expand_subshell(context, list_sub);
 
-        free(sub_string);
+        free(sub_buffer);
         free(list_sub);
         free(output);
 
         return;
-        // fork recupere stdout->val echo $(echo a)
     }
 
     char *var_name;
