@@ -31,21 +31,29 @@ void eat_newlines(struct lexer **lexer)
         *lexer = eat(*lexer);
 }
 
-struct token *donne_token(struct lexer *lexer){
+//donne le current token
+
+struct token *get_current_token(struct lexer *lexer){
 
     return lexer->current;
 
 }
 
-enum types donne_type(struct lexer *lexer){
+//donne le type du current token
+
+enum types get_current_type(struct lexer *lexer){
     return lexer->current->type;
 }
 
-char *donne_content(struct lexer *lexer){
+//donne le content du current token
+
+char *get_current_content(struct lexer *lexer){
     return lexer->current->content;
 }
 
-char *donne_entre_paren(struct token *token, int *cmpt){
+//donne ce qu'il y a entre les parenthese $(Bravo Nils) => Bravo Nils
+
+char *extract_parentheses_content(struct token *token, int *cmpt){
     
     char *res = malloc( 8 * sizeof(char));
     int capacity = 8;
@@ -137,6 +145,8 @@ char *donne_entre_paren(struct token *token, int *cmpt){
 
 }
 
+//permet de verifier si une chaine de caractere est valide dans le parser
+
 bool my_42sh_verif(int argc, char *argv[])
 {
     FILE *file = get_input_file(argc, argv);
@@ -177,6 +187,7 @@ bool my_42sh_verif(int argc, char *argv[])
     return true;
 }
 
+//permet de verifier si les $(echo a) sont valide
 
 bool verif_subshell(struct lexer *lexer){
 
@@ -190,7 +201,7 @@ bool verif_subshell(struct lexer *lexer){
 
         int cmpt = 0;
 
-        char *content = donne_entre_paren(donne_token(lexer), &cmpt); //contenu entre les paren
+        char *content = extract_parentheses_content(get_current_token(lexer), &cmpt); //contenu entre les paren
 
         int len = strlen(lexer->current->content);
 
@@ -208,7 +219,7 @@ bool verif_subshell(struct lexer *lexer){
             }
 
             free(content);
-            content = donne_entre_paren(donne_token(lexer), &cmpt);
+            content = extract_parentheses_content(get_current_token(lexer), &cmpt);
 
         }
 
