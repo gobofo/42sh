@@ -215,7 +215,6 @@ int my_cd(char **command)
         return 2;
     }
 
-
     if (strcmp(command[0], "-") == 0)
 		return invert_paths(command[0]);
 
