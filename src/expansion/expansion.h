@@ -1,6 +1,8 @@
 #ifndef EXPANSION_H
 #define EXPANSION_H
 
+#define _POSIX_C_SOURCE 200809L
+
 #include <ctype.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -8,6 +10,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "command_sub.h"
 #include "../environment/environment.h"
 
 struct expanded_words
