@@ -2,6 +2,8 @@
 #include "command_sub.h"
 
 #include "../42sh.h"
+
+extern struct env *env;
 char *expand_command_substitution(char *sub_string)
 {
     int pipefd[2];
@@ -18,9 +20,7 @@ char *expand_command_substitution(char *sub_string)
         close(pipefd[1]);
 
         char *argv[] = { "./src/42sh", "-c", sub_string, NULL };
-        my_42sh(3, argv);
-
-        _exit(0);
+        _exit(my_42sh(3, argv));
     }
     else
     {
@@ -39,11 +39,13 @@ char *expand_command_substitution(char *sub_string)
 
         int wstatus;
         waitpid(pid, &wstatus, 0);
+        env->last_exit_code=WEXITSTATUS(wstatus);
 
         if (output_len > 0 && output[output_len - 1] == '\n')
         {
             output[output_len - 1] = '\0';
         }
+
         return output;
     }
 }

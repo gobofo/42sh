@@ -33,7 +33,8 @@ int variable_assignation(struct AST *root)
 {
 	char *key = strtok(root->content, "=");
 	char *value_raw = strtok(NULL, "");
-
+    
+    env->last_exit_code=0;
 	if (value_raw == NULL)
 		value_raw = "";
 
@@ -53,8 +54,7 @@ int variable_assignation(struct AST *root)
 
 		free(expanded);
 	}
-
-	return 0;
+    return env->last_exit_code;
 }
 
 /**
