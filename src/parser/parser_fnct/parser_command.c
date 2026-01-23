@@ -10,7 +10,7 @@ struct AST *command(struct lexer **lexer)
     struct AST *ast=NULL;
 
     int _redir=0;
-    if (first_shell_command(donne_token(*lexer)))//cas de shell command
+    if (first_shell_command(get_current_token(*lexer)))//cas de shell command
     {
         _redir=1;//pour la suite pour evite de mettre un while pour chaque 
         ast = create_ast(AST_SHELL_CMD, NULL);
@@ -23,7 +23,7 @@ struct AST *command(struct lexer **lexer)
         ast = add_children(ast, ast_shell);
     }
 
-    else if(donne_type(*lexer)==WORDS){//pour le funcdec
+    else if(get_current_type(*lexer)==WORDS){//pour le funcdec
 
       next_token(lexer);
 
@@ -33,7 +33,7 @@ struct AST *command(struct lexer **lexer)
 
         _redir=1;//pareil que pour le shl_cmd
 
-        ast = create_ast(AST_FUNC, strdup(donne_content(*lexer)));
+        ast = create_ast(AST_FUNC, strdup(get_current_content(*lexer)));
         struct AST *ast_func = funcdec(lexer);
 
         if (ast_func == NULL)
@@ -46,13 +46,13 @@ struct AST *command(struct lexer **lexer)
 
     if(_redir==0){ //c une simple commande
 
-      if(!first_simple_command(donne_token(*lexer))) //verifie que c une simple commande
+      if(!first_simple_command(get_current_token(*lexer))) //verifie que c une simple commande
         goto err;
 
       return simple_command(lexer);
     }
 
-    while (first_redirection(donne_token(*lexer))) //mager toutes les redirections
+    while (first_redirection(get_current_token(*lexer))) //mager toutes les redirections
     {
 
       struct AST *ast_redir = redirection(lexer);
@@ -63,7 +63,7 @@ struct AST *command(struct lexer **lexer)
       ast = add_children(ast, ast_redir);
     }
 
-    if (follow_command(donne_token(*lexer)))
+    if (follow_command(get_current_token(*lexer)))
       return ast;
 
 err:
@@ -81,41 +81,41 @@ err:
 
 struct AST *shell_command(struct lexer **lexer)
 {
-    if (first_rule_if(donne_token(*lexer))) //cas if
+    if (first_rule_if(get_current_token(*lexer))) //cas if
     {
         struct AST *ast = rule_if(lexer);
         if (ast == NULL)
             return NULL;
         return ast;
     }
-    else if (first_rule_while(donne_token(*lexer)))//cas while 
+    else if (first_rule_while(get_current_token(*lexer)))//cas while 
     {
         struct AST *ast = rule_while(lexer);
         if (ast == NULL)
             return NULL;
         return ast;
     }
-    else if (first_rule_until(donne_token(*lexer)))//cas until
+    else if (first_rule_until(get_current_token(*lexer)))//cas until
     {
         struct AST *ast = rule_until(lexer);
         if (ast == NULL)
             return NULL;
         return ast;
     }
-    else if (first_rule_for(donne_token(*lexer)))//cas for
+    else if (first_rule_for(get_current_token(*lexer)))//cas for
     {
         struct AST *ast = rule_for(lexer);
         if (ast == NULL)
             return NULL;
         return ast;
     }
-    else if (donne_token(*lexer) != NULL && (donne_type(*lexer) == L_BRACE || donne_type(*lexer) == L_PAREN)){ //cas 1 et 2
+    else if (get_current_token(*lexer) != NULL && (get_current_type(*lexer) == L_BRACE || get_current_type(*lexer) == L_PAREN)){ //cas 1 et 2
 
-        bool is_paren = donne_type(*lexer) == L_PAREN;
+        bool is_paren = get_current_type(*lexer) == L_PAREN;
 
         *lexer = eat(*lexer);
 
-        if (!first_compound_list(donne_token(*lexer))){ //pas une coumpound list
+        if (!first_compound_list(get_current_token(*lexer))){ //pas une coumpound list
             return NULL;
         }
 
@@ -125,11 +125,11 @@ struct AST *shell_command(struct lexer **lexer)
             return NULL;
         }
 
-        if (donne_token(*lexer) == NULL || (donne_type(*lexer) != R_BRACE && donne_type(*lexer) != R_PAREN)){ //sans parenthese / bracket a la fin
+        if (get_current_token(*lexer) == NULL || (get_current_type(*lexer) != R_BRACE && get_current_type(*lexer) != R_PAREN)){ //sans parenthese / bracket a la fin
             goto err;
         }
 
-        if ((donne_type(*lexer) == R_PAREN && !is_paren) || (donne_type(*lexer) == R_BRACE && is_paren)){ //pas le meme correspondance ( } ou { )
+        if ((get_current_type(*lexer) == R_PAREN && !is_paren) || (get_current_type(*lexer) == R_BRACE && is_paren)){ //pas le meme correspondance ( } ou { )
             goto err;
         }
 
@@ -161,7 +161,7 @@ struct AST *simple_command(struct lexer **lexer)
 
     int pref = 0;
 
-    while (donne_token(*lexer) && first_prefix(donne_token(*lexer))) // va manger tous les prefix du debut
+    while (get_current_token(*lexer) && first_prefix(get_current_token(*lexer))) // va manger tous les prefix du debut
     {
         pref = 1;
 
@@ -171,12 +171,12 @@ struct AST *simple_command(struct lexer **lexer)
         ast = add_children(ast, child);
     }
 
-    if (pref == 0 && donne_token(*lexer) == NULL) //pas de prefix et rien apres
+    if (pref == 0 && get_current_token(*lexer) == NULL) //pas de prefix et rien apres
     {
         goto err;
     }
 
-    if (pref == 0 || (donne_token(*lexer) && is_valid_word(*lexer))) // regle 2
+    if (pref == 0 || (get_current_token(*lexer) && is_valid_word(*lexer))) // regle 2
     {
         struct AST *child;
 
@@ -184,13 +184,13 @@ struct AST *simple_command(struct lexer **lexer)
             goto err;
         }
             
-        child = create_ast(AST_VALUE, strdup(donne_content(*lexer))); //prend la valeur du WORDS
+        child = create_ast(AST_VALUE, strdup(get_current_content(*lexer))); //prend la valeur du WORDS
 
         ast = add_children(ast, child);
 
         //pour gerer les subshell
 
-        if (donne_type(*lexer) == SUBSHELL && !verif_subshell(*lexer)){
+        if (get_current_type(*lexer) == SUBSHELL && !verif_subshell(*lexer)){
 
             goto err;
 
@@ -198,7 +198,7 @@ struct AST *simple_command(struct lexer **lexer)
 
         *lexer = eat(*lexer);
 
-        while (donne_token(*lexer) && (first_element(donne_token(*lexer)) || is_valid_word(*lexer))) //first de element ou un valid word car element peut etre just word
+        while (get_current_token(*lexer) && (first_element(get_current_token(*lexer)) || is_valid_word(*lexer))) //first de element ou un valid word car element peut etre just word
         {
             struct AST *child_el = element(lexer);
             if (child_el == NULL)//remonte l'err
@@ -207,7 +207,7 @@ struct AST *simple_command(struct lexer **lexer)
             ast = add_children(ast, child_el);
         }
 
-        if (!follow_simple_command(donne_token(*lexer)))//si ce qui suit n'est pas bon direct erreur
+        if (!follow_simple_command(get_current_token(*lexer)))//si ce qui suit n'est pas bon direct erreur
         {
             goto err;
         }
@@ -216,7 +216,7 @@ struct AST *simple_command(struct lexer **lexer)
     }
     else //cas 1
     {
-        if (!follow_simple_command(donne_token(*lexer)))//si ce qui suit n'est pas bon direct erreur
+        if (!follow_simple_command(get_current_token(*lexer)))//si ce qui suit n'est pas bon direct erreur
         {
             goto err;
         }
@@ -233,19 +233,19 @@ err:
 
 struct AST *funcdec(struct lexer **lexer){
 
-    if (donne_token(*lexer) == NULL || donne_type(*lexer) != WORDS){ //pas un bon mot
+    if (get_current_token(*lexer) == NULL || get_current_type(*lexer) != WORDS){ //pas un bon mot
         return NULL;
     }
 
     *lexer = eat(*lexer);
 
-    if (donne_token(*lexer) == NULL || donne_type(*lexer) != L_PAREN){ //pas paren
+    if (get_current_token(*lexer) == NULL || get_current_type(*lexer) != L_PAREN){ //pas paren
         return NULL;
     }
 
     *lexer = eat(*lexer);
 
-    if (donne_token(*lexer) == NULL || donne_type(*lexer) != R_PAREN){ //pas paren
+    if (get_current_token(*lexer) == NULL || get_current_type(*lexer) != R_PAREN){ //pas paren
         return NULL;
     }
 

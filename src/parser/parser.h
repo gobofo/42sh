@@ -17,11 +17,19 @@
 
 /* ============= FIRST ============= */
 
-#include "parser_first.h"
+#include "parser_firsts/first_command.h"
+#include "parser_firsts/first_condition.h"
+#include "parser_firsts/first_loop.h"
+#include "parser_firsts/first_sequence.h"
+#include "parser_firsts/first_token.h"
 
 /* ============= FOLLOW ============= */
 
-#include "parser_follow.h"
+#include "parser_follows/follow_command.h"
+#include "parser_follows/follow_condition.h"
+#include "parser_follows/follow_loop.h"
+#include "parser_follows/follow_sequence.h"
+#include "parser_follows/follow_token.h"
 
 /* ============= GRAMMAR ============= */
 
