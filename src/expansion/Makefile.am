@@ -2,7 +2,9 @@
 
 libexpansion_a_SOURCES = \
 	expansion.c \
-	expansion.h
+	expansion.h \
+	command_sub.c \
+	command_sub.h
 
 libexpansion_a_CPPFLAGS = -I$(top_srcdir)/src
 

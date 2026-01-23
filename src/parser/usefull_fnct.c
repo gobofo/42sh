@@ -44,3 +44,200 @@ enum types donne_type(struct lexer *lexer){
 char *donne_content(struct lexer *lexer){
     return lexer->current->content;
 }
+
+char *donne_entre_paren(struct token *token, int *cmpt){
+    
+    char *res = malloc( 8 * sizeof(char));
+    int capacity = 8;
+
+    char *content = token->content;
+
+    while (content[*cmpt] != '\0' && content[*cmpt] != '('){ //je vais jusqu'a la parenthese
+        *cmpt += 1;
+    }
+
+    if (content[*cmpt] != '\0'){
+        *cmpt += 1;
+    }
+
+    int nb_parenthese = 1;
+    int i = 0;
+
+    while (content[*cmpt] != '\0' && nb_parenthese != 0){
+
+        if (content[*cmpt] == ')'){
+
+            nb_parenthese -= 1;
+
+            if (nb_parenthese != 0){
+                
+                if (i >= capacity){//pour le realloc
+
+                capacity *= 2;
+                res = realloc(res, capacity * sizeof(char));
+
+                }
+
+                res[i] = content[*cmpt];
+                i += 1;
+
+            }
+
+        }
+
+        else if (content[*cmpt] == '('){
+
+            nb_parenthese += 1;
+
+            if (i >= capacity){//pour le realloc
+
+                capacity *= 2;
+                res = realloc(res, capacity * sizeof(char));
+
+            }
+
+            res[i] = content[*cmpt];
+            i += 1;
+        }
+
+        else{
+
+            if (i >= capacity){//pour le realloc
+
+                capacity *= 2;
+                res = realloc(res, capacity * sizeof(char));
+
+            }
+
+            res[i] = content[*cmpt];
+            i += 1;
+
+        }
+
+        *cmpt += 1;
+
+    }
+
+    if (content[*cmpt] != '\0' && nb_parenthese != 0){
+        free(res);
+        return NULL;
+    }
+
+    if (i >= capacity){//pour le realloc
+
+        capacity *= 2;
+        res = realloc(res, capacity * sizeof(char));
+
+    }
+
+    res[i] = '\0';
+    i += 1;
+
+    return res;
+
+}
+
+bool my_42sh_verif(int argc, char *argv[])
+{
+    FILE *file = get_input_file(argc, argv);
+
+    if (file == NULL)
+    {
+        return false;
+    }
+    struct lexer *lexer = init_lexer(file);
+    if (!lexer)
+    {
+        return false;
+    }
+
+    while (lexer->current != NULL)
+    {
+        struct AST *ast = input(&lexer);
+
+        if (ast == NULL)
+        {
+            free_lexer(lexer);
+
+            fclose(file);
+
+            return false;
+        }
+
+        destroy_AST(ast);
+
+        free_token(lexer->current);
+        lexer = get_token(lexer);
+    }
+
+    
+    free_lexer(lexer);
+    fclose(file);
+
+    return true;
+}
+
+
+bool verif_subshell(struct lexer *lexer){
+
+    pid_t pid = fork(); //fork
+
+    if (pid < 0){
+        return false;
+    }
+
+    else if (pid == 0){ //le fils
+
+        int cmpt = 0;
+
+        char *content = donne_entre_paren(donne_token(lexer), &cmpt); //contenu entre les paren
+
+        int len = strlen(lexer->current->content);
+
+        while (cmpt < len){
+
+            if (content == NULL){
+                _exit(1);
+            }
+
+            char *command[] = { "./src/42sh", "-c", content, NULL }; //nouvelle cmd 
+
+            if (!my_42sh_verif(3, command)){ //le parsing pas bon
+                free(content);
+                _exit(1);
+            }
+
+            free(content);
+            content = donne_entre_paren(donne_token(lexer), &cmpt);
+
+        }
+
+        if (content == NULL){
+            _exit(1);
+        }
+
+        char *command[] = { "./src/42sh", "-c", content, NULL }; //nouvelle cmd 
+
+        if (!my_42sh_verif(3, command)){ //le parsing pas bon
+            free(content);
+            _exit(1);
+        }
+
+        free(content);//le parsing est bon
+        _exit(0);
+
+    }
+
+    else{
+
+        int wstatus;
+        waitpid(pid, &wstatus, 0); //attend l'enfant
+        if (WEXITSTATUS(wstatus) == 1)//err
+            return false;
+
+        return true;
+
+    }
+
+
+}
