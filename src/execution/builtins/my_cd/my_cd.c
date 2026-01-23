@@ -151,6 +151,38 @@ static char *canonical_form(char *cur_path)
     return path;
 }
 
+static int invert_paths(char *path)
+{
+	char *pwd = hash_map_get(env->variables, "PWD");
+	char *old = hash_map_get(env->variables, "OLDPWD");
+
+	if (old == NULL)
+	{
+		fprintf(stderr, "Error: cd : OLDPWD not set\n");
+		return 1;
+	}
+
+	char *new_pwd = strdup(old);
+	char *new_old = pwd ? strdup(pwd) : strdup("");
+
+	// Swap pwd
+	hash_map_insert(env->variables, "OLDPWD", new_old, free);
+	hash_map_insert(env->variables, "PWD", new_pwd, free);
+
+	// Check if paths exists
+	if (chdir(new_pwd) != 0)
+	{
+		fprintf(stderr, "Error: cd: no such file or directory: %s\n",
+				path);
+
+		return 1;
+	}
+
+	printf("%s\n", new_pwd);
+
+	return 0;
+}
+
 /**
  * @brief			Mimics the builtin cd command
  *
@@ -183,37 +215,9 @@ int my_cd(char **command)
         return 2;
     }
 
+
     if (strcmp(command[0], "-") == 0)
-    {
-        char *pwd = hash_map_get(env->variables, "PWD");
-        char *old = hash_map_get(env->variables, "OLDPWD");
-
-        if (old == NULL)
-        {
-            fprintf(stderr, "Error: cd : OLDPWD not set\n");
-            return 1;
-        }
-
-        char *new_pwd = strdup(old);
-        char *new_old = pwd ? strdup(pwd) : strdup("");
-
-        // Swap pwd
-        hash_map_insert(env->variables, "OLDPWD", new_old, free);
-        hash_map_insert(env->variables, "PWD", new_pwd, free);
-
-        // Check if paths exists
-        if (chdir(new_pwd) != 0)
-        {
-            fprintf(stderr, "Error: cd: no such file or directory: %s\n",
-                    command[0]);
-
-            return 1;
-        }
-
-        printf("%s\n", new_pwd);
-
-        return 0;
-    }
+		return invert_paths(command[0]);
 
     char *cur_path = create_path(command[0]);
     if (cur_path == NULL)
@@ -240,7 +244,7 @@ int my_cd(char **command)
         return 1;
     }
 
-    char *pwd = hash_map_get(env->variables, "PWD");
+	char *pwd = hash_map_get(env->variables, "PWD");
 
     // Update the PWD and OLDPWD
     if (pwd != NULL)
