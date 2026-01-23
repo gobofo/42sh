@@ -4,6 +4,7 @@
 #include "../42sh.h"
 
 extern struct env *env;
+
 char *expand_command_substitution(char *sub_string)
 {
     int pipefd[2];
