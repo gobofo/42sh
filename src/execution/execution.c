@@ -12,12 +12,6 @@ struct builtin builtins_table[];
 // #   UTILS   #
 // #############
 
-static int my_return(char **command)
-{
-	env->should_return = 1;
-	return atoi(command[0]);
-}
-
 // ####################
 // #   REDIRECTIONS   #
 // ####################
