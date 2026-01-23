@@ -138,7 +138,7 @@ static void expand_at_quoted(struct expansion_context *context)
     *(context)->size = 0;
 
     // We add each argument as a separate word
-    for (int i = 0; i < env->argc; i++)
+    for (int i = 1; i <= env->argc; i++)
         add_word(context->words, strdup(env->argv[i]));
 
     // We open the stream for the next words
@@ -198,11 +198,11 @@ static int is_special_variable(struct expansion_context *context, char *str,
         }
         else
         {
-            for (int j = 0; j < env->argc; j++)
+            for (int j = 1; j <= env->argc; j++)
             {
                 fputs(env->argv[j], context->stream);
 
-                if (j < env->argc - 1)
+                if (j < env->argc)
                     fputc(' ', context->stream);
             }
         }
