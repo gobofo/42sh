@@ -1,49 +1,51 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "expansion.h"
+
 #include "command_sub.h"
 
 extern struct env *env;
 
-static char ** separate_white_space(char* output){
-  if (output==NULL)
-    return NULL;
-  char *copy = strdup(output);
+static char **separate_white_space(char *output)
+{
+    if (output == NULL)
+        return NULL;
+    char *copy = strdup(output);
 
-  int count = 0;
-  char *temp = strdup(output);
-  char *token = strtok(temp, " \t\n");
-  while (token != NULL) {
-    count++;
-    token = strtok(NULL, " \t\n");
-  }
-  free(temp);
-  char **result = malloc(sizeof(char *) * (count + 1));
-  int i = 0;
-  token = strtok(copy, " \t\n");
-  while (token != NULL) {
-    result[i] = strdup(token);
-    i++;
-    token = strtok(NULL, " \t\n\r");
-  }
-  result[i] = NULL;
-  free(copy);
-  return result;
+    int count = 0;
+    char *temp = strdup(output);
+    char *token = strtok(temp, " \t\n");
+    while (token != NULL)
+    {
+        count++;
+        token = strtok(NULL, " \t\n");
+    }
+    free(temp);
+    char **result = malloc(sizeof(char *) * (count + 1));
+    int i = 0;
+    token = strtok(copy, " \t\n");
+    while (token != NULL)
+    {
+        result[i] = strdup(token);
+        i++;
+        token = strtok(NULL, " \t\n\r");
+    }
+    result[i] = NULL;
+    free(copy);
+    return result;
 }
-
 
 static void add_word(struct expanded_words *words, char *word)
 {
-	// Allocate new space for the new word
-	words->words = realloc(words->words, sizeof(char *) * (words->count + 2));
+    // Allocate new space for the new word
+    words->words = realloc(words->words, sizeof(char *) * (words->count + 2));
 
-	// Add the word
-	words->words[words->count++] = word;
+    // Add the word
+    words->words[words->count++] = word;
 
-	// Mark the end of the list of words
-	words->words[words->count] = NULL;
+    // Mark the end of the list of words
+    words->words[words->count] = NULL;
 }
-
 
 // #############
 // #   UTILS   #
@@ -61,44 +63,86 @@ static int is_digit(char c)
     return c >= '0' && c <= '9';
 }
 
+/**
+ * @brief 		Makes sure that the identifier is valid
+ *
+ * When the user tries to expand, he can pass some invalid variable names to
+ * try to expand. but it should not be able to cuz the name is invalid.
+ * Tho we need to check for its validty.
+ *
+ * @param name	The identifier to check
+ *
+ * @return		Success or Failure (1 or 0)
+ */
+
+static int is_valid_identifier(char *name)
+{
+    if (name == NULL || name[0] == '\0')
+        return 0;
+
+    // The variable we try to expand can be a positional arg
+    if (isdigit(name[0]))
+    {
+        for (int i = 0; name[i] != '\0'; i++)
+        {
+            if (isdigit(name[i]) == 0)
+                return 0;
+        }
+
+        return 1;
+    }
+
+    // Else the name can only start with a letter or a _
+    if (isalpha(name[0]) == 0 && name[0] != '_')
+        return 0;
+
+    for (int i = 1; name[i] != '\0'; i++)
+    {
+        if (isalnum(name[i]) == 0 && name[i] != '_')
+            return 0;
+    }
+
+    return 1;
+}
+
 // ##########################
 // #   VARIABLE EXPANSION   #
 // ##########################
 
-static void expand_subshell(struct expansion_context *context,char** list_sub)
+static void expand_subshell(struct expansion_context *context, char **list_sub)
 {
-
-  
-  int i=0;
-  while(list_sub[i]!=NULL){
-    fputs(list_sub[i],context->stream);
-    free(list_sub[i]);
-    if(list_sub[i+1]!=NULL){
-      fputc(' ',context->stream);
+    int i = 0;
+    while (list_sub[i] != NULL)
+    {
+        fputs(list_sub[i], context->stream);
+        free(list_sub[i]);
+        if (list_sub[i + 1] != NULL)
+        {
+            fputc(' ', context->stream);
+        }
+        i++;
     }
-    i++;
-  }
-  // We open the stream for the next words
+    // We open the stream for the next words
 }
 
 static void expand_at_quoted(struct expansion_context *context)
 {
-	fclose(context->stream);
+    fclose(context->stream);
 
-	// If we have already a word we add it in the list
-	if (*(context->size) > 0)
-		add_word(context->words, strdup(*(context->buffer)));
+    // If we have already a word we add it in the list
+    if (*(context->size) > 0)
+        add_word(context->words, strdup(*(context->buffer)));
 
-	free(*(context->buffer));
-	*(context)->buffer = NULL;
-	*(context)->size = 0;
+    free(*(context->buffer));
+    *(context)->buffer = NULL;
+    *(context)->size = 0;
 
-	// We add each argument as a separate word
-	for (int i = 0; i < env->argc; i++)
-		add_word(context->words, strdup(env->argv[i]));
+    // We add each argument as a separate word
+    for (int i = 0; i < env->argc; i++)
+        add_word(context->words, strdup(env->argv[i]));
 
-	// We open the stream for the next words
-	context->stream = open_memstream(context->buffer, context->size);
+    // We open the stream for the next words
+    context->stream = open_memstream(context->buffer, context->size);
 }
 
 /**
@@ -115,8 +159,8 @@ static void expand_at_quoted(struct expansion_context *context)
  * @return			Special Variable was found or no (1 or 0)
  */
 
-static int is_special_variable(struct expansion_context *context,
-		char *str, size_t *i)
+static int is_special_variable(struct expansion_context *context, char *str,
+                               size_t *i)
 {
     // The ? return the exit code of the last command executed
     if (str[*i] == '?')
@@ -147,21 +191,21 @@ static int is_special_variable(struct expansion_context *context,
     // - $@ -> Expands all args into a list of words
     else if (str[*i] == '@' || str[*i] == '*')
     {
-		// Handle the case where the @ is quoted
-		if (str[*i] == '@' && context->quoted == 1)
-		{
-			expand_at_quoted(context);
-		}
-		else
-		{
-			for (int j = 0; j < env->argc; j++)
-			{
-				fputs(env->argv[j], context->stream);
+        // Handle the case where the @ is quoted
+        if (str[*i] == '@' && context->quoted == 1)
+        {
+            expand_at_quoted(context);
+        }
+        else
+        {
+            for (int j = 0; j < env->argc; j++)
+            {
+                fputs(env->argv[j], context->stream);
 
-				if (j < env->argc - 1)
-					fputc(' ', context->stream);
-			}
-		}
+                if (j < env->argc - 1)
+                    fputc(' ', context->stream);
+            }
+        }
 
         (*i)++;
         return 1;
@@ -170,13 +214,13 @@ static int is_special_variable(struct expansion_context *context,
     // going from 1 to 9
     else if (is_digit(str[*i]))
     {
-/*        int idx = str[*i] - '0';
+        int idx = str[*i] - '0';
 
-        if (idx > 0 && (idx - 1) < env->argc)
-            fputs(env->argv[idx - 1], context->stream);
+        if (idx > 0 && idx <= env->argc)
+            fputs(env->argv[idx], context->stream);
 
         (*i)++;
-	    return 1;*/
+        return 1;
     }
 
     return 0;
@@ -195,8 +239,8 @@ static int is_special_variable(struct expansion_context *context,
  * @param i			The index in the string
  */
 
-static void expand_variable(struct expansion_context *context,
-		char *str, size_t *i)
+static void expand_variable(struct expansion_context *context, char *str,
+                            size_t *i)
 {
     // Pass the $ and get to nect character
     (*i)++;
@@ -204,6 +248,47 @@ static void expand_variable(struct expansion_context *context,
     // Detect if we have to handle a special variable
     if (is_special_variable(context, str, i) == 1)
         return;
+
+    if (str[*i] == '(')
+    {
+        int count_par = 1;
+
+        (*i)++;
+        char *sub_string = malloc(strlen(str));
+        int k = 0;
+        while (str[*i] != '\0' && (count_par > 0))
+        {
+            if (str[*i] == '(')
+            {
+                count_par++;
+            }
+            if (str[*i] == ')')
+            {
+                count_par--;
+            }
+            if (count_par == 0)
+            {
+                break;
+            }
+            sub_string[k] = str[(*i)++];
+            k++;
+        }
+        sub_string[k] = '\0';
+
+        (*i)++;
+
+        char *output = expand_command_substitution(sub_string);
+        char **list_sub = separate_white_space(output);
+
+        expand_subshell(context, list_sub);
+
+        free(sub_string);
+        free(list_sub);
+        free(output);
+
+        return;
+        // fork recupere stdout->val echo $(echo a)
+    }
 
     char *var_name;
     size_t var_len;
@@ -228,50 +313,23 @@ static void expand_variable(struct expansion_context *context,
         while (str[*i] != '\0' && (isalnum(str[*i]) || str[*i] == '_'))
             fputc(str[(*i)++], var);
     }
-    if(str[*i] == '('){ 
-
-      int count_par=1;
-
-      (*i)++;
-      char* sub_string=malloc(strlen(str));
-      int k=0;
-      while (str[*i] != '\0' && (count_par>0)){
-        if(str[*i]=='('){
-          count_par++;
-        }
-        if(str[*i]==')'){
-          count_par--;
-        }
-        if(count_par==0){
-          break;
-        }
-        sub_string[k]=str[(*i)++];
-        k++;
-      }
-      sub_string[k]=0;
-      (*i)++;
-      char* output= expand_command_substitution(sub_string);
-
-      free(sub_string);
-      char** list_sub=separate_white_space(output);
-
-      expand_subshell(context,list_sub);
-      free(list_sub);
-      free(output);
-      fclose(var);
-      free(var_name);
-      return;
-      //fork recupere stdout->val echo $(echo a)
-    }
 
     fclose(var);
+
+    if (is_valid_identifier(var_name) == 0)
+    {
+        fprintf(stderr, "Error: ${%s}: bad substitution\n", var_name);
+        free(var_name);
+
+        exit(2);
+    }
 
     // These also make part of the special variables but are not composed of
     // only a character
     if (strcmp(var_name, "RANDOM") == 0)
-      fprintf(context->stream, "%d", rand() % 32768);
+        fprintf(context->stream, "%d", rand() % 32768);
     else if (strcmp(var_name, "UID") == 0)
-      fprintf(context->stream, "%d", getuid());
+        fprintf(context->stream, "%d", getuid());
     else
     {
         // The variable is not a 'special' one so we had it in environment and
@@ -314,11 +372,11 @@ char **expand(char *str)
 
     char *buffer = NULL;
 
-	struct expanded_words words = { .words = NULL, .count = 0 };
+    struct expanded_words words = { .words = NULL, .count = 0 };
 
     FILE *stream = open_memstream(&buffer, &size);
 
-	struct expansion_context context = { stream, 0, &buffer, &size, &words };
+    struct expansion_context context = { stream, 0, &buffer, &size, &words };
 
     size_t i = 0;
 
@@ -365,7 +423,7 @@ char **expand(char *str)
             // Pass the opening quote
             i++;
 
-			context.quoted = 1;
+            context.quoted = 1;
 
             while (str[i] != '\0' && str[i] != '"')
             {
@@ -386,34 +444,33 @@ char **expand(char *str)
                     i++;
                 }
                 else
-				{
+                {
                     fputc(str[i++], context.stream);
-				}
-			}
+                }
+            }
 
-			if (str[i] == '\0')
-			{
-				fprintf(stderr, "Error: Expected closing quote\n");
-				fclose(context.stream);
-				free(buffer);
-			}
+            if (str[i] == '\0')
+            {
+                fprintf(stderr, "Error: Expected closing quote\n");
+                fclose(context.stream);
+                free(buffer);
+            }
 
             if (str[i] == '"')
                 i++;
-
         }
         else if (str[i] == '$')
             expand_variable(&context, str, &i);
-        else{
+        else
+        {
             fputc(str[i++], context.stream);
-
         }
     }
 
-	fclose(context.stream);
+    fclose(context.stream);
 
-	if (size > 0 || words.count == 0)
-		add_word(&words, strdup(buffer));
+    if (size > 0 || words.count == 0)
+        add_word(&words, strdup(buffer));
 
     free(buffer);
 
