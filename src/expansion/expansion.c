@@ -296,6 +296,50 @@ static void expand_variable(struct expansion_context *context, char *str,
 // #   EXPAND   #
 // ##############
 
+// Handles the expansion of words between double quotes
+static void handle_double_quotes(struct expansion_context *context,
+		char *str, char *buffer, size_t *i)
+{
+	// Pass the opening quote
+	(*i)++;
+
+	context->quoted = 1;
+
+	while (str[*i] != '\0' && str[*i] != '"')
+	{
+		// We have a variable extension
+		if (str[*i] == '$')
+		{
+			expand_variable(context, str, i);
+			continue;
+		}
+		// When inside double quotes the \ char does not act like the
+		// normal \.
+		// It only escapes when followed by $, `, ", \, or <newline>
+		else if (str[*i] == '\\' && is_special_char(str[*i + 1]) == 1)
+		{
+			// We skip the \ since it is supposed to escape
+			(*i)++;
+			fputc(str[(*i)++], context->stream);
+			(*i)++;
+		}
+		else
+		{
+			fputc(str[(*i)++], context->stream);
+		}
+	}
+
+	if (str[*i] == '\0')
+	{
+		fprintf(stderr, "Error: Expected closing quote\n");
+		fclose(context->stream);
+		free(buffer);
+	}
+
+	if (str[*i] == '"')
+		(*i)++;
+}
+
 /**
  * @brief 			Reads a string and expands it if needed
  *
@@ -369,44 +413,7 @@ char **expand(char *str)
         // escaping inside
         else if (str[i] == '"')
         {
-            // Pass the opening quote
-            i++;
-
-            context.quoted = 1;
-
-            while (str[i] != '\0' && str[i] != '"')
-            {
-                // We have a variable extension
-                if (str[i] == '$')
-                {
-                    expand_variable(&context, str, &i);
-                    continue;
-                }
-                // When inside double quotes the \ char does not act like the
-                // normal \.
-                // It only escapes when followed by $, `, ", \, or <newline>
-                else if (str[i] == '\\' && is_special_char(str[i + 1]) == 1)
-                {
-                    // We skip the \ since it is supposed to escape
-                    i++;
-                    fputc(str[i++], context.stream);
-                    i++;
-                }
-                else
-                {
-                    fputc(str[i++], context.stream);
-                }
-            }
-
-            if (str[i] == '\0')
-            {
-                fprintf(stderr, "Error: Expected closing quote\n");
-                fclose(context.stream);
-                free(buffer);
-            }
-
-            if (str[i] == '"')
-                i++;
+			handle_double_quotes(&context, str, buffer, &i);
         }
         else if (str[i] == '$')
             expand_variable(&context, str, &i);
