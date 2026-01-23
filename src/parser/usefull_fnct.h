@@ -12,11 +12,11 @@
 
 struct lexer *eat(struct lexer *lexer);
 void eat_newlines(struct lexer **lexer);
-struct token *donne_token(struct lexer *lexer);
-enum types donne_type(struct lexer *lexer);
-char *donne_content(struct lexer *lexer);
+struct token *get_current_token(struct lexer *lexer);
+enum types get_current_type(struct lexer *lexer);
+char *get_current_content(struct lexer *lexer);
 bool is_valid_word(struct lexer *lexer);
-char *donne_entre_paren(struct token *token, int *cmpt);
+char *extract_parentheses_content(struct token *token, int *cmpt);
 bool my_42sh_verif(int argc, char *argv[]);
 bool verif_subshell(struct lexer *lexer);
 
