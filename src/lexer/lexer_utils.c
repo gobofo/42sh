@@ -79,15 +79,6 @@ struct token *create_token(char *str)
         }
     }
 
-    for (int i = 0; str[i + 1] != '\0'; i++)
-    {
-        if (str[i] == '$' && str[i + 1] == '(')
-        {
-            token->type = SUBSHELL;
-            return token;
-        }
-    }
-
     // If we get there then it is either an assignment either a random word
     char *delim = strchr(str, '=');
 
@@ -106,8 +97,19 @@ struct token *create_token(char *str)
         // Restore the string back to original
         *delim = '=';
     }
-    else
-        token->type = WORDS;
+	else
+	{
+		token->type = WORDS;
+
+		for (int i = 0; str[i + 1] != '\0'; i++)
+		{
+			if (str[i] == '$' && str[i + 1] == '(')
+			{
+				token->type = SUBSHELL;
+				return token;
+			}
+		}
+	}
 
     return token;
 }
