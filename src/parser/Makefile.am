@@ -17,8 +17,16 @@ libparser_a_SOURCES =  parser.h \
 					   parser_firsts/first_loop.h \
 					   parser_firsts/first_token.c \
 					   parser_firsts/first_token.h \
-					   parser_follow.c \
-					   parser_follow.h \
+					   parser_follows/follow_command.c \
+					   parser_follows/follow_command.h \
+					   parser_follows/follow_sequence.c \
+					   parser_follows/follow_sequence.h \
+					   parser_follows/follow_condition.c \
+					   parser_follows/follow_condition.h \
+					   parser_follows/follow_loop.c \
+					   parser_follows/follow_loop.h \
+					   parser_follows/follow_token.c \
+					   parser_follows/follow_token.h \
 					   usefull_fnct.h \
 					   print_parser.c 
 
