@@ -56,6 +56,47 @@ static void expand_subshell(struct expansion_context *context, char **list_sub)
     }
 }
 
+static void handle_subshell(struct expansion_context *context,
+		char *str, size_t *i)
+{
+	int nested = 1;
+
+	char *sub_buffer = NULL;
+	size_t sub_size = 0;
+
+	FILE *subshell = open_memstream(&sub_buffer, &sub_size);
+
+	// We skip the (
+	(*i)++;
+
+	while (str[*i] != '\0' && nested > 0)
+	{
+		if (str[*i] == '(')
+			nested++;
+		if (str[*i] == ')')
+			nested--;
+
+		if (nested == 0)
+			break;
+
+		fputc(str[(*i)++], subshell);
+	}
+
+	// Skip the )
+	(*i)++;
+
+	fclose(subshell);
+
+	char *output = expand_command_substitution(sub_buffer);
+	char **list_sub = separate_white_space(output);
+
+	expand_subshell(context, list_sub);
+
+	free(sub_buffer);
+	free(list_sub);
+	free(output);
+}
+
 // ##########################
 // #   VARIABLE EXPANSION   #
 // ##########################
@@ -186,43 +227,7 @@ static void expand_variable(struct expansion_context *context, char *str,
 
     if (str[*i] == '(')
     {
-		int nested = 1;
-
-		char *sub_buffer = NULL;
-		size_t sub_size = 0;
-
-		FILE *subshell = open_memstream(&sub_buffer, &sub_size);
-
-		// We skip the (
-		(*i)++;
-
-		while (str[*i] != '\0' && nested > 0)
-		{
-			if (str[*i] == '(')
-				nested++;
-			if (str[*i] == ')')
-				nested--;
-
-			if (nested == 0)
-				break;
-
-			fputc(str[(*i)++], subshell);
-		}
-
-		// Skip the )
-        (*i)++;
-
-		fclose(subshell);
-
-        char *output = expand_command_substitution(sub_buffer);
-        char **list_sub = separate_white_space(output);
-
-        expand_subshell(context, list_sub);
-
-        free(sub_buffer);
-        free(list_sub);
-        free(output);
-
+		handle_subshell(context, str, i);
         return;
     }
 
