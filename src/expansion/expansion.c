@@ -43,58 +43,6 @@ static void add_word(struct expanded_words *words, char *word)
     words->words[words->count] = NULL;
 }
 
-// #############
-// #   UTILS   #
-// #############
-
-// Determines if the char is a special variables
-static int is_special_char(char c)
-{
-    return c == '$' || c == '`' || c == '"' || c == '\\' || c == '\n';
-}
-
-/**
- * @brief 		Makes sure that the identifier is valid
- *
- * When the user tries to expand, he can pass some invalid variable names to
- * try to expand. but it should not be able to cuz the name is invalid.
- * Tho we need to check for its validty.
- *
- * @param name	The identifier to check
- *
- * @return		Success or Failure (1 or 0)
- */
-
-static int is_valid_identifier(char *name)
-{
-    if (name == NULL || name[0] == '\0')
-        return 0;
-
-    // The variable we try to expand can be a positional arg
-    if (isdigit(name[0]))
-    {
-        for (int i = 0; name[i] != '\0'; i++)
-        {
-            if (isdigit(name[i]) == 0)
-                return 0;
-        }
-
-        return 1;
-    }
-
-    // Else the name can only start with a letter or a _
-    if (isalpha(name[0]) == 0 && name[0] != '_')
-        return 0;
-
-    for (int i = 1; name[i] != '\0'; i++)
-    {
-        if (isalnum(name[i]) == 0 && name[i] != '_')
-            return 0;
-    }
-
-    return 1;
-}
-
 // ##########################
 // #   VARIABLE EXPANSION   #
 // ##########################
@@ -102,17 +50,18 @@ static int is_valid_identifier(char *name)
 static void expand_subshell(struct expansion_context *context, char **list_sub)
 {
     int i = 0;
+
     while (list_sub[i] != NULL)
     {
         fputs(list_sub[i], context->stream);
+
         free(list_sub[i]);
+
         if (list_sub[i + 1] != NULL)
-        {
             fputc(' ', context->stream);
-        }
+
         i++;
     }
-    // We open the stream for the next words
 }
 
 static void expand_at_quoted(struct expansion_context *context)
