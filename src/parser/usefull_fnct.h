@@ -16,7 +16,7 @@ struct token *donne_token(struct lexer *lexer);
 enum types donne_type(struct lexer *lexer);
 char *donne_content(struct lexer *lexer);
 bool is_valid_word(struct lexer *lexer);
-char *donne_entre_paren(struct token *token);
+char *donne_entre_paren(struct token *token, int *cmpt);
 bool my_42sh_verif(int argc, char *argv[]);
 bool verif_subshell(struct lexer *lexer);
 

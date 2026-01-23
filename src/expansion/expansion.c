@@ -67,18 +67,18 @@ static int is_digit(char c)
 
 static void expand_subshell(struct expansion_context *context,char** list_sub)
 {
-  fclose(context->stream);
-  // If we have already a word we add it in the list
 
-  free(*(context->buffer));
-  *(context)->buffer = NULL;
-  *(context)->size = 0;
+  
   int i=0;
   while(list_sub[i]!=NULL){
-    add_word(context->words, list_sub[i++]);
+    fputs(list_sub[i],context->stream);
+    free(list_sub[i]);
+    if(list_sub[i+1]!=NULL){
+      fputc(' ',context->stream);
+    }
+    i++;
   }
   // We open the stream for the next words
-  context->stream = open_memstream(context->buffer, context->size);
 }
 
 static void expand_at_quoted(struct expansion_context *context)
@@ -404,8 +404,10 @@ char **expand(char *str)
         }
         else if (str[i] == '$')
             expand_variable(&context, str, &i);
-        else
+        else{
             fputc(str[i++], context.stream);
+
+        }
     }
 
 	fclose(context.stream);
