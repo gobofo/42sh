@@ -1,8 +1,4 @@
-#define _POSIX_C_SOURCE 200809L
-
 #include "expansion.h"
-
-#include "command_sub.h"
 
 extern struct env *env;
 
@@ -55,12 +51,6 @@ static void add_word(struct expanded_words *words, char *word)
 static int is_special_char(char c)
 {
     return c == '$' || c == '`' || c == '"' || c == '\\' || c == '\n';
-}
-
-// Determines if the char is a digit
-static int is_digit(char c)
-{
-    return c >= '0' && c <= '9';
 }
 
 /**
@@ -212,7 +202,7 @@ static int is_special_variable(struct expansion_context *context, char *str,
     }
     // If the string is a single digit then it makes part of the args passed
     // going from 1 to 9
-    else if (is_digit(str[*i]))
+    else if (isdigit(str[*i]))
     {
         int idx = str[*i] - '0';
 
