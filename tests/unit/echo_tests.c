@@ -4,7 +4,7 @@
 #include <criterion/redirect.h>
 #include <stdlib.h>
 
-#include "../../src/execution/my_echo/my_echo.h"
+#include "../../src/execution/builtins/my_echo/my_echo.h"
 
 static void setup_stdout(void)
 {

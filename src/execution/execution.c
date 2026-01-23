@@ -2,191 +2,19 @@
 
 extern struct env *env;
 
-int execute_node(struct AST *root);
-int execute_list(struct AST *root);
-int execute_cmd(char **command);
-int create_function(struct AST *root);
-int execute_function(struct AST *root, char **command);
+static int execute_cmd(char **command);
+static int execute_node(struct AST *root);
+static int execute_function(struct AST *root, char **command);
 
-int do_redir(struct AST *root, struct AST **redir);
+struct builtin builtins_table[];
 
 // #############
 // #   UTILS   #
 // #############
 
-int my_return(char **command)
-{
-	env->should_return = 1;
-	return atoi(command[0]);
-}
-
-/**
- * @brief		Creates a new entry in the hash_map of the environment
- *
- * When a node of type AST_ASSIGNEMENT, we create a new entry to store the new
- * variable or update an already existing one
- *
- * @param root	The AST node
- */
-
-int variable_assignation(struct AST *root)
-{
-	char *key = strtok(root->content, "=");
-	char *value_raw = strtok(NULL, "");
-    
-    env->last_exit_code=0;
-	if (value_raw == NULL)
-		value_raw = "";
-
-	char **expanded = expand(value_raw);
-
-	char *value = "";
-
-	if (expanded != NULL && expanded[0] != NULL)
-		value = expanded[0];
-
-	hash_map_insert(env->variables, key, strdup(value), free);
-
-	if (expanded)
-	{
-		for (int i = 0; expanded[i] != NULL; i++)
-			free(expanded[i]);
-
-		free(expanded);
-	}
-    return env->last_exit_code;
-}
-
-/**
- * @brief 		Creates the command with children from a node
- *
- * For a given node of the AST tree of type AST_SIMPLE_CMD, creates a string
- * from where the children of the node are values, so a valid command
- *
- * @param root	The parent root with all children beeing the commands
- *
- * @return		The command as a string
- */
-
-char **create_command(struct AST *root)
-{
-	// Is free by caller
-	char **command = calloc(root->count_children + 1, sizeof(char *));
-
-	size_t idx = 0;
-
-	for (int i = 0; i < root->count_children; i++)
-	{
-		if (root->children[i]->rule == AST_VALUE)
-		{
-			char **expanded_values = expand(root->children[i]->content);
-
-			for (int j = 0; expanded_values[j] != NULL; j++)
-			{
-				if (expanded_values[j][0] != '\0'
-						|| strcmp(root->children[i]->content, "''") == 0
-						|| strcmp(root->children[i]->content, "\"\"") == 0)
-				{
-					command = realloc(command, sizeof(char *) * (idx + 2));
-					command[idx++] = expanded_values[j];
-					command[idx] = NULL;
-				}
-				else
-				{
-					free(expanded_values[j]);
-				}
-			}
-
-			free(expanded_values);
-		}
-	}
-
-	return command;
-}
-
-/**
- * @brief 		Creates a list of AST_REDIR from a command
- *
- * For a given node of the AST tree of type AST_SIMPLE_CMD, creates a list of
- * all redirections to execute
- *
- * @param root	The parent root with all children beeing the commands
- *
- * @return		An array of AST_REDIR nodes
- */
-
-struct AST **create_redir(struct AST *root)
-{
-	// Free by the caller
-	struct AST **redir = calloc(root->count_children + 1, sizeof(struct AST *));
-
-	size_t idx = 0;
-
-	for (int i = 0; i < root->count_children; i++)
-	{
-		if (root->children[i]->rule == AST_REDIR)
-			redir[idx++] = root->children[i];
-	}
-
-	return redir;
-}
-
 // ####################
 // #   REDIRECTIONS   #
 // ####################
-
-/**
- * @brief		Executes a redir
- *
- * Various REDIR exists so for each type we excute a different one.
- * In the program we first execute all the REDIR before executing the command
- *
- * @param root	The AST node to execute
- * @param redir The rest of REDIT to execute
- *
- * @return		Exit code
- */
-
-int execute_redir(struct AST *root, struct AST **redir)
-{
-	int fd = -1;
-
-	// Get the IONumber of the REDIR
-	char ionumber = redir[0]->children[0]->content[0];
-	char *content = strdup(redir[0]->children[0]->content);
-	char *to_free = content;
-
-	// Check if a IONumber is given if not we keep the default one for each
-	// redir
-	if (ionumber >= '0' && ionumber <= '9')
-	{
-		fd = ionumber - '0';
-		content++;
-	}
-
-	int status = 0;
-
-	// IF FOR EACH REDIR
-	if (strcmp(content, ">") == 0 || strcmp(content, ">|") == 0)
-		status = redir_replace_in(root, redir, fd == -1 ? 1 : fd);
-	else if (strcmp(content, ">>") == 0)
-		status = redir_append_in(root, redir, fd == -1 ? 1 : fd);
-	else if (strcmp(content, "<") == 0)
-		status = redir_read(root, redir, fd == -1 ? 0 : fd);
-	else if (strcmp(content, ">&") == 0)
-		status = redir_dup(root, redir, fd == -1 ? 1 : fd);
-	else if (strcmp(content, "<&") == 0)
-		status = redir_dup(root, redir, fd == -1 ? 0 : fd);
-	else if (strcmp(content, "<>") == 0)
-		status = redir_open(root, redir, fd == -1 ? 0 : fd);
-
-	free(to_free);
-
-	if (status != 0)
-		return status;
-
-	return status;
-}
 
 // The recursiv function to execute the various REDIR
 int do_redir(struct AST *root, struct AST **redir)
@@ -211,70 +39,56 @@ int do_redir(struct AST *root, struct AST **redir)
 // #   SIMPLE & SHELL COMMANDS   #
 // ###############################
 
-int execute_cmd(char **command)
+static int execute_cmd(char **command)
 {
-	int status = 0;
-
 	if (!command || command[0] == NULL)
 	{
-		free(command);
-		return 0; // a fix peut etre
+		if (command)
+			free(command);
+
+		return 0;
+	}
+
+	int status = 0;
+
+	for (int i = 0; builtins_table[i].name != NULL; i++)
+	{
+		if (strcmp(command[0], builtins_table[i].name) == 0)
+		{
+			if (strcmp(command[0], ".") == 0)
+				status = builtins_table[i].func(command);
+			else
+				status = builtins_table[i].func(command + 1);
+
+			fflush(stdout);
+
+			goto clean_up;
+		}
 	}
 
 	struct AST* func;
+	
+	if ((func = hash_map_get(env->functions, command[0])))
+	{
+		status = execute_function(func, command + 1);
+		goto clean_up;
+	}
 
-	// We consider the quote expansion has been done
-	if (strcmp(command[0], "true") == 0)
-		status = 0;
-	else if (strcmp(command[0], "false") == 0)
-		status = 1;
-	else if (strcmp(command[0], "echo") == 0)
-	{
-		status = my_echo(command + 1);
-		fflush(stdout);
-	}
-	else if (strcmp(command[0], "cd") == 0)
-	{
-		status = my_cd(command + 1);
-		fflush(stdout);	
-	}
-	else if (strcmp(command[0], "exit") == 0)
-	{
-		status = my_exit(command + 1);
-		env->should_exit = 1;
-	}
-	else if (strcmp(command[0], "break")==0){
-		status=my_break(command+1);
-	}
-	else if (strcmp(command[0], "continue")==0){
-		status=my_continue(command+1);
-	}
-	else if (strcmp(command[0], "unset") == 0){
-		status = my_unset(command+1);
-	}
-	else if (strcmp(command[0], "export") == 0)
-		status = my_export(command + 1);
-	else if (strcmp(command[0], ".") == 0)
-		status = my_dot(command);
-	else if (strcmp(command[0], "return") == 0)
-		status = my_return(command + 1);
-	else if ((func = hash_map_get(env->functions, command[0])))
-		status = execute_function(func, command+1);
-	else
-		status = execute_non_builtin(command);
+	status = execute_non_builtin(command);
+
+clean_up:
 
 	for (int i = 0; command[i] != NULL; i++)
-	{
 		free(command[i]);
-	}
 
 	free(command);
 
 	env->last_exit_code = status;
+
 	return status;
 }
 
-int execute_simple_cmd(struct AST *root)
+static int execute_simple_cmd(struct AST *root)
 {
 	if (env->should_exit == 1)
 		return env->last_exit_code;
@@ -304,28 +118,14 @@ int execute_simple_cmd(struct AST *root)
 
 	struct AST **redir = create_redir(root);
 
-	int saved_stdout = dup(STDOUT_FILENO);
-    int saved_stderr = dup(STDERR_FILENO);
-    int saved_stdin  = dup(STDIN_FILENO);
-
 	int status = do_redir(root, redir);
-
-	// 3. RESTORE the shell's FDs immediately
-    dup2(saved_stdout, STDOUT_FILENO);
-    dup2(saved_stderr, STDERR_FILENO);
-    dup2(saved_stdin, STDIN_FILENO);
-
-    // 4. Close the temporary copies to avoid leaking FDs
-    close(saved_stdout);
-    close(saved_stderr);
-    close(saved_stdin);
 
 	free(redir);
 
 	return status;
 }
 
-int execute_shell_cmd(struct AST *root)
+static int execute_shell_cmd(struct AST *root)
 {
 	if (env->should_exit == 1)
 		return env->last_exit_code;
@@ -343,7 +143,7 @@ int execute_shell_cmd(struct AST *root)
 // #   CONDITIONS   #
 // ##################
 
-int execute_if(struct AST *root)
+static int execute_if(struct AST *root)
 {
 	if (env->should_exit == 1)
 		return env->last_exit_code;
@@ -364,7 +164,7 @@ int execute_if(struct AST *root)
 // #   LOOP   #
 // ############
 
-int execute_while(struct AST *root)
+static int execute_while(struct AST *root)
 {
 	env->boucle_count++;
 	if (env->should_exit == 1)
@@ -519,7 +319,7 @@ static int execute_for(struct AST *root)
 // #   OPERATORS   #
 // #################
 
-int execute_or(struct AST *root)
+static int execute_or(struct AST *root)
 {
 	if (env->should_exit == 1)
 		return env->last_exit_code;
@@ -531,7 +331,7 @@ int execute_or(struct AST *root)
 	return status;
 }
 
-int execute_and(struct AST *root)
+static int execute_and(struct AST *root)
 {
 	if (env->should_exit == 1)
 		return env->last_exit_code;
@@ -547,7 +347,7 @@ int execute_and(struct AST *root)
 // #   LIST   #
 // ############
 
-int execute_list(struct AST *root)
+static int execute_list(struct AST *root)
 {
 	if (env->should_exit == 1)
 		return env->last_exit_code;
@@ -596,7 +396,7 @@ static pid_t exec_fork(struct AST *root, int intput_pipe, int output_pipe)
 	_exit(execute_node(root));
 }
 
-int execute_pipeline(struct AST *root)
+static int execute_pipeline(struct AST *root)
 {
 	if (env->should_exit == 1)
 		return env->last_exit_code;
@@ -661,11 +461,12 @@ int execute_pipeline(struct AST *root)
 
 	return res;
 }
+
 // ################
 // #   SUBSHELL   #
 // ################
 
-int  execute_subshell(struct AST *root){
+static int  execute_subshell(struct AST *root){
 	pid_t pid =fork();
 
 	if(pid==0){
@@ -682,15 +483,7 @@ int  execute_subshell(struct AST *root){
 // #    FUNCTIONS     #
 // ####################
 
-// This function is called when we encounter a function node
-int create_function(struct AST *root)
-{
-	hash_map_insert(env->functions, root->content, dup_ast(root), destroy_AST_void);	
-	return 0;
-}
-
-
-int execute_function(struct AST *root, char **command)
+static int execute_function(struct AST *root, char **command)
 {
 	struct AST **redir = create_redir(root);
 
@@ -724,13 +517,35 @@ int execute_function(struct AST *root, char **command)
 	return status;
 }
 
-// ####################
-// #   GENERAL NODE   #
-// ####################
+//###################
+//#   LOOKUP TABLES #
+//###################
 
-// LOOKUP TABLE
-// Execute the function corresponding to the rule of the node
-int (*execute_node_table[])(struct AST *) = {
+// We use lookup tables to execute the nodes and builtins in a more clear way.
+// It avoids a lot of if else clauses or switch cases.
+// It makes the code more readable and its more easy to implement some extra
+// nodes or builtins to execute.
+
+// Helps to reference each builtin to its corresponding func
+struct builtin builtins_table[] =
+{
+	{"true", my_true},
+	{"false", my_false},
+	{"echo", my_echo},
+	{"cd", my_cd},
+	{"exit", my_exit},
+	{"break", my_break},
+	{"continue", my_continue},
+	{"unset", my_unset},
+	{"export", my_export},
+	{"return", my_return},
+	{".", my_dot},
+	{NULL, NULL}
+};
+
+// Helps to reference each type of node to its corresponding func
+int (*execute_node_table[])(struct AST *) =
+{
 	[AST_LIST] = execute_list,
 	[AST_SIMPLE_CMD] = execute_simple_cmd,
 	[AST_SHELL_CMD] = execute_shell_cmd,
@@ -745,7 +560,11 @@ int (*execute_node_table[])(struct AST *) = {
 	[AST_FUNC] = create_function
 };
 
-int execute_node(struct AST *root)
+// ####################
+// #   GENERAL NODE   #
+// ####################
+
+static int execute_node(struct AST *root)
 {
 	if (!root)
 			return 0;
@@ -770,6 +589,7 @@ int execute_ast(struct AST *root)
 {
 	if (!root)
 		return 1;
+
 	env->break_count = 0;
 	env->boucle_count=0;
 	env->continue_count=0;

@@ -13,20 +13,30 @@
 #include "../expansion/expansion.h"
 #include "../hash_map/hash_map.h"
 #include "../parser/parser.h"
-#include "execute_command/execute_command.h"
-#include "my_break/my_break.h"
-#include "my_cd/my_cd.h"
-#include "my_continue/my_continue.h"
-#include "my_echo/my_echo.h"
-#include "my_exit/my_exit.h"
-#include "my_redir/my_redir.h"
-#include "my_break/my_break.h"
-#include "my_continue/my_continue.h"
-#include "my_unset/my_unset.h"
-#include "my_export/my_export.h"
-#include "my_dot/my_dot.h"
 #include "../42sh.h"
 
+#include "execution_utils.h"
+
+#include "execute_command/execute_command.h"
+
+#include "builtins/my_break/my_break.h"
+#include "builtins/my_cd/my_cd.h"
+#include "builtins/my_continue/my_continue.h"
+#include "builtins/my_echo/my_echo.h"
+#include "builtins/my_exit/my_exit.h"
+#include "builtins/my_redir/my_redir.h"
+#include "builtins/my_break/my_break.h"
+#include "builtins/my_continue/my_continue.h"
+#include "builtins/my_unset/my_unset.h"
+#include "builtins/my_export/my_export.h"
+#include "builtins/my_dot/my_dot.h"
+#include "builtins/operators/operators.h"
+
+struct builtin
+{
+	char *name;
+	int (*func)(char **);
+};
 
 int execute_ast(struct AST *root);
 
