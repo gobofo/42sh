@@ -9,4 +9,4 @@
 
 int my_dot(char **command);
 
-#endif /* ! MY_dot_H */
+#endif /* ! MY_DOT_H */

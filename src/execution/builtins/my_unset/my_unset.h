@@ -9,4 +9,4 @@
 
 int my_unset(char **command);
 
-#endif /* ! UNSET_H */
+#endif /* ! MY_UNSET_H */
