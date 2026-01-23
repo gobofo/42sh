@@ -36,7 +36,7 @@ int variable_assignation(struct AST *root)
 		free(expanded);
 	}
 
-	return 0;
+	return env->last_exit_code;
 }
 
 
