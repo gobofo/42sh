@@ -1,9 +1,13 @@
 #include "ast.h"
 
 #include <stdlib.h>
-
+/**
+ * Alloue et initialise un nouveau nœud AST avec la règle et le contenu donnés.
+ * Le nœud est créé sans enfants (count_children = 0, children = NULL).
+ * Retourne un pointeur vers le nœud créé.
+ */
 struct AST *create_ast(enum rule rule, char *content)
-{ // renvoi un arbre avec uniquement la racine "type"
+{
 
     struct AST *start = malloc(sizeof(struct AST));
 
@@ -17,8 +21,14 @@ struct AST *create_ast(enum rule rule, char *content)
     return start;
 }
 
+/**
+ * Ajoute un enfant au nœud AST en gérant l'allocation dynamique du tableau.
+ * Double la capacité du tableau lorsqu'il est plein.
+ * Retourne le pointeur vers le nœud parent (root).
+ */
+
 struct AST *add_children(struct AST *root, struct AST *child)
-{ // ajoute un enfant en s'occupant des realloc
+{
 
     if (root->count_children >= root->max_children)
     { // pour les realloc
@@ -27,12 +37,10 @@ struct AST *add_children(struct AST *root, struct AST *child)
         {
             root->max_children = 2;
         }
-
         else
         {
             root->max_children *= 2;
         }
-
         root->children =
             realloc(root->children, root->max_children * sizeof(struct AST *));
     }
@@ -43,7 +51,11 @@ struct AST *add_children(struct AST *root, struct AST *child)
     return root;
 }
 
-
+/**
+ * Duplique récursivement un nœud AST et tous ses enfants.
+ * Copie également le contenu avec strdup si non-NULL.
+ * Retourne un pointeur vers le nouvel arbre dupliqué.
+ */
 struct AST *dup_ast(struct AST *root)
 {
 	struct AST *dup = malloc(sizeof(struct AST));
@@ -60,6 +72,11 @@ struct AST *dup_ast(struct AST *root)
 	return dup;
 }
 
+/**
+ * Libère récursivement la mémoire d'un nœud AST et de tous ses enfants.
+ * Libère le contenu, le tableau d'enfants, puis le nœud lui-même.
+ * Ne fait rien si root est NULL.
+ */
 
 void destroy_AST(struct AST *root)
 { // detruit l'AST (free)
