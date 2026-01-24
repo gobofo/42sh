@@ -1,5 +1,5 @@
 autoreconf --install
-./configure CFLAGS="-fsanitize=address -g"
+./configure CFLAGS="-fsanitize=address -g -O0"
 
 make
 mv src/42sh 42sh
