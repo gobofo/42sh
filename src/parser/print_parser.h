@@ -5,6 +5,14 @@
 #include "../lexer/lexer.h"
 #include "../token.h"
 
+struct ast_node
+{
+	enum rule rule;
+	
+	char *text;
+	char *color;
+};
+
 /* ============= PRINT AST ============= */
 
 void parser_print(struct AST *ast);
