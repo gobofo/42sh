@@ -454,6 +454,23 @@ test_error "for 1i in a b; do echo \$1i; done" "for: identifier starts with digi
 test_error "for i-2 in a b; do echo \$i-2; done" "for: identifier with hyphen"
 test_error "for in a b; do echo ok; done" "for: missing identifier"
 
+echo "###################################################"
+echo "STEP 3 - FOR LOOPS WITH POSITIONAL PARAMETERS"
+echo "###################################################"
+
+test_cmd 'f() { for i in $@; do echo "$i"; done; }; f a b c' "for in \$@ (unquoted)"
+test_cmd 'f() { for i in "$@"; do echo "$i"; done; }; f "a b" c' "for in \"\$@\" (quoted, preserving spaces)"
+
+test_cmd 'f() { for i in $*; do echo "$i"; done; }; f a b c' "for in \$* (unquoted)"
+test_cmd 'f() { for i in "$*"; do echo "$i"; done; }; f a b c' "for in \"\$*\" (quoted, single string)"
+
+test_cmd 'f() { for i; do echo "$i"; done; }; f x y z' "for default 'in \$@'"
+
+test_cmd 'f() { for i in "$@"; do echo "[$i]"; done; }; f' "for in \"\$@\" with no args"
+test_cmd 'f() { for i in "$@"; do echo "$i"; done; }; f "" " "' "for in \"\$@\" with empty/space args"
+
+test_cmd 'for i in $(echo a b c); do echo $i; done' "for with cmdsub list"
+
 #----------------- STEP 3: ADVANCED BUILTINS & CONSTRUCTS -----------------#
 
 echo "###################################################"
