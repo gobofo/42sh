@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "../../../environment/environment.h"
-#include "../../../utils.h"
+#include "../../../lexer/lexer_utils.h"
 
 int my_export(char **command);
 

@@ -6,11 +6,11 @@ SUBDIRS = \
 		  lexer \
 		  io_backend \
 		  environment \
-		  hash_map 
+		  hash_map
 
 bin_PROGRAMS = 42sh
 
-42sh_SOURCES = 42sh.c utils.c
+42sh_SOURCES = 42sh.c launch_shell.c
 
 # %D% is the current dir
 42sh_CPPFLAGS = -I%D%

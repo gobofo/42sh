@@ -111,8 +111,7 @@ am_unit_tests_OBJECTS = unit_tests-lexer_tests.$(OBJEXT) \
 	$(top_builddir)/src/execution/builtins/my_echo/unit_tests-my_echo.$(OBJEXT) \
 	$(top_builddir)/src/execution/builtins/my_cd/unit_tests-my_cd.$(OBJEXT) \
 	$(top_builddir)/src/execution/builtins/my_export/unit_tests-my_export.$(OBJEXT) \
-	$(top_builddir)/src/execution/builtins/my_unset/unit_tests-my_unset.$(OBJEXT) \
-	$(top_builddir)/src/unit_tests-utils.$(OBJEXT)
+	$(top_builddir)/src/execution/builtins/my_unset/unit_tests-my_unset.$(OBJEXT)
 unit_tests_OBJECTS = $(am_unit_tests_OBJECTS)
 unit_tests_DEPENDENCIES =
 unit_tests_LINK = $(CCLD) $(unit_tests_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
@@ -133,7 +132,6 @@ DEFAULT_INCLUDES = -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade =  \
-	$(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Po \
 	$(top_builddir)/src/ast/$(DEPDIR)/unit_tests-ast.Po \
 	$(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Po \
 	$(top_builddir)/src/execution/builtins/my_cd/$(DEPDIR)/unit_tests-my_cd.Po \
@@ -192,13 +190,13 @@ am__define_uniq_tagged_files = \
   done | $(am__uniquify_input)`
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} '/home/lennyt/42/42sh/missing' aclocal-1.18
+ACLOCAL = ${SHELL} '/home/yann/Desktop/42sh/missing' aclocal-1.18
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 0
 AR = ar
-AUTOCONF = ${SHELL} '/home/lennyt/42/42sh/missing' autoconf
-AUTOHEADER = ${SHELL} '/home/lennyt/42/42sh/missing' autoheader
-AUTOMAKE = ${SHELL} '/home/lennyt/42/42sh/missing' automake-1.18
+AUTOCONF = ${SHELL} '/home/yann/Desktop/42sh/missing' autoconf
+AUTOHEADER = ${SHELL} '/home/yann/Desktop/42sh/missing' autoheader
+AUTOMAKE = ${SHELL} '/home/yann/Desktop/42sh/missing' automake-1.18
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -223,7 +221,7 @@ LDFLAGS =
 LIBOBJS = 
 LIBS = 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} '/home/lennyt/42/42sh/missing' makeinfo
+MAKEINFO = ${SHELL} '/home/yann/Desktop/42sh/missing' makeinfo
 MKDIR_P = /usr/bin/mkdir -p
 OBJEXT = o
 PACKAGE = 42sh
@@ -239,10 +237,10 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = 
 VERSION = 1.0
-abs_builddir = /home/lennyt/42/42sh/tests/unit
-abs_srcdir = /home/lennyt/42/42sh/tests/unit
-abs_top_builddir = /home/lennyt/42/42sh
-abs_top_srcdir = /home/lennyt/42/42sh
+abs_builddir = /home/yann/Desktop/42sh/tests/unit
+abs_srcdir = /home/yann/Desktop/42sh/tests/unit
+abs_top_builddir = /home/yann/Desktop/42sh
+abs_top_srcdir = /home/yann/Desktop/42sh
 ac_ct_AR = ar
 ac_ct_CC = gcc
 am__include = include
@@ -264,7 +262,7 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/lennyt/42/42sh/install-sh
+install_sh = ${SHELL} /home/yann/Desktop/42sh/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -299,8 +297,7 @@ unit_tests_SOURCES = \
 	$(top_srcdir)/src/execution/builtins/my_echo/my_echo.c \
 	$(top_srcdir)/src/execution/builtins/my_cd/my_cd.c \
 	$(top_srcdir)/src/execution/builtins/my_export/my_export.c \
-	$(top_srcdir)/src/execution/builtins/my_unset/my_unset.c \
-    $(top_srcdir)/src/utils.c
+	$(top_srcdir)/src/execution/builtins/my_unset/my_unset.c
 
 unit_tests_CFLAGS = -std=c99 -pedantic -Werror -Wall -Wextra -Wvla
 unit_tests_LDADD = -lcriterion
@@ -415,15 +412,6 @@ $(top_builddir)/src/execution/builtins/my_unset/$(DEPDIR)/$(am__dirstamp):
 	@: >>$(top_builddir)/src/execution/builtins/my_unset/$(DEPDIR)/$(am__dirstamp)
 $(top_builddir)/src/execution/builtins/my_unset/unit_tests-my_unset.$(OBJEXT): $(top_builddir)/src/execution/builtins/my_unset/$(am__dirstamp) \
 	$(top_builddir)/src/execution/builtins/my_unset/$(DEPDIR)/$(am__dirstamp)
-$(top_builddir)/src/$(am__dirstamp):
-	@$(MKDIR_P) $(top_builddir)/src
-	@: >>$(top_builddir)/src/$(am__dirstamp)
-$(top_builddir)/src/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) $(top_builddir)/src/$(DEPDIR)
-	@: >>$(top_builddir)/src/$(DEPDIR)/$(am__dirstamp)
-$(top_builddir)/src/unit_tests-utils.$(OBJEXT):  \
-	$(top_builddir)/src/$(am__dirstamp) \
-	$(top_builddir)/src/$(DEPDIR)/$(am__dirstamp)
 
 unit_tests$(EXEEXT): $(unit_tests_OBJECTS) $(unit_tests_DEPENDENCIES) $(EXTRA_unit_tests_DEPENDENCIES) 
 	@rm -f unit_tests$(EXEEXT)
@@ -431,7 +419,6 @@ unit_tests$(EXEEXT): $(unit_tests_OBJECTS) $(unit_tests_DEPENDENCIES) $(EXTRA_un
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
-	-rm -f $(top_builddir)/src/*.$(OBJEXT)
 	-rm -f $(top_builddir)/src/ast/*.$(OBJEXT)
 	-rm -f $(top_builddir)/src/environment/*.$(OBJEXT)
 	-rm -f $(top_builddir)/src/execution/builtins/my_cd/*.$(OBJEXT)
@@ -444,7 +431,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Po # am--include-marker
 include $(top_builddir)/src/ast/$(DEPDIR)/unit_tests-ast.Po # am--include-marker
 include $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Po # am--include-marker
 include $(top_builddir)/src/execution/builtins/my_cd/$(DEPDIR)/unit_tests-my_cd.Po # am--include-marker
@@ -693,20 +679,6 @@ $(top_builddir)/src/execution/builtins/my_unset/unit_tests-my_unset.obj: $(top_b
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/execution/builtins/my_unset/unit_tests-my_unset.obj `if test -f '$(top_builddir)/src/execution/builtins/my_unset/my_unset.c'; then $(CYGPATH_W) '$(top_builddir)/src/execution/builtins/my_unset/my_unset.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/execution/builtins/my_unset/my_unset.c'; fi`
 
-$(top_builddir)/src/unit_tests-utils.o: $(top_builddir)/src/utils.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/unit_tests-utils.o -MD -MP -MF $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Tpo -c -o $(top_builddir)/src/unit_tests-utils.o `test -f '$(top_builddir)/src/utils.c' || echo '$(srcdir)/'`$(top_builddir)/src/utils.c
-	$(AM_V_at)$(am__mv) $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Tpo $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Po
-#	$(AM_V_CC)source='$(top_builddir)/src/utils.c' object='$(top_builddir)/src/unit_tests-utils.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/unit_tests-utils.o `test -f '$(top_builddir)/src/utils.c' || echo '$(srcdir)/'`$(top_builddir)/src/utils.c
-
-$(top_builddir)/src/unit_tests-utils.obj: $(top_builddir)/src/utils.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/unit_tests-utils.obj -MD -MP -MF $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Tpo -c -o $(top_builddir)/src/unit_tests-utils.obj `if test -f '$(top_builddir)/src/utils.c'; then $(CYGPATH_W) '$(top_builddir)/src/utils.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/utils.c'; fi`
-	$(AM_V_at)$(am__mv) $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Tpo $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Po
-#	$(AM_V_CC)source='$(top_builddir)/src/utils.c' object='$(top_builddir)/src/unit_tests-utils.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/unit_tests-utils.obj `if test -f '$(top_builddir)/src/utils.c'; then $(CYGPATH_W) '$(top_builddir)/src/utils.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/utils.c'; fi`
-
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
 tags: tags-am
@@ -823,8 +795,6 @@ clean-generic:
 distclean-generic:
 	-$(am__rm_f) $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || $(am__rm_f) $(CONFIG_CLEAN_VPATH_FILES)
-	-$(am__rm_f) $(top_builddir)/src/$(DEPDIR)/$(am__dirstamp)
-	-$(am__rm_f) $(top_builddir)/src/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/ast/$(DEPDIR)/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/ast/$(am__dirstamp)
 	-$(am__rm_f) $(top_builddir)/src/environment/$(DEPDIR)/$(am__dirstamp)
@@ -850,7 +820,6 @@ clean: clean-am
 clean-am: clean-checkPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
-	-rm -f $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Po
 	-rm -f $(top_builddir)/src/ast/$(DEPDIR)/unit_tests-ast.Po
 	-rm -f $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Po
 	-rm -f $(top_builddir)/src/execution/builtins/my_cd/$(DEPDIR)/unit_tests-my_cd.Po
@@ -911,7 +880,6 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -f $(top_builddir)/src/$(DEPDIR)/unit_tests-utils.Po
 	-rm -f $(top_builddir)/src/ast/$(DEPDIR)/unit_tests-ast.Po
 	-rm -f $(top_builddir)/src/environment/$(DEPDIR)/unit_tests-environment.Po
 	-rm -f $(top_builddir)/src/execution/builtins/my_cd/$(DEPDIR)/unit_tests-my_cd.Po

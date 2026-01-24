@@ -1,6 +1,5 @@
-
-#ifndef MY_42SH_H
-#define MY_42SH_H
+#ifndef LAUNCH_SHELL_H
+#define LAUNCH_SHELL_H 
 
 #include <stdio.h>
 #include <time.h>
@@ -13,6 +12,6 @@
 #include "parser/parser.h"
 #include "token.h"
 
-
 int my_42sh(int argc, char *argv[]);
-#endif /* ! MY_42SH_H */
+
+#endif /* ! LAUNCH_SHELL_H */ 

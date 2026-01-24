@@ -3,10 +3,11 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <unistd.h>
+
 #include "../token.h"
 #include "../lexer/lexer.h"
-#include "../42sh.h"
-#include <unistd.h>
+#include "../launch_shell.h"
 
 /* ============= USEFULL FONCTION ============= */
 

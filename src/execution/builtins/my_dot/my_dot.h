@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../../../42sh.h"
+#include "../../../launch_shell.h"
 #include "../../../environment/environment.h"
 
 int my_dot(char **command);

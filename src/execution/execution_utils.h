@@ -11,6 +11,7 @@
 #include "../environment/environment.h"
 #include "../expansion/expansion.h"
 
+int is_valid_name(char *name);
 int variable_assignation(struct AST *root);
 int create_function(struct AST *root);
 
