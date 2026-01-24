@@ -271,18 +271,16 @@ static char **create_for_args(struct AST *root)
 
 		for (int j = 0; expanded_values[j] != NULL; j++)
 		{
-			if (expanded_values[j][0] != '\0'
-					|| strcmp(root->children[i]->content, "''") == 0
-					|| strcmp(root->children[i]->content, "\"\"") == 0)
-			{
-				args = realloc(args, sizeof(char *) * (idx + 2));
-				args[idx++] = expanded_values[j];
-				args[idx] = NULL;
-			}
-			else
+
+			if(expanded_values[j][0] == '\0' && strcmp("\"$@\"", root->children[i]->content) == 0 && env->argc == 0)
 			{
 				free(expanded_values[j]);
+				continue;
 			}
+			args = realloc(args, sizeof(char *) * (idx + 2));
+			args[idx++] = expanded_values[j];
+			args[idx] = NULL;
+
 		}
 
 		free(expanded_values);
@@ -315,7 +313,15 @@ static int execute_for(struct AST *root)
 
 	int exit_code = 0;
 
-	char **args = create_for_args(root);
+	char **args;
+
+	if(root->count_children == 2)
+	{
+		args = expand("\"$@\"");
+	}
+	else
+		args = create_for_args(root);
+
 
 	// The first children is name of the identifier so we go from the second to
 	// the before last child, the last beeing the command to execute inside
@@ -558,7 +564,7 @@ static int execute_function(struct AST *root, char **command)
 	struct AST *func = dup_ast(root);
 
 	int status = do_redir(func->children[0], redir);
-	
+
 	env->should_return = 0;
 
 	destroy_AST(func);
@@ -621,7 +627,7 @@ int (*execute_node_table[])(struct AST *) =
 static int execute_node(struct AST *root)
 {
 	if (!root)
-			return 0;
+		return 0;
 
 	if (env->should_exit == 1)
 		return env->last_exit_code;

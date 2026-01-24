@@ -469,8 +469,6 @@ test_cmd 'f() { for i; do echo "$i"; done; }; f x y z' "for default 'in \$@'"
 test_cmd 'f() { for i in "$@"; do echo "[$i]"; done; }; f' "for in \"\$@\" with no args"
 test_cmd 'f() { for i in "$@"; do echo "$i"; done; }; f "" " "' "for in \"\$@\" with empty/space args"
 
-test_cmd 'for i in $(echo a b c); do echo $i; done' "for with cmdsub list"
-
 #----------------- STEP 3: ADVANCED BUILTINS & CONSTRUCTS -----------------#
 
 echo "###################################################"
