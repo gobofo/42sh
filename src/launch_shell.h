@@ -1,5 +1,5 @@
 #ifndef LAUNCH_SHELL_H
-#define LAUNCH_SHELL_H 
+#define LAUNCH_SHELL_H
 
 #include <stdio.h>
 #include <time.h>
@@ -14,4 +14,4 @@
 
 int my_42sh(int argc, char *argv[]);
 
-#endif /* ! LAUNCH_SHELL_H */ 
+#endif /* ! LAUNCH_SHELL_H */
