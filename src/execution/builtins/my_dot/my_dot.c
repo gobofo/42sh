@@ -4,6 +4,12 @@
 
 extern struct env *env;
 
+/**
+ * Exécute la commande builtin '.' (dot) pour sourcer un fichier script.
+ * Sauvegarde et remplace temporairement argv/argc avec les arguments fournis.
+ * Retourne le code de sortie du script exécuté ou 2 si arguments manquants.
+ */
+
 int my_dot(char **command)
 {
     if (command[0] == NULL || command[1] == NULL)

@@ -10,6 +10,12 @@ static int is_digit(char c)
     return c >= '0' && c <= '9';
 }
 
+/**
+ * Vérifie si un nom de variable ou fonction est valide selon les règles POSIX.
+ * Un nom valide commence par une lettre ou underscore, suivi de lettres, chiffres ou underscores.
+ * Retourne 1 si le nom est valide, 0 sinon.
+ */
+
 int is_valid_name(char *name)
 {
     char first = name[0];

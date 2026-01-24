@@ -1,6 +1,11 @@
 #define _POSIX_C_SOURCE 200809L
-
 #include "input.h"
+
+/**
+ * Détermine le fichier d'entrée à utiliser pour le shell.
+ * Si -c est présent, utilise l'argument suivant comme commande (via fmemopen).
+ * Sinon ouvre argv[1] comme fichier, ou retourne stdin si aucun argument.
+ */
 
 FILE *get_input_file(int argc, char *argv[])
 {
