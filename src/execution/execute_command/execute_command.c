@@ -39,6 +39,11 @@ static char *find_command(char *cmd) {
     return NULL;
 }
 
+/**
+ * Crée un tableau de chaînes contenant les variables exportées au format "NAME=VALUE".
+ * Récupère les valeurs depuis la hashmap et construit les chaînes par concaténation.
+ * Retourne un tableau terminé par NULL, compatible avec execve.
+ */
 static char ** get_exported_variable(){
   char** var= malloc((env->export_variables->nb_variables +1)* sizeof(char*));
   int c_var=0;
@@ -65,6 +70,12 @@ static char ** get_exported_variable(){
   var[c_var]=NULL;
   return var;
 }
+
+/**
+ * Libère la mémoire d'un tableau de variables exportées.
+ * Free chaque chaîne "NAME=VALUE" du tableau, puis le tableau lui-même.
+ * S'arrête au marqueur NULL de fin de tableau.
+ */
 static void free_exported_variable(char** list_variable_exp){
   int i=0;
   while(list_variable_exp[i]){
@@ -74,6 +85,12 @@ static void free_exported_variable(char** list_variable_exp){
   free(list_variable_exp);
 }
 
+
+/**
+ * Exécute une commande (non-builtin) dans un processus fils.
+ * Fork un processus, recherche la commande dans PATH, et l'exécute avec execve.
+ * Retourne le code de sortie de la commande ou 127 si la commande n'est pas trouvée.
+ */
 int execute_non_builtin(char **cmd)
 {
     pid_t pid = fork();
@@ -84,7 +101,7 @@ int execute_non_builtin(char **cmd)
         return 1;
     }
 
-    if (pid == 0)
+    if (pid == 0)// children 
     {
         char** list_variable_exp= get_exported_variable();
         char *cmd_path = find_command(cmd[0]);
@@ -103,7 +120,7 @@ int execute_non_builtin(char **cmd)
         }
         free_exported_variable(list_variable_exp );
     }
-    else
+    else //parent
     {
         int wstatus;
         int child_pid = waitpid(pid, &wstatus, 0);
