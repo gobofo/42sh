@@ -80,12 +80,22 @@ struct env *init_env(int argc, char **argv)
     return env;
 }
 
+
+/**
+ * Libère la mémoire allouée pour la structure env.
+ * Free d'abord le tableau argv puis la structure elle-même.
+ */
 void free_env(struct env *env)
 {
 	free(env->argv);
 	free(env);
 }
 
+/**
+ * Crée et initialise une nouvelle structure export pour stocker des variables.
+ * Alloue un tableau initial de 8 emplacements pour les variables.
+ * Retourne un pointeur vers la structure créée.
+ */
 struct export *create_export(void)
 {
     struct export *export = malloc(sizeof(struct export));
@@ -97,6 +107,11 @@ struct export *create_export(void)
     return export;
 }
 
+/**
+ * Ajoute une variable à la liste d'export en gérant l'allocation dynamique.
+ * Double la capacité du tableau si nécessaire (croissance exponentielle).
+ * Incrémente le compteur de variables après l'ajout.
+ */
 void export_add_variable(struct export *export, char *variables)
 {
     if (export->nb_variables >= export->max_variables)
@@ -109,6 +124,11 @@ void export_add_variable(struct export *export, char *variables)
     export->list_variables[export->nb_variables] = variables;
     export->nb_variables++;
 }
+
+/**
+ * Libère la mémoire de la structure export et de toutes ses variables.
+ * Free chaque chaîne de caractère dans la liste, puis la liste, puis la structure.
+ */
 
 void free_export(struct export *export)
 {

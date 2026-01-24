@@ -16,7 +16,12 @@ struct builtin builtins_table[];
 // #   REDIRECTIONS   #
 // ####################
 
-// The recursiv function to execute the various REDIR
+/**
+ * Exécute un nœud AST avec ou sans redirections.
+ * Si des redirections existent, les applique via execute_redir, sinon exécute directement.
+ * Retourne le code de sortie de la commande ou du noeud exécuté.
+ */
+
 int do_redir(struct AST *root, struct AST **redir)
 {
 	if (redir && *redir)
@@ -38,7 +43,11 @@ int do_redir(struct AST *root, struct AST **redir)
 // ###############################
 // #   SIMPLE & SHELL COMMANDS   #
 // ###############################
-
+/**
+ * Exécute une commande simple
+ * Cherche d'abord dans les builtins, puis les fonctions, puis exécute en externe.
+ * Retourne le code de sortie de la commande exécutée et met à jour last_exit_code.
+ */
 static int execute_cmd(char **command)
 {
 	if (!command || command[0] == NULL)
@@ -88,6 +97,11 @@ clean_up:
 	return status;
 }
 
+/**
+ * Exécute une commande simple (AST_SIMPLE_CMD).
+ * Si la commande ne contient que des assignations, les exécute directement.
+ * Sinon, crée les redirections et exécute la commande via do_redir.
+ */
 static int execute_simple_cmd(struct AST *root)
 {
 	if (env->should_exit == 1)
@@ -125,6 +139,12 @@ static int execute_simple_cmd(struct AST *root)
 	return status;
 }
 
+/**
+ * Exécute une commande shell (AST_SHELL_CMD).
+ * Crée les redirections et exécute le premier enfant de l'AST via do_redir.
+ * Retourne le code de sortie de la commande exécutée.
+ */
+
 static int execute_shell_cmd(struct AST *root)
 {
 	if (env->should_exit == 1)
@@ -143,6 +163,12 @@ static int execute_shell_cmd(struct AST *root)
 // #   CONDITIONS   #
 // ##################
 
+
+/**
+ * Exécute une structure conditionnelle if (AST_IF).
+ * Évalue la condition, exécute le then si elle vaut 0, sinon exécute le else s'il existe.
+ * Retourne le code de sortie de la branche exécutée ou 0 si aucune branche n'est exécutée.
+ */
 static int execute_if(struct AST *root)
 {
 	if (env->should_exit == 1)
@@ -163,6 +189,12 @@ static int execute_if(struct AST *root)
 // ############
 // #   LOOP   #
 // ############
+
+/**
+ * Exécute une boucle while (AST_WHILE).
+ * Évalue la condition et exécute le corps tant qu'elle vaut 0, gère break/continue/return.
+ * Retourne le code de sortie de la dernière itération ou 0 si aucune itération n'est exécutée.
+ */
 
 static int execute_while(struct AST *root)
 {
@@ -195,6 +227,7 @@ static int execute_while(struct AST *root)
 	return status;
 }
 
+//meme que while mais inverse
 static int execute_until(struct AST *root)
 {
 	env->boucle_count++;
@@ -258,6 +291,11 @@ static char **create_for_args(struct AST *root)
 	return args;
 }
 
+/**
+ * Exécute une boucle for (AST_FOR).
+ * Itère sur les arguments en assignant chacun à la variable et exécute le corps, gère break/continue/return.
+ * Retourne le code de sortie de la dernière itération ou 1 si l'identifiant est invalide.
+ */
 static int execute_for(struct AST *root)
 {
 	env->boucle_count++;
@@ -396,6 +434,12 @@ static pid_t exec_fork(struct AST *root, int intput_pipe, int output_pipe)
 	_exit(execute_node(root));
 }
 
+/**
+ * Exécute un pipeline de commandes (AST_PIPELINE).
+ * Crée des processus fils connectés par pipes, attend leur terminaison.
+ * Retourne le code de sortie de la dernière commande (inversé si is_neg est vrai).
+ */
+
 static int execute_pipeline(struct AST *root)
 {
 	if (env->should_exit == 1)
@@ -465,7 +509,11 @@ static int execute_pipeline(struct AST *root)
 // ################
 // #   SUBSHELL   #
 // ################
-
+/**
+ * Exécute une sous-shell (AST_SUBSHELL).
+ * Crée un processus fils pour exécuter le premier enfant de l'AST de manière isolée.
+ * Retourne le code de sortie du processus fils.
+ */
 static int  execute_subshell(struct AST *root){
 	pid_t pid =fork();
 
@@ -482,6 +530,12 @@ static int  execute_subshell(struct AST *root){
 // ####################
 // #    FUNCTIONS     #
 // ####################
+
+/**
+ * Exécute une fonction shell définie par l'utilisateur.
+ * Sauvegarde et remplace argv/argc avec les arguments, duplique l'AST, applique les redirections.
+ * Retourne le code de sortie de la fonction et restaure l'environnement.
+ */
 
 static int execute_function(struct AST *root, char **command)
 {

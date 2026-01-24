@@ -2,6 +2,12 @@
 
 extern struct env *env;
 
+/**
+ * Exécute la commande builtin 'export' pour exporter des variables d'environnement.
+ * Accepte plusieurs arguments au format VAR=valeur ou VAR pour marquer comme exportée.
+ * Retourne 0 en cas de succès ou 2 si aucun argument ou nom de variable invalide.
+ */
+
 int my_export(char **command)
 {
     if (command[0] == NULL)
