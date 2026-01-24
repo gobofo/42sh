@@ -42,12 +42,7 @@ struct env *init_env(int argc, char **argv)
 		if (strcmp(argv[i], "-c") == 0)
 		{
 			// Skip the -c
-			i++;
-			if (i < argc)
-			{
-				// Skip the string that represents the command
-				i++;
-			}
+			i+=2;
 		}
 		// Case we give a script
 		else

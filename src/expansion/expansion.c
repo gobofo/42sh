@@ -200,7 +200,7 @@ static int is_special_variable(struct expansion_context *context, char *str,
     {
         int idx = str[*i] - '0';
 
-        if (idx > 0 && idx <= env->argc)
+        if (idx >= 0 && idx <= env->argc)
             fputs(env->argv[idx], context->stream);
 
         (*i)++;
