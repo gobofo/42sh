@@ -1,5 +1,10 @@
 #include "follow_sequence.h"
 
+/* ============ FOLLOW ============ */
+
+/* Ce fichier contient les follow des sequence */
+/* (list, and_or, pipeline, compound_list) */
+
 bool follow_list(struct token *token)
 {
     return token == NULL || token->type == NEWLINE;

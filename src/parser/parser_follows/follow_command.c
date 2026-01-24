@@ -1,5 +1,10 @@
 #include "follow_command.h"
 
+/* ============ FOLLOW ============ */
+
+/* Ce fichier contient les follow des commands */
+/* (command, shell_command, simple_command, funcdec) */
+
 bool follow_command(struct token *token)
 {
     if (token == NULL)
