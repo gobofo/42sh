@@ -1,5 +1,10 @@
 #include "follow_token.h"
 
+/* ============ FOLLOW ============ */
+
+/* Ce fichier contient les follow des token */
+/* (prefix, redirection, element) */
+
 bool follow_prefix(struct token *token)
 {
     if (token == NULL)

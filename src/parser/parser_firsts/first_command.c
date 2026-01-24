@@ -1,5 +1,10 @@
 #include "first_command.h"
 
+/* ============ FIRST ============ */
+
+/* Ce fichier contient les first des commands */
+/* (command, shell_command, simple_command, funcdec) */
+
 bool first_command(struct token *token)
 {
     if (!token)

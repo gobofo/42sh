@@ -1,5 +1,10 @@
 #include "first_sequence.h"
 
+/* ============ FIRST ============ */
+
+/* Ce fichier contient les first des sequence */
+/* (list, and_or, pipeline, compound_list) */
+
 bool first_list(struct token *token)
 {
     if (!token)

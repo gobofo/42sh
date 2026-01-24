@@ -1,5 +1,10 @@
 #include "first_token.h"
 
+/* ============ FIRST ============ */
+
+/* Ce fichier contient les first des token */
+/* (prefix, redirection, element) */
+
 bool first_prefix(struct token *token)
 {
     if (!token)
