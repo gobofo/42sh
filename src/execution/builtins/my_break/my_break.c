@@ -4,6 +4,12 @@
 #include <stdlib.h>
 extern struct env *env;
 
+/**
+ * Exécute la commande builtin 'break' pour sortir de boucles imbriquées.
+ * Accepte un argument optionnel n pour sortir de n niveaux de boucles.
+ * Retourne 0 en cas de succès ou 2 si l'argument est invalide ou trop d'arguments.
+ */
+
 int my_break(char **command)
 {
     if (command[0] && command[1] != NULL)
