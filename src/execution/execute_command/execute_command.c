@@ -1,8 +1,43 @@
-#define _GNU_SOURCE
+#define _POSIX_C_SOURCE 200809L
 #include <unistd.h>
 #include "execute_command.h"
 #include "../../environment/environment.h"
 extern struct env *env;
+
+
+/**
+ * Recherche le chemin complet d'une commande en parcourant les dossiers de PATH.
+ * Si la commande contient déjà un '/', elle est retournée telle quelle.
+ * Retourne le chemin complet si trouvé, NULL sinon.
+ */
+static char *find_command(char *cmd) {
+    static char full_path[1024];
+    
+    if (strchr(cmd, '/'))
+        return cmd;
+
+    char *path_env = getenv("PATH");
+
+    if(path_env==NULL){
+      return NULL;
+    }
+
+    char *path = strdup(path_env);
+    char *dir = strtok(path, ":");
+    
+    while (dir) {
+      strcpy(full_path, dir);
+      strcat(full_path, "/");
+      strcat(full_path, cmd);
+      if (access(full_path, X_OK) == 0) {
+        free(path);
+        return full_path;
+      }
+      dir = strtok(NULL, ":");
+    }
+    free(path);
+    return NULL;
+}
 
 static char ** get_exported_variable(){
   char** var= malloc((env->export_variables->nb_variables +1)* sizeof(char*));
@@ -21,7 +56,7 @@ static char ** get_exported_variable(){
 
       strcpy(new_var,name);
       new_var[n]='=';
-      new_var[strlen(name)+1]=0;        // concatene les chaine dans le bon 
+      new_var[strlen(name)+1]=0;        // concatene les chaine
       strcat(new_var,val);
       var[c_var++]=new_var;
     }
@@ -52,8 +87,15 @@ int execute_non_builtin(char **cmd)
     if (pid == 0)
     {
         char** list_variable_exp= get_exported_variable();
+        char *cmd_path = find_command(cmd[0]);
 
-        if (execvpe(cmd[0], cmd, list_variable_exp) == -1)
+        if (!cmd_path) {
+          fprintf(stderr, "Error: command not found: %s\n", cmd[0]);
+          free_exported_variable(list_variable_exp);
+          _exit(127);
+        }
+
+        if (execve(cmd_path, cmd, list_variable_exp) == -1)
         {
             fprintf(stderr, "Error: command not found: %s\n", cmd[0]);
             free_exported_variable(list_variable_exp );
