@@ -1,5 +1,11 @@
 #include "lexer.h"
 
+/**
+ * Initialise un lexer avec un fichier d'entrée.
+ * Alloue la structure lexer et lit le premier token depuis l'input.
+ * Retourne le lexer initialisé ou NULL en cas d'erreur d'allocation.
+ */
+
 struct lexer *init_lexer(FILE *input)
 {
 	struct lexer *lexer = malloc(sizeof(struct lexer));

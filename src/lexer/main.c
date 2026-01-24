@@ -2,6 +2,12 @@
 #include "lexer.h"
 #include "lexer_utils.h"
 
+/**
+ * Fichier de test pour le lexer.
+ * Teste la tokenisation des entrées et vérifie le bon fonctionnement du lexer.
+ */
+
+
 struct type_string_map {
     enum types type;
     const char *name;
