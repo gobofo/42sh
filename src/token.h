@@ -45,7 +45,7 @@ enum types
     L_PAREN,
     R_PAREN,
 
-    //SUBSHELL
+    // SUBSHELL
     SUBSHELL
 };
 
