@@ -3,6 +3,13 @@
 
 struct env *env; //structure qui contient l'environement et toutes les hash map
 
+
+/**
+ * Point d'entrée principal du shell 42sh.
+ * Parse et exécute les commandes depuis l'input (fichier, stdin ou option -c).
+ * Retourne le code de sortie de la dernière commande exécutée ou 2 en cas d'erreur.
+ */
+
 int my_42sh(int argc, char *argv[])
 {
     // PRETTY PRINT A ACTIVER AVEC PRETTY_PRINT=1 dans le terminal
