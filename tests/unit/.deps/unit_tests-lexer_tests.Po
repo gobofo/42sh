@@ -50,7 +50,7 @@ unit_tests-lexer_tests.o: lexer_tests.c /usr/include/stdc-predef.h \
  /usr/include/bits/pthreadtypes-arch.h \
  /usr/include/bits/atomic_wide_counter.h /usr/include/bits/struct_mutex.h \
  /usr/include/bits/struct_rwlock.h ../../src/lexer/../token.h \
- ../../src/lexer/lexer_utils.h ../../src/lexer/../utils.h
+ ../../src/lexer/lexer_utils.h
 /usr/include/stdc-predef.h:
 /usr/include/criterion/criterion.h:
 /usr/include/criterion/types.h:
@@ -136,4 +136,3 @@ unit_tests-lexer_tests.o: lexer_tests.c /usr/include/stdc-predef.h \
 /usr/include/bits/struct_rwlock.h:
 ../../src/lexer/../token.h:
 ../../src/lexer/lexer_utils.h:
-../../src/lexer/../utils.h:

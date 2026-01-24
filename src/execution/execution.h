@@ -13,7 +13,8 @@
 #include "../expansion/expansion.h"
 #include "../hash_map/hash_map.h"
 #include "../parser/parser.h"
-#include "../42sh.h"
+#include "../lexer/lexer_utils.h"
+#include "../launch_shell.h"
 
 #include "execution_utils.h"
 

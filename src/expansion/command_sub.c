@@ -1,7 +1,4 @@
-#define _POSIX_C_SOURCE 200809L
 #include "command_sub.h"
-
-#include "../42sh.h"
 
 extern struct env *env;
 

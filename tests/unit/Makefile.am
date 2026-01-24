@@ -14,8 +14,7 @@ unit_tests_SOURCES = \
 	$(top_srcdir)/src/execution/builtins/my_echo/my_echo.c \
 	$(top_srcdir)/src/execution/builtins/my_cd/my_cd.c \
 	$(top_srcdir)/src/execution/builtins/my_export/my_export.c \
-	$(top_srcdir)/src/execution/builtins/my_unset/my_unset.c \
-    $(top_srcdir)/src/utils.c
+	$(top_srcdir)/src/execution/builtins/my_unset/my_unset.c
 
 unit_tests_CFLAGS = -std=c99 -pedantic -Werror -Wall -Wextra -Wvla
 unit_tests_LDADD = -lcriterion

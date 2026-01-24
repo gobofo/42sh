@@ -5,7 +5,8 @@
 
 #include "../../src/lexer/lexer.h"
 
-struct type_string_map {
+struct type_string_map
+{
     enum types type;
     const char *name;
 };

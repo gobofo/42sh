@@ -44,7 +44,10 @@ unit_tests-export_tests.o: export_tests.c /usr/include/stdc-predef.h \
  ../../src/execution/builtins/my_export/my_export.h \
  ../../src/execution/builtins/my_export/../../../environment/environment.h \
  ../../src/execution/builtins/my_export/../../../environment/../hash_map/hash_map.h \
- ../../src/execution/builtins/my_export/../../../utils.h \
+ ../../src/execution/builtins/my_export/../../../lexer/lexer_utils.h \
+ /usr/include/ctype.h /usr/include/bits/endian.h \
+ /usr/include/bits/endianness.h \
+ ../../src/execution/builtins/my_export/../../../lexer/../token.h \
  ../../src/environment/environment.h
 /usr/include/stdc-predef.h:
 /usr/include/criterion/criterion.h:
@@ -116,5 +119,9 @@ unit_tests-export_tests.o: export_tests.c /usr/include/stdc-predef.h \
 ../../src/execution/builtins/my_export/my_export.h:
 ../../src/execution/builtins/my_export/../../../environment/environment.h:
 ../../src/execution/builtins/my_export/../../../environment/../hash_map/hash_map.h:
-../../src/execution/builtins/my_export/../../../utils.h:
+../../src/execution/builtins/my_export/../../../lexer/lexer_utils.h:
+/usr/include/ctype.h:
+/usr/include/bits/endian.h:
+/usr/include/bits/endianness.h:
+../../src/execution/builtins/my_export/../../../lexer/../token.h:
 ../../src/environment/environment.h:

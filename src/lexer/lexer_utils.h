@@ -1,18 +1,20 @@
 #ifndef LEXER_UTILS_H
 #define LEXER_UTILS_H
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "../token.h"
-#include "../utils.h"
 
 struct token_map
 {
     char *str;
     enum types token_type;
 };
+
+int is_valid_name(char *name);
 
 // #############
 // #   TOKEN   #
