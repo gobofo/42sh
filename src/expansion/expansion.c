@@ -176,7 +176,7 @@ static int is_special_variable(struct expansion_context *context, char *str,
     else if (str[*i] == '@' || str[*i] == '*')
     {
         // Handle the case where the @ is quoted
-        if (str[*i] == '@' && context->quoted == 1)
+        if (!(str[*i] == '*' && context->quoted == 1))
         {
             expand_at_quoted(context);
         }
