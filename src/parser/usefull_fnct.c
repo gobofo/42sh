@@ -1,6 +1,7 @@
 #include "usefull_fnct.h"
 
 //renvoi true si le mot est un valid word
+//Par exemple dans certaine situation if peut etre considere comme un word (echo if)
 
 bool is_valid_word(struct lexer *lexer)
 {
@@ -16,6 +17,7 @@ bool is_valid_word(struct lexer *lexer)
 }
 
 //free le token actuelle et renvoi le suivant
+//cette fonction nous premet d'avancer dans les token lors du parsing
 
 struct lexer *eat(struct lexer *lexer)
 {
@@ -31,7 +33,7 @@ void eat_newlines(struct lexer **lexer)
         *lexer = eat(*lexer);
 }
 
-//donne le current token
+//return le current token
 
 struct token *get_current_token(struct lexer *lexer){
 
@@ -39,24 +41,26 @@ struct token *get_current_token(struct lexer *lexer){
 
 }
 
-//donne le type du current token
+//return le type du current token
 
 enum types get_current_type(struct lexer *lexer){
     return lexer->current->type;
 }
 
-//donne le content du current token
+//return le content du current token
 
 char *get_current_content(struct lexer *lexer){
     return lexer->current->content;
 }
 
-//donne ce qu'il y a entre les parenthese $(Bravo Nils) => Bravo Nils
+//return ce qu'il y a entre les parenthese $(Bravo Nils) => Bravo Nils
+//Prend en parametre le token qui contient le string et aussi cmpt le point de depart a partir
+//du quel la fonction doit commencer a chercher
 
 char *extract_parentheses_content(struct token *token, int *cmpt){
     
-    char *res = malloc( 8 * sizeof(char));
-    int capacity = 8;
+    char *res = malloc( 8 * sizeof(char)); //stock le resultat
+    int capacity = 8; // on utilise un capacity pour pouvoir realloc
 
     char *content = token->content;
 
@@ -64,7 +68,7 @@ char *extract_parentheses_content(struct token *token, int *cmpt){
         *cmpt += 1;
     }
 
-    if (content[*cmpt] == '\0'){
+    if (content[*cmpt] == '\0'){ //si il est vide c'est qu'il n'y a pas de parentheses
 
         free(res);
         return NULL;
@@ -72,17 +76,18 @@ char *extract_parentheses_content(struct token *token, int *cmpt){
     }
         
     
-    *cmpt += 1;
-    int nb_parenthese = 1;
-    int i = 0;
+    *cmpt += 1; //incremente pour la (
+    int nb_parenthese = 1; //compte les parentheses pour bien prendre la fermante qui correspond
+    int i = 0;//compteur pour le res
 
-    while (content[*cmpt] != '\0' && nb_parenthese != 0){
+    while (content[*cmpt] != '\0' && nb_parenthese != 0){ //check tant que c'est pas NULL (evite les buffer overflow)
+                                                          //et le nb_paren pour bien s'aretter sur la fermante
 
         if (content[*cmpt] == ')'){
 
             nb_parenthese -= 1;
 
-            if (nb_parenthese != 0){
+            if (nb_parenthese != 0){ //pas la derniere on la rentre dans le resultat
                 
                 if (i >= capacity){//pour le realloc
 
@@ -113,7 +118,7 @@ char *extract_parentheses_content(struct token *token, int *cmpt){
             i += 1;
         }
 
-        else{
+        else{//caractere simple
 
             if (i >= capacity){//pour le realloc
 
@@ -127,7 +132,7 @@ char *extract_parentheses_content(struct token *token, int *cmpt){
 
         }
 
-        *cmpt += 1;
+        *cmpt += 1; //incremente le compteur
 
     }
 
@@ -138,33 +143,34 @@ char *extract_parentheses_content(struct token *token, int *cmpt){
 
     }
 
-    res[i] = '\0';
+    res[i] = '\0';//ferme le string
 
     return res;
 
 }
 
 //permet de verifier si une chaine de caractere est valide dans le parser
+//ressemble fortement au main mais sans l'execution (la dans un but de verification pour les subshell)
 
 bool my_42sh_verif(int argc, char *argv[])
 {
-    FILE *file = get_input_file(argc, argv);
+    FILE *file = get_input_file(argc, argv); //recupere le string et le met sous forme de FILE
 
-    if (file == NULL)
+    if (file == NULL) //erreur
     {
         return false;
     }
-    struct lexer *lexer = init_lexer(file);
-    if (!lexer)
+    struct lexer *lexer = init_lexer(file); //creer le lexer
+    if (!lexer) //le lexing est mauvcais
     {
         return false;
     }
 
-    while (lexer->current != NULL)
+    while (lexer->current != NULL) //boucle pour gerer tous les arbres
     {
-        struct AST *ast = input(&lexer);
+        struct AST *ast = input(&lexer); //creer l'ast
 
-        if (ast == NULL)
+        if (ast == NULL) //ast pas bon
         {
             free_lexer(lexer);
 
@@ -176,17 +182,19 @@ bool my_42sh_verif(int argc, char *argv[])
         destroy_AST(ast);
 
         free_token(lexer->current);
-        lexer = get_token(lexer);
+        lexer = get_token(lexer); //passe au token suivant
     }
 
     
     free_lexer(lexer);
     fclose(file);
 
-    return true;
+    return true; //le parsing est bon
 }
 
 //permet de verifier si les $(echo a) sont valide
+//va recuperer ce qu'il y a entre les parenthese et, fork() et verfier si
+//ce sous string est valid grace a my_42sh_verif
 
 bool verif_subshell(struct lexer *lexer){
 
@@ -202,7 +210,8 @@ bool verif_subshell(struct lexer *lexer){
 
         int len = strlen(lexer->current->content);
 
-        while (cmpt < len){
+        while (cmpt < len){//tant que l'on est pas arriver au bout de tous le content
+                           //pour gerer les $(suu)$(aaaa)
 
             char *content = extract_parentheses_content(get_current_token(lexer), &cmpt); //contenu entre les paren
 
@@ -221,7 +230,7 @@ bool verif_subshell(struct lexer *lexer){
 
         }
 
-        _exit(0);
+        _exit(0); //le res est bon
 
     }
 
