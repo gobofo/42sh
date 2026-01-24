@@ -24,7 +24,6 @@ test_cmd() {
 
   if [ "$expected" = "$actual" ]; then
     SUCCESS=$((SUCCESS + 1))
-    echo -e "${GRN}[OK] $2${WHT}"
   else
     echo -e "${RED}Test:${WHT} $2"
     echo -e "${RED}Command:${WHT} $1"
@@ -42,7 +41,6 @@ test_file() {
 
   if [ "$expected" = "$actual" ]; then
     SUCCESS=$((SUCCESS + 1))
-    echo -e "${GRN}[OK] $2${WHT}"
   else
     echo -e "${RED}Test:${WHT} $2"
     echo -e "${RED}Command:${WHT} $1"
@@ -57,7 +55,6 @@ test_error() {
   local exit_code=$?
   if [ $exit_code -ne 0 ]; then
     SUCCESS=$((SUCCESS + 1))
-    echo -e "${GRN}[OK] $2${WHT}"
   else
     echo -e "${RED}Test:${WHT} $2"
     echo -e "${RED}Command:${WHT} $1"
@@ -72,7 +69,6 @@ test_stdin() {
   local actual=$(echo "$1" | timeout $TIMEOUT "$BIN_PATH" 2>&1)
   if [ "$expected" = "$actual" ]; then
     SUCCESS=$((SUCCESS + 1))
-    echo -e "${GRN}[OK] $2${WHT}"
   else
     echo -e "${RED}Test:${WHT} $2"
     echo -e "${RED}Command:${WHT} $1"
@@ -93,7 +89,7 @@ if [ "$COVERAGE" = "yes" ]; then
     UNIT_EXIT=$?
 
     PASSED=$(echo "$UNIT_OUT" | grep "Synthesis:" | grep -oE 'Passing: *[0-9]+' | grep -oE '[0-9]+')
-    TESTED=$(echo "$UNIT_OUT" | grep "Synthesis:" | grep -oE 'Tested: *[0-9]+'  | grep -oE '[0-9]+')
+    TESTED=$(echo "$UNIT_OUT" | grep "Synthesis:" | grep -oE 'Tested: *[0-9]+' | grep -oE '[0-9]+')
 
     if [ -n "$PASSED" ] && [ -n "$TESTED" ]; then
       SUCCESS=$((SUCCESS + PASSED))
