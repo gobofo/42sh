@@ -151,7 +151,13 @@ static char *canonical_form(char *cur_path)
     return path;
 }
 
-static int invert_paths(char *path)
+/**
+ * @brief		Inverts the current PWD and the OLDPWD
+ *
+ * @return		0 or 1 (Success or Failure)
+ */
+
+static int invert_paths(void)
 {
     char *pwd = hash_map_get(env->variables, "PWD");
     char *old = hash_map_get(env->variables, "OLDPWD");
@@ -172,7 +178,7 @@ static int invert_paths(char *path)
     // Check if paths exists
     if (chdir(new_pwd) != 0)
     {
-        fprintf(stderr, "Error: cd: no such file or directory: %s\n", path);
+        fprintf(stderr, "Error: cd: no such file or directory: %s\n", new_pwd);
 
         return 1;
     }
@@ -202,22 +208,33 @@ int my_cd(char **command)
     // Since the subject does not require to handle the -L and -P flags, cd
     // must have exactly one single argument
     // To remove when HOME var is added
+	char *target = NULL;
+
     if (command == NULL || command[0] == NULL)
     {
-        fprintf(stderr, "Error: cd: not enough arguments\n");
-        return 1;
+		target = hash_map_get(env->variables, "HOME");	
+
+		if (target == NULL)
+		{
+			fprintf(stderr, "Error: HOME not set\n");
+			return 1;
+		}
     }
+	else
+	{
+		if (command[1] != NULL)
+		{
+			fprintf(stderr, "Error: cd: too many arguments\n");
+			return 2;
+		}
 
-    if (command[1] != NULL)
-    {
-        fprintf(stderr, "Error: cd: too many arguments\n");
-        return 2;
-    }
+		target = command[0];
+	}
 
-    if (strcmp(command[0], "-") == 0)
-        return invert_paths(command[0]);
+    if (strcmp(target, "-") == 0)
+        return invert_paths();
 
-    char *cur_path = create_path(command[0]);
+    char *cur_path = create_path(target);
     if (cur_path == NULL)
         return 1;
 
