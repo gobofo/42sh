@@ -515,6 +515,7 @@ test_cmd "cd /; cd /tmp; echo \$OLDPWD" "cd updates OLDPWD"
 test_cmd "cd /nonexistent_xyz 2>/dev/null || echo fail" "cd nonexistent"
 test_cmd "touch /tmp/not_dir_42sh; cd /tmp/not_dir_42sh 2>/dev/null || echo fail" "cd on file"
 test_cmd "cd /tmp; cd -; pwd" "cd dash"
+test_cmd "cd /tmp; cd; pwd" "cd no args"
 test_cmd "unset PWD; cd /tmp; pwd" "cd without PWD"
 
 echo "###################################################"
