@@ -234,37 +234,44 @@ static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
     char buff[4] = { 0 };
 
     buff[0] = c;
-    buff[1] = fgetc(file);
 
-    // We have both characters that can make part of a redir.
-    // Lets check if we can add a last char to out redir.
-    if (is_redir_c(buff[1]))
-    {
-        // Get the 3rd char
-        buff[2] = fgetc(file);
+	int next = fgetc(file);
 
-        // We have a redir
-        if (is_redir(buff))
-        {
-            fprintf(*stream, "%s", buff);
-            return flush_stream(*stream, buffer);
-        }
+	if (next != EOF)
+	{
+		buff[1] = next;
 
-        // Else we put back the third char
-        ungetc(buff[2], file);
-        buff[2] = '\0';
+		// We have both characters that can make part of a redir.
+		// Lets check if we can add a last char to out redir.
+		if (is_redir_c(buff[1]))
+		{
+			// Get the 3rd char
+			buff[2] = fgetc(file);
 
-        // We know our 2 chars are chars that can be found in a REDIR but we
-        // dont know if tgt they form a REDIR
-        if (is_redir(buff))
-        {
-            fprintf(*stream, "%s", buff);
-            return flush_stream(*stream, buffer);
-        }
-    }
+			// We have a redir
+			if (is_redir(buff))
+			{
+				fprintf(*stream, "%s", buff);
+				return flush_stream(*stream, buffer);
+			}
 
-    // We could not create a 3 or 2 char redir so we try for a single char
-    ungetc(buff[1], file);
+			// Else we put back the third char
+			ungetc(buff[2], file);
+			buff[2] = '\0';
+
+			// We know our 2 chars are chars that can be found in a REDIR but we
+			// dont know if tgt they form a REDIR
+			if (is_redir(buff))
+			{
+				fprintf(*stream, "%s", buff);
+				return flush_stream(*stream, buffer);
+			}
+		}
+
+		// We could not create a 3 or 2 char redir so we try for a single char
+		ungetc(buff[1], file);
+	}
+
     buff[1] = '\0';
 
     if (is_redir(buff))
