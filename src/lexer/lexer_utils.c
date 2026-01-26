@@ -143,6 +143,19 @@ struct token *create_token(char *str)
 // ##################
 
 /**
+ * @brief		Checks if the char can be part of a redir
+ *
+ * @param c		The char to test
+ *
+ * @return		1 or 0 (Succes or Failure)
+ */
+
+int is_redir_c(char c)
+{
+    return c == '>' || c == '<' || c == '|' || c == '&';
+}
+
+/**
  * @brief		Check if the string is a redirection argument
  *
  * Determine if the string passed in parameter is used as a redirection

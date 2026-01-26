@@ -246,6 +246,21 @@ test_cmd "cat /etc/hostname 2>/dev/null" "redirect stderr"
 test_cmd "echo visible 2>/dev/null" "redirect stderr no effect"
 
 echo "###################################################"
+echo "STEP 2 - REDIR TRICKY TOKEN (NO SPACES)"
+echo "###################################################"
+
+test_cmd "echo a>out; cat out" "replace"
+test_cmd 'rm -f empty_file; echo a>>empty_file; cat empty_file' "in"
+test_cmd "echo a>|out; cat out" "replace"
+test_cmd "echo input > in; cat<in" "input redir"
+test_cmd "echo hello 1>&2" "dup output"
+test_cmd "cat <&0" "dup input"
+test_cmd "echo word>file" "word>word"
+test_cmd "echo word>>file" "word>>word"
+test_cmd "echo a|cat" "pipe"
+test_cmd "echo a>out|cat out" "redir then pipe"
+
+echo "###################################################"
 echo "STEP 2 - REDIR RESTORATION"
 echo "###################################################"
 

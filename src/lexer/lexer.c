@@ -5,7 +5,6 @@
  * Alloue la structure lexer et lit le premier token depuis l'input.
  * Retourne le lexer initialisé ou NULL en cas d'erreur d'allocation.
  */
-
 struct lexer *init_lexer(FILE *input)
 {
     struct lexer *lexer = malloc(sizeof(struct lexer));
@@ -39,11 +38,11 @@ void free_lexer(struct lexer *lexer)
 // ######################
 
 /**
- * @brief 			Function to return the current token
+ * @brief 			Function to get the current token
  *
  * @param lexer		The struct lexer where everything is stored
  *
- * @return 			Current token in stream
+ * @return 			Returns the lexer holding the new current token
  */
 
 struct lexer *get_token(struct lexer *lexer)
@@ -63,9 +62,8 @@ struct lexer *get_token(struct lexer *lexer)
  * @brief			Return the look ahead token, the token following the current
  *
  * @param lexer		The struct lexer where everything is stored
- *
- * @return			The next token in stream
  */
+
 void next_token(struct lexer **lexer)
 {
     (*lexer)->next = read_input((*lexer)->input);
@@ -230,48 +228,50 @@ static void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
  * redirection
  */
 
-static int is_redir_c(char c)
-{
-    return c == '>' || c == '<' || c == '|' || c == '&';
-}
-
 static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
                                   int c)
 {
     char buff[4] = { 0 };
 
     buff[0] = c;
-    buff[1] = fgetc(file);
 
-    // We have both characters that can make part of a redir.
-    // Lets check if we can add a last char to out redir.
-    if (is_redir_c(buff[1]))
-    {
-        // Get the 3rd char
-        buff[2] = fgetc(file);
+	int next = fgetc(file);
 
-        // We have a redir
-        if (is_redir(buff))
-        {
-            fprintf(*stream, "%s", buff);
-            return flush_stream(*stream, buffer);
-        }
+	if (next != EOF)
+	{
+		buff[1] = next;
 
-        // Else we put back the third char
-        ungetc(buff[2], file);
-        buff[2] = '\0';
+		// We have both characters that can make part of a redir.
+		// Lets check if we can add a last char to out redir.
+		if (is_redir_c(buff[1]))
+		{
+			// Get the 3rd char
+			buff[2] = fgetc(file);
 
-        // We know our 2 chars are chars that can be found in a REDIR but we
-        // dont know if tgt they form a REDIR
-        if (is_redir(buff))
-        {
-            fprintf(*stream, "%s", buff);
-            return flush_stream(*stream, buffer);
-        }
-    }
+			// We have a redir
+			if (is_redir(buff))
+			{
+				fprintf(*stream, "%s", buff);
+				return flush_stream(*stream, buffer);
+			}
 
-    // We could not create a 3 or 2 char redir so we try for a single char
-    ungetc(buff[1], file);
+			// Else we put back the third char
+			ungetc(buff[2], file);
+			buff[2] = '\0';
+
+			// We know our 2 chars are chars that can be found in a REDIR but we
+			// dont know if tgt they form a REDIR
+			if (is_redir(buff))
+			{
+				fprintf(*stream, "%s", buff);
+				return flush_stream(*stream, buffer);
+			}
+		}
+
+		// We could not create a 3 or 2 char redir so we try for a single char
+		ungetc(buff[1], file);
+	}
+
     buff[1] = '\0';
 
     if (is_redir(buff))
@@ -473,6 +473,10 @@ struct token *read_input(FILE *file)
             // redir is 3).
             // If we found a valid redirection then we return the token found,
             // else we keep going.
+			
+			if (is_redir_c(c) && size > 0)
+				return empty_stream(file, &stream, &buffer, c);
+
             struct token *token = handle_redir(file, &stream, &buffer, c);
 
             if (token)

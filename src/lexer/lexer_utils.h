@@ -24,8 +24,9 @@ struct token *create_token(char *str);
 
 // ###################
 // #   REDIRECTION   #
-// ##################
-
+// ###################
+//
+int is_redir_c(char c);
 int is_redir(char *str);
 
 // ####################
