@@ -250,7 +250,7 @@ echo "STEP 2 - REDIR TRICKY TOKEN (NO SPACES)"
 echo "###################################################"
 
 test_cmd "echo a>out; cat out" "replace"
-test_cmd "echo a>>out; cat out" "in"
+test_cmd 'rm -f empty_file; echo a>>empty_file; cat empty_file' "in"
 test_cmd "echo a>|out; cat out" "replace"
 test_cmd "echo input > in; cat<in" "input redir"
 test_cmd "echo hello 1>&2" "dup output"
