@@ -62,6 +62,7 @@ struct env *init_env(int argc, char **argv)
     char *oldpwd = getenv("OLDPWD");
     char *pwd = getenv("PWD");
     char *ifs = getenv("IFS");
+	char *home = getenv("HOME");
 
     if (!ifs)
         ifs = "\t\n";
@@ -72,6 +73,9 @@ struct env *init_env(int argc, char **argv)
 
     hash_map_insert(env->variables, "PWD", strdup(pwd ? pwd : "."), free);
     hash_map_insert(env->variables, "IFS", strdup(ifs), free);
+
+	if (home)
+        hash_map_insert(env->variables, "HOME", strdup(home), free);
 
     struct export *export_variables = create_export();
     env->export_variables = export_variables;
