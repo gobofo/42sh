@@ -50,10 +50,11 @@ static char *find_command(char *cmd)
  * par concaténation. Retourne un tableau terminé par NULL, compatible avec
  * execve.
  */
-static char **get_exported_variable()
+static char **get_exported_variable(void)
 {
     char **var =
         malloc((env->export_variables->nb_variables + 1) * sizeof(char *));
+
     int c_var = 0;
     int i = 0;
 
@@ -74,9 +75,12 @@ static char **get_exported_variable()
             strcat(new_var, val);
             var[c_var++] = new_var;
         }
+
         i++;
     }
+
     var[c_var] = NULL;
+
     return var;
 }
 
