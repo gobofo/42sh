@@ -16,8 +16,8 @@ if [ -z "$BIN_PATH" ]; then
   exit 0
 fi
 
-test_cmd() {
-
+test_cmd()
+{
   TOTAL=$((TOTAL + 1))
   local expected=$(timeout $TIMEOUT bash --posix -c "$1" 2>&1)
   local actual=$(timeout $TIMEOUT "$BIN_PATH" -c "$1" 2>&1)
@@ -32,8 +32,8 @@ test_cmd() {
   fi
 }
 
-test_file() {
-
+test_file()
+{
   TOTAL=$((TOTAL + 1))
 
   local expected=$(timeout $TIMEOUT bash --posix "$1" 2>&1)
@@ -49,10 +49,13 @@ test_file() {
   fi
 }
 
-test_error() {
+test_error()
+{
   TOTAL=$((TOTAL + 1))
+
   timeout $TIMEOUT "$BIN_PATH" -c "$1" >/dev/null 2>&1
   local exit_code=$?
+
   if [ $exit_code -ne 0 ]; then
     SUCCESS=$((SUCCESS + 1))
   else
