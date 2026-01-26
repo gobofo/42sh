@@ -246,17 +246,23 @@ static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
 		if (is_redir_c(buff[1]))
 		{
 			// Get the 3rd char
-			buff[2] = fgetc(file);
-
-			// We have a redir
-			if (is_redir(buff))
+			int third = fgetc(file);
+			
+			if (third != EOF)
 			{
-				fprintf(*stream, "%s", buff);
-				return flush_stream(*stream, buffer);
+				buff[2] = third; 
+
+				// We have a redir
+				if (is_redir(buff))
+				{
+					fprintf(*stream, "%s", buff);
+					return flush_stream(*stream, buffer);
+				}
+
+				// Else we put back the third char
+				ungetc(buff[2], file);
 			}
 
-			// Else we put back the third char
-			ungetc(buff[2], file);
 			buff[2] = '\0';
 
 			// We know our 2 chars are chars that can be found in a REDIR but we

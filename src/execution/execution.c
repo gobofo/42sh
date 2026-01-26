@@ -487,7 +487,7 @@ static int execute_pipeline(struct AST *root)
                 free(tab_pid);
                 fprintf(stderr, "Error: pipe\n");
                 return 1;
-            }
+			}
         }
 
         int intput_pipe = -1;
