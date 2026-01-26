@@ -212,9 +212,13 @@ int my_cd(char **command)
 
     if (command == NULL || command[0] == NULL)
     {
-		target = "";	
-       // fprintf(stderr, "Error: cd: not enough arguments\n");
-       // return 1;
+		target = hash_map_get(env->variables, "HOME");	
+
+		if (target == NULL)
+		{
+			fprintf(stderr, "Error: HOME not set\n");
+			return 1;
+		}
     }
 	else
 	{
