@@ -28,7 +28,7 @@ struct hash_map *hash_map_init(size_t size)
 }
 
 bool hash_map_insert(struct hash_map *hash_map, char *key, void *value,
-                     void (*free_value)(void*))
+                     void (*free_value)(void *))
 {
     if (!hash_map || hash_map->size == 0 || !key)
         return false;
@@ -76,7 +76,7 @@ bool hash_map_insert(struct hash_map *hash_map, char *key, void *value,
     return true;
 }
 
-void hash_map_free(struct hash_map *hash_map, void (*free_value)(void*))
+void hash_map_free(struct hash_map *hash_map, void (*free_value)(void *))
 {
     if (!hash_map)
         return;
@@ -104,7 +104,6 @@ void hash_map_free(struct hash_map *hash_map, void (*free_value)(void*))
     free(hash_map->data);
     free(hash_map);
 }
-
 
 void *hash_map_get(const struct hash_map *hash_map, char *key)
 {
@@ -134,7 +133,8 @@ void *hash_map_get(const struct hash_map *hash_map, char *key)
     return NULL;
 }
 
-bool hash_map_remove(struct hash_map *hash_map, char *key, void (*free_value)(void*))
+bool hash_map_remove(struct hash_map *hash_map, char *key,
+                     void (*free_value)(void *))
 {
     if (!hash_map || hash_map->size == 0)
         return NULL;

@@ -19,6 +19,3 @@ bool first_rule_for(struct token *token)
 {
     return token && token->type == FOR;
 }
-
-
-

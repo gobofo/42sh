@@ -5,7 +5,8 @@ extern struct env *env;
 /**
  * Exécute une substitution de commande et capture sa sortie standard.
  * Crée un pipe, fork un processus pour exécuter la commande, lit la sortie.
- * Retourne la sortie de la commande (sans le dernier '\n') ou NULL en cas d'erreur.
+ * Retourne la sortie de la commande (sans le dernier '\n') ou NULL en cas
+ * d'erreur.
  */
 
 char *expand_command_substitution(char *sub_string)
@@ -43,7 +44,7 @@ char *expand_command_substitution(char *sub_string)
 
         int wstatus;
         waitpid(pid, &wstatus, 0);
-        env->last_exit_code=WEXITSTATUS(wstatus);
+        env->last_exit_code = WEXITSTATUS(wstatus);
 
         if (output_len > 0 && output[output_len - 1] == '\n')
         {

@@ -35,7 +35,8 @@ int my_atoi(char *str, int *is_valid)
 /**
  * Exécute la commande builtin 'exit' pour terminer le shell.
  * Accepte un argument optionnel pour spécifier le code de sortie (0-255).
- * Retourne le code de sortie spécifié ou celui de la dernière commande si non précisé.
+ * Retourne le code de sortie spécifié ou celui de la dernière commande si non
+ * précisé.
  */
 
 int my_exit(char **command)

@@ -8,7 +8,6 @@
  */
 struct AST *create_ast(enum rule rule, char *content)
 {
-
     struct AST *start = malloc(sizeof(struct AST));
 
     start->rule = rule;
@@ -29,7 +28,6 @@ struct AST *create_ast(enum rule rule, char *content)
 
 struct AST *add_children(struct AST *root, struct AST *child)
 {
-
     if (root->count_children >= root->max_children)
     { // pour les realloc
 
@@ -58,18 +56,18 @@ struct AST *add_children(struct AST *root, struct AST *child)
  */
 struct AST *dup_ast(struct AST *root)
 {
-	struct AST *dup = malloc(sizeof(struct AST));
-	memcpy(dup, root, sizeof(struct AST));
+    struct AST *dup = malloc(sizeof(struct AST));
+    memcpy(dup, root, sizeof(struct AST));
 
-	dup->children = malloc(sizeof(struct AST*) * root->max_children);
-	if(root->content)
-		dup->content = strdup(root->content);
+    dup->children = malloc(sizeof(struct AST *) * root->max_children);
+    if (root->content)
+        dup->content = strdup(root->content);
 
-	for(int i = 0; i<root->count_children; i++)
-	{
-		dup->children[i] = dup_ast(root->children[i]);
-	}
-	return dup;
+    for (int i = 0; i < root->count_children; i++)
+    {
+        dup->children[i] = dup_ast(root->children[i]);
+    }
+    return dup;
 }
 
 /**
@@ -92,5 +90,5 @@ void destroy_AST(struct AST *root)
 
 void destroy_AST_void(void *root)
 {
-	destroy_AST(root);
+    destroy_AST(root);
 }

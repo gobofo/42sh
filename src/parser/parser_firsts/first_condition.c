@@ -17,7 +17,3 @@ bool first_else_clause(struct token *token)
     enum types type = token->type;
     return type == ELSE || type == ELIF;
 }
-
-
-
-

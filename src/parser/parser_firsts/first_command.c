@@ -9,7 +9,8 @@ bool first_command(struct token *token)
 {
     if (!token)
         return false;
-    return first_simple_command(token) || first_shell_command(token) || first_funcdec(token);
+    return first_simple_command(token) || first_shell_command(token)
+        || first_funcdec(token);
 }
 
 bool first_shell_command(struct token *token)
@@ -17,8 +18,9 @@ bool first_shell_command(struct token *token)
     if (!token)
         return false;
     enum types type = token->type;
-    return first_rule_if(token) || first_rule_while(token) || first_rule_until(token) || first_rule_for(token) || 
-      type==L_BRACE || type==L_PAREN;
+    return first_rule_if(token) || first_rule_while(token)
+        || first_rule_until(token) || first_rule_for(token) || type == L_BRACE
+        || type == L_PAREN;
 }
 
 bool first_simple_command(struct token *token)
@@ -26,16 +28,13 @@ bool first_simple_command(struct token *token)
     if (!token)
         return false;
     enum types type = token->type;
-    return first_prefix(token) || type==WORDS || type == SUBSHELL;
+    return first_prefix(token) || type == WORDS || type == SUBSHELL;
 }
 
-bool first_funcdec(struct token *token){
+bool first_funcdec(struct token *token)
+{
     if (!token)
         return false;
     enum types type = token->type;
-    return type==WORDS;
+    return type == WORDS;
 }
-
-
-
-

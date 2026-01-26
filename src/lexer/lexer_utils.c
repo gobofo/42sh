@@ -45,8 +45,8 @@ struct token_map token_lookup[] = {
 
 /**
  * Vérifie si un nom de variable ou fonction est valide selon les règles POSIX.
- * Un nom valide commence par une lettre ou underscore, suivi de lettres, chiffres ou underscores.
- * Retourne 1 si le nom est valide, 0 sinon.
+ * Un nom valide commence par une lettre ou underscore, suivi de lettres,
+ * chiffres ou underscores. Retourne 1 si le nom est valide, 0 sinon.
  */
 
 int is_valid_name(char *name)
@@ -121,19 +121,19 @@ struct token *create_token(char *str)
         // Restore the string back to original
         *delim = '=';
     }
-	else
-	{
-		token->type = WORDS;
+    else
+    {
+        token->type = WORDS;
 
-		for (int i = 0; str[i + 1] != '\0'; i++)
-		{
-			if (str[i] == '$' && str[i + 1] == '(')
-			{
-				token->type = SUBSHELL;
-				return token;
-			}
-		}
-	}
+        for (int i = 0; str[i + 1] != '\0'; i++)
+        {
+            if (str[i] == '$' && str[i + 1] == '(')
+            {
+                token->type = SUBSHELL;
+                return token;
+            }
+        }
+    }
 
     return token;
 }

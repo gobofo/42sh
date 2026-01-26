@@ -5,9 +5,10 @@
 extern struct env *env;
 
 /**
- * Exécute la commande builtin 'continue' pour passer à l'itération suivante de boucles.
- * Accepte un argument optionnel n pour continuer n niveaux de boucles imbriquées.
- * Retourne 0 en cas de succès ou 2 si l'argument est invalide ou trop d'arguments.
+ * Exécute la commande builtin 'continue' pour passer à l'itération suivante de
+ * boucles. Accepte un argument optionnel n pour continuer n niveaux de boucles
+ * imbriquées. Retourne 0 en cas de succès ou 2 si l'argument est invalide ou
+ * trop d'arguments.
  */
 
 int my_continue(char **command)

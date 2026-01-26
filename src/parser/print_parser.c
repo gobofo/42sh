@@ -1,40 +1,38 @@
-#include "../ast/ast.h"
 #include "print_parser.h"
 
-struct ast_node nodes[] =  {
-	{AST_LIST, "LIST", "#3498DB"},
-	{AST_SIMPLE_CMD, "SIMPLE_CMD", "#2ECC71"},
-	{AST_SHELL_CMD, "SHELL_CMD", "#E74C3C"},
-	{AST_IF, "IF", "#E67E22"},
-	{AST_WHILE, "WHILE", "#1ABC9C"},
-	{AST_UNTIL, "UNTIL", "#1ABC9C"},
-	{AST_FOR, "FOR", "#1ABC9C"},
-	{AST_VALUE, "VALUE", "#ECF0F1"},
-	{AST_AND, "AND", "#F1C40F"},
-	{AST_OR, "OR", "#F1C40F"},
-	{AST_PIPELINE, "PIPELINE", "#9B59B6"},
-	{AST_REDIR, "REDIR", "#E67E22"},
-	{AST_ASSIGNEMENT, "ASSIGNEMENT", "#ECF0F1"},
-	{AST_FUNC, "FUNC", "#E74C3C"},
-	{AST_SUB, "SUBSHELL", "#E67E22"},
-	{0, "", ""}
-};
+#include "../ast/ast.h"
+
+struct ast_node nodes[] = { { AST_LIST, "LIST", "#3498DB" },
+                            { AST_SIMPLE_CMD, "SIMPLE_CMD", "#2ECC71" },
+                            { AST_SHELL_CMD, "SHELL_CMD", "#E74C3C" },
+                            { AST_IF, "IF", "#E67E22" },
+                            { AST_WHILE, "WHILE", "#1ABC9C" },
+                            { AST_UNTIL, "UNTIL", "#1ABC9C" },
+                            { AST_FOR, "FOR", "#1ABC9C" },
+                            { AST_VALUE, "VALUE", "#ECF0F1" },
+                            { AST_AND, "AND", "#F1C40F" },
+                            { AST_OR, "OR", "#F1C40F" },
+                            { AST_PIPELINE, "PIPELINE", "#9B59B6" },
+                            { AST_REDIR, "REDIR", "#E67E22" },
+                            { AST_ASSIGNEMENT, "ASSIGNEMENT", "#ECF0F1" },
+                            { AST_FUNC, "FUNC", "#E74C3C" },
+                            { AST_SUB, "SUBSHELL", "#E67E22" },
+                            { 0, "", "" } };
 
 char *get_string_of_node(struct AST *ast)
 {
+    if (ast->rule != AST_VALUE && ast->rule != AST_ASSIGNEMENT
+        && ast->rule != AST_FUNC)
+    {
+        return nodes[ast->rule].text;
+    }
 
-	if (ast->rule != AST_VALUE && ast->rule != AST_ASSIGNEMENT &&
-			ast->rule != AST_FUNC)
-	{
-		return nodes[ast->rule].text;
-	}
-
-	return ast->content;
+    return ast->content;
 }
 
 char *get_color_of_node(struct AST *ast)
 {
-	return nodes[ast->rule].color;
+    return nodes[ast->rule].color;
 }
 
 char *next(int suivant)
