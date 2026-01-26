@@ -5,7 +5,6 @@
  * Alloue la structure lexer et lit le premier token depuis l'input.
  * Retourne le lexer initialisé ou NULL en cas d'erreur d'allocation.
  */
-
 struct lexer *init_lexer(FILE *input)
 {
     struct lexer *lexer = malloc(sizeof(struct lexer));
@@ -39,11 +38,11 @@ void free_lexer(struct lexer *lexer)
 // ######################
 
 /**
- * @brief 			Function to return the current token
+ * @brief 			Function to get the current token
  *
  * @param lexer		The struct lexer where everything is stored
  *
- * @return 			Current token in stream
+ * @return 			Returns the lexer holding the new current token
  */
 
 struct lexer *get_token(struct lexer *lexer)
@@ -63,9 +62,8 @@ struct lexer *get_token(struct lexer *lexer)
  * @brief			Return the look ahead token, the token following the current
  *
  * @param lexer		The struct lexer where everything is stored
- *
- * @return			The next token in stream
  */
+
 void next_token(struct lexer **lexer)
 {
     (*lexer)->next = read_input((*lexer)->input);
@@ -229,11 +227,6 @@ static void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
  * @return              A pointer to the created token, or NULL if no
  * redirection
  */
-
-static int is_redir_c(char c)
-{
-    return c == '>' || c == '<' || c == '|' || c == '&';
-}
 
 static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
                                   int c)
@@ -473,6 +466,10 @@ struct token *read_input(FILE *file)
             // redir is 3).
             // If we found a valid redirection then we return the token found,
             // else we keep going.
+			
+			if (is_redir_c(c) && size > 0)
+				return empty_stream(file, &stream, &buffer, c);
+
             struct token *token = handle_redir(file, &stream, &buffer, c);
 
             if (token)
