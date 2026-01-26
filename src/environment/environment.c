@@ -65,7 +65,7 @@ struct env *init_env(int argc, char **argv)
 	char *home = getenv("HOME");
 
     if (!ifs)
-        ifs = "\t\n";
+        ifs = " \t\n";
 
     // ENV Variables Predefined when the shell is launched
     if (oldpwd)
