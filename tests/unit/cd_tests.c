@@ -10,7 +10,8 @@
 
 extern struct env *env;
 
-void setup_cd(void) {
+void setup_cd(void)
+{
     char *argv[] = { "./42sh", NULL };
     env = init_env(1, argv);
     cr_redirect_stderr();
@@ -24,7 +25,7 @@ Test(cd_tests, cd_simple)
     char *args[] = { "/tmp", NULL };
 
     int res = my_cd(args);
-    
+
     cr_assert_eq(res, 0);
 
     char *pwd = hash_map_get(env->variables, "PWD");
@@ -35,10 +36,10 @@ Test(cd_tests, cd_simple)
 Test(cd_tests, cd_back)
 {
     hash_map_insert(env->variables, "PWD", strdup("/usr/bin"), free);
-    
+
     char *args[] = { "..", NULL };
     int res = my_cd(args);
-    
+
     cr_assert_eq(res, 0);
 
     char *pwd = hash_map_get(env->variables, "PWD");
@@ -50,12 +51,12 @@ Test(cd_tests, cd_dash)
 {
     hash_map_insert(env->variables, "PWD", strdup("/tmp"), free);
     hash_map_insert(env->variables, "OLDPWD", strdup("/home"), free);
-    
+
     char *args[] = { "-", NULL };
 
     int res = my_cd(args);
-    
-	fflush(stdout);
+
+    fflush(stdout);
 
     cr_assert_eq(res, 0);
 
@@ -70,7 +71,7 @@ Test(cd_tests, error_too_many_args)
     char *args[] = { "/tmp", "/home", NULL };
 
     int res = my_cd(args);
-    
+
     cr_assert_eq(res, 2);
 
     cr_assert_stderr_eq_str("Error: cd: too many arguments\n");
@@ -81,8 +82,9 @@ Test(cd_tests, non_existent_dir)
     char *args[] = { "/path/that/does/not/exist", NULL };
 
     int res = my_cd(args);
-    
+
     cr_assert_eq(res, 1);
 
-    cr_assert_stderr_eq_str("Error: cd: no such file or directory: /path/that/does/not/exist\n");
+    cr_assert_stderr_eq_str(
+        "Error: cd: no such file or directory: /path/that/does/not/exist\n");
 }

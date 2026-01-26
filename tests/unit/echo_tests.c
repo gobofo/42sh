@@ -8,7 +8,7 @@
 
 static void setup_stdout(void)
 {
-	cr_redirect_stdout();
+    cr_redirect_stdout();
 }
 
 TestSuite(echo_tests, .init = setup_stdout);
@@ -51,7 +51,8 @@ Test(echo_tests, two_words)
 
 Test(echo_tests, multiple_words)
 {
-    char *argv[] = { strdup("Bonjour"), strdup("je"), strdup("m'appelle"), strdup("crampte"), NULL };
+    char *argv[] = { strdup("Bonjour"), strdup("je"), strdup("m'appelle"),
+                     strdup("crampte"), NULL };
     my_echo(argv);
     cr_assert_stdout_eq_str("Bonjour je m'appelle crampte\n");
     free(argv[0]);
@@ -90,7 +91,10 @@ Test(echo_tests, flag_n_double)
 
 Test(echo_tests, flag_n_multiple_words)
 {
-    char *argv[] = { strdup("-n"), strdup("Le"), strdup("gateau"), strdup("il"), strdup("etait"), strdup("sec"), strdup("?"), NULL };
+    char *argv[] = { strdup("-n"),     strdup("Le"),
+                     strdup("gateau"), strdup("il"),
+                     strdup("etait"),  strdup("sec"),
+                     strdup("?"),      NULL };
     my_echo(argv);
     cr_assert_stdout_eq_str("Le gateau il etait sec ?");
     free(argv[0]);
@@ -188,4 +192,3 @@ Test(echo_tests, flag_n_and_E)
     free(argv[1]);
     free(argv[2]);
 }
-

@@ -16,7 +16,8 @@ bool follow_and_or(struct token *token)
         return true;
     enum types type = token->type;
     return type == SEMICOLON || type == NEWLINE || type == THEN || type == DO
-        || type == DONE || type == ELSE || type == ELIF || type == FI || type==R_BRACE || type == R_PAREN;
+        || type == DONE || type == ELSE || type == ELIF || type == FI
+        || type == R_BRACE || type == R_PAREN;
 }
 
 bool follow_pipeline(struct token *token)
@@ -26,8 +27,7 @@ bool follow_pipeline(struct token *token)
     enum types type = token->type;
     return type == AND || type == OR || type == SEMICOLON || type == NEWLINE
         || type == THEN || type == DO || type == DONE || type == ELSE
-        || type == ELIF || type == FI || type==R_BRACE || type == R_PAREN;
-
+        || type == ELIF || type == FI || type == R_BRACE || type == R_PAREN;
 }
 
 bool follow_compound_list(struct token *token)
@@ -36,18 +36,5 @@ bool follow_compound_list(struct token *token)
         return false;
     enum types type = token->type;
     return type == THEN || type == DO || type == DONE || type == ELSE
-        || type == ELIF || type == FI  || type==R_BRACE || type == R_PAREN;
-
+        || type == ELIF || type == FI || type == R_BRACE || type == R_PAREN;
 }
-
-
-
-
-
-
-
-
-
-
-
-

@@ -120,17 +120,14 @@ static int redir_dup(struct AST *root, struct AST **redir, int fd)
  * @return		Exit code
  */
 
-struct redir redirs_table[] = 
-{
-	{ ">", O_CREAT | O_WRONLY | O_TRUNC, 1 },
-	{ ">|", O_CREAT | O_WRONLY | O_TRUNC, 1 },
-	{ ">>", O_CREAT | O_WRONLY | O_APPEND, 1 },
-	{ "<", O_RDONLY, 0 },
-	{ "<>", O_RDWR | O_CREAT, 0 },
-	{ "<&", 0, 0 },
-	{ ">&", 0, 1 },
-	{ NULL, 0, -1 }
-};
+struct redir redirs_table[] = { { ">", O_CREAT | O_WRONLY | O_TRUNC, 1 },
+                                { ">|", O_CREAT | O_WRONLY | O_TRUNC, 1 },
+                                { ">>", O_CREAT | O_WRONLY | O_APPEND, 1 },
+                                { "<", O_RDONLY, 0 },
+                                { "<>", O_RDWR | O_CREAT, 0 },
+                                { "<&", 0, 0 },
+                                { ">&", 0, 1 },
+                                { NULL, 0, -1 } };
 
 int execute_redir(struct AST *root, struct AST **redir)
 {

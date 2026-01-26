@@ -19,8 +19,3 @@ bool follow_rule_for(struct token *token)
 {
     return follow_shell_command(token);
 }
-
-
-
-
-

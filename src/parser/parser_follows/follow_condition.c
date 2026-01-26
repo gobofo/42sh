@@ -14,5 +14,3 @@ bool follow_else_clause(struct token *token)
 {
     return token && token->type == FI;
 }
-
-

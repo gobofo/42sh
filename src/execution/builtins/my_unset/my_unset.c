@@ -3,9 +3,10 @@
 extern struct env *env;
 
 /**
- * Exécute la commande builtin 'unset' pour supprimer des variables ou fonctions.
- * Accepte les flags -v (variables, par défaut) et -f (fonctions) suivis des noms.
- * Retourne 0 en cas de succès, 1 si les deux flags sont utilisés, 2 si flag invalide.
+ * Exécute la commande builtin 'unset' pour supprimer des variables ou
+ * fonctions. Accepte les flags -v (variables, par défaut) et -f (fonctions)
+ * suivis des noms. Retourne 0 en cas de succès, 1 si les deux flags sont
+ * utilisés, 2 si flag invalide.
  */
 
 int my_unset(char **command)

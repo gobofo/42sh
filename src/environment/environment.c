@@ -1,7 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
 #include "environment.h"
 
-
 /**
  * @brief		Inits the environment
  *
@@ -32,33 +31,33 @@ struct env *init_env(int argc, char **argv)
     env->should_return = 0;
 
     env->argv = calloc(argc + 1, sizeof(char *));
-	env->argv[0] = argv[0];
-	env->argc = 0;
+    env->argv[0] = argv[0];
+    env->argc = 0;
 
-	int i = 1;
-	if (i < argc)
-	{
-		// Case we use a -c to launch the program
-		if (strcmp(argv[i], "-c") == 0)
-		{
-			// Skip the -c
-			i+=2;
-		}
-		// Case we give a script
-		else
-		{
-			env->argv[0] = argv[i];
-			i++;
-		}
+    int i = 1;
+    if (i < argc)
+    {
+        // Case we use a -c to launch the program
+        if (strcmp(argv[i], "-c") == 0)
+        {
+            // Skip the -c
+            i += 2;
+        }
+        // Case we give a script
+        else
+        {
+            env->argv[0] = argv[i];
+            i++;
+        }
 
-		// Get all the arguments
-		while (i < argc)
-		{
-			env->argc++;
-			env->argv[env->argc] = argv[i];
-			i++;
-		}
-	}
+        // Get all the arguments
+        while (i < argc)
+        {
+            env->argc++;
+            env->argv[env->argc] = argv[i];
+            i++;
+        }
+    }
 
     char *oldpwd = getenv("OLDPWD");
     char *pwd = getenv("PWD");
@@ -80,15 +79,14 @@ struct env *init_env(int argc, char **argv)
     return env;
 }
 
-
 /**
  * Libère la mémoire allouée pour la structure env.
  * Free d'abord le tableau argv puis la structure elle-même.
  */
 void free_env(struct env *env)
 {
-	free(env->argv);
-	free(env);
+    free(env->argv);
+    free(env);
 }
 
 /**
@@ -127,7 +125,8 @@ void export_add_variable(struct export *export, char *variables)
 
 /**
  * Libère la mémoire de la structure export et de toutes ses variables.
- * Free chaque chaîne de caractère dans la liste, puis la liste, puis la structure.
+ * Free chaque chaîne de caractère dans la liste, puis la liste, puis la
+ * structure.
  */
 
 void free_export(struct export *export)

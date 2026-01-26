@@ -13,32 +13,31 @@ extern struct env *env;
 
 int variable_assignation(struct AST *root)
 {
-	char *key = strtok(root->content, "=");
-	char *value_raw = strtok(NULL, "");
+    char *key = strtok(root->content, "=");
+    char *value_raw = strtok(NULL, "");
 
-	if (value_raw == NULL)
-		value_raw = "";
+    if (value_raw == NULL)
+        value_raw = "";
 
-	char **expanded = expand(value_raw);
+    char **expanded = expand(value_raw);
 
-	char *value = "";
+    char *value = "";
 
-	if (expanded != NULL && expanded[0] != NULL)
-		value = expanded[0];
+    if (expanded != NULL && expanded[0] != NULL)
+        value = expanded[0];
 
-	hash_map_insert(env->variables, key, strdup(value), free);
+    hash_map_insert(env->variables, key, strdup(value), free);
 
-	if (expanded)
-	{
-		for (int i = 0; expanded[i] != NULL; i++)
-			free(expanded[i]);
+    if (expanded)
+    {
+        for (int i = 0; expanded[i] != NULL; i++)
+            free(expanded[i]);
 
-		free(expanded);
-	}
+        free(expanded);
+    }
 
-	return env->last_exit_code;
+    return env->last_exit_code;
 }
-
 
 /**
  * @brief 		Creates the command with children from a node
@@ -53,38 +52,38 @@ int variable_assignation(struct AST *root)
 
 char **create_command(struct AST *root)
 {
-	// Is free by caller
-	char **command = calloc(root->count_children + 1, sizeof(char *));
+    // Is free by caller
+    char **command = calloc(root->count_children + 1, sizeof(char *));
 
-	size_t idx = 0;
+    size_t idx = 0;
 
-	for (int i = 0; i < root->count_children; i++)
-	{
-		if (root->children[i]->rule == AST_VALUE)
-		{
-			char **expanded_values = expand(root->children[i]->content);
+    for (int i = 0; i < root->count_children; i++)
+    {
+        if (root->children[i]->rule == AST_VALUE)
+        {
+            char **expanded_values = expand(root->children[i]->content);
 
-			for (int j = 0; expanded_values[j] != NULL; j++)
-			{
-				if (expanded_values[j][0] != '\0'
-						|| strcmp(root->children[i]->content, "''") == 0
-						|| strcmp(root->children[i]->content, "\"\"") == 0)
-				{
-					command = realloc(command, sizeof(char *) * (idx + 2));
-					command[idx++] = expanded_values[j];
-					command[idx] = NULL;
-				}
-				else
-				{
-					free(expanded_values[j]);
-				}
-			}
+            for (int j = 0; expanded_values[j] != NULL; j++)
+            {
+                if (expanded_values[j][0] != '\0'
+                    || strcmp(root->children[i]->content, "''") == 0
+                    || strcmp(root->children[i]->content, "\"\"") == 0)
+                {
+                    command = realloc(command, sizeof(char *) * (idx + 2));
+                    command[idx++] = expanded_values[j];
+                    command[idx] = NULL;
+                }
+                else
+                {
+                    free(expanded_values[j]);
+                }
+            }
 
-			free(expanded_values);
-		}
-	}
+            free(expanded_values);
+        }
+    }
 
-	return command;
+    return command;
 }
 
 /**
@@ -100,23 +99,24 @@ char **create_command(struct AST *root)
 
 struct AST **create_redir(struct AST *root)
 {
-	// Free by the caller
-	struct AST **redir = calloc(root->count_children + 1, sizeof(struct AST *));
+    // Free by the caller
+    struct AST **redir = calloc(root->count_children + 1, sizeof(struct AST *));
 
-	size_t idx = 0;
+    size_t idx = 0;
 
-	for (int i = 0; i < root->count_children; i++)
-	{
-		if (root->children[i]->rule == AST_REDIR)
-			redir[idx++] = root->children[i];
-	}
+    for (int i = 0; i < root->count_children; i++)
+    {
+        if (root->children[i]->rule == AST_REDIR)
+            redir[idx++] = root->children[i];
+    }
 
-	return redir;
+    return redir;
 }
 
 // This function is called when we encounter a function node
 int create_function(struct AST *root)
 {
-	hash_map_insert(env->functions, root->content, dup_ast(root), destroy_AST_void);	
-	return 0;
+    hash_map_insert(env->functions, root->content, dup_ast(root),
+                    destroy_AST_void);
+    return 0;
 }

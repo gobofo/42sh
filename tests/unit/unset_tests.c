@@ -18,14 +18,15 @@ TestSuite(unset_tests, .init = setup_unset);
 Test(unset_tests, unset_variable)
 {
     hash_map_insert(env->variables, "caca", strdup("prout"), free);
-    
+
     char *args[] = { "caca", NULL };
     cr_assert_eq(my_unset(args), 0);
-    
+
     cr_assert_null(hash_map_get(env->variables, "prout"));
 }
 
-Test(unset_tests, unset_nonexistent) {
+Test(unset_tests, unset_nonexistent)
+{
     char *args[] = { "nope", NULL };
     cr_assert_eq(my_unset(args), 0);
 }

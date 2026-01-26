@@ -2,9 +2,9 @@
 
 extern struct env *env;
 
-//####################
-//#   WORDS STRUCT   #
-//####################
+// ####################
+// #   WORDS STRUCT   #
+// ####################
 
 /**
  * @brief			Adds a word into the list of words of the current string
@@ -17,8 +17,7 @@ extern struct env *env;
 static void add_word(struct expanded_words *words, char *word)
 {
     // Allocate new space for the new word
-    words->words = realloc(words->words,
-			sizeof(char *) * (words->count + 2));
+    words->words = realloc(words->words, sizeof(char *) * (words->count + 2));
 
     // Add the word
     words->words[words->count++] = word;
@@ -27,9 +26,9 @@ static void add_word(struct expanded_words *words, char *word)
     words->words[words->count] = NULL;
 }
 
-//################
-//#   SUBSHELL   #
-//################
+// ################
+// #   SUBSHELL   #
+// ################
 
 /**
  * @brief 				Converts the list given by the subshell and expands it
@@ -64,45 +63,45 @@ static void expand_subshell(struct expansion_context *context, char **list_sub)
  * @param i			The index in the string
  */
 
-static void handle_subshell(struct expansion_context *context,
-		char *str, size_t *i)
+static void handle_subshell(struct expansion_context *context, char *str,
+                            size_t *i)
 {
-	int nested = 1;
+    int nested = 1;
 
-	char *sub_buffer = NULL;
-	size_t sub_size = 0;
+    char *sub_buffer = NULL;
+    size_t sub_size = 0;
 
-	FILE *subshell = open_memstream(&sub_buffer, &sub_size);
+    FILE *subshell = open_memstream(&sub_buffer, &sub_size);
 
-	// We skip the (
-	(*i)++;
+    // We skip the (
+    (*i)++;
 
-	while (str[*i] != '\0' && nested > 0)
-	{
-		if (str[*i] == '(')
-			nested++;
-		if (str[*i] == ')')
-			nested--;
+    while (str[*i] != '\0' && nested > 0)
+    {
+        if (str[*i] == '(')
+            nested++;
+        if (str[*i] == ')')
+            nested--;
 
-		if (nested == 0)
-			break;
+        if (nested == 0)
+            break;
 
-		fputc(str[(*i)++], subshell);
-	}
+        fputc(str[(*i)++], subshell);
+    }
 
-	// Skip the )
-	(*i)++;
+    // Skip the )
+    (*i)++;
 
-	fclose(subshell);
+    fclose(subshell);
 
-	char *output = expand_command_substitution(sub_buffer);
-	char **list_sub = separate_white_space(output);
+    char *output = expand_command_substitution(sub_buffer);
+    char **list_sub = separate_white_space(output);
 
-	expand_subshell(context, list_sub);
+    expand_subshell(context, list_sub);
 
-	free(sub_buffer);
-	free(list_sub);
-	free(output);
+    free(sub_buffer);
+    free(list_sub);
+    free(output);
 }
 
 // ##########################
@@ -235,7 +234,7 @@ static void expand_variable(struct expansion_context *context, char *str,
 
     if (str[*i] == '(')
     {
-		handle_subshell(context, str, i);
+        handle_subshell(context, str, i);
         return;
     }
 
@@ -297,47 +296,47 @@ static void expand_variable(struct expansion_context *context, char *str,
 // ##############
 
 // Handles the expansion of words between double quotes
-static void handle_double_quotes(struct expansion_context *context,
-		char *str, char *buffer, size_t *i)
+static void handle_double_quotes(struct expansion_context *context, char *str,
+                                 char *buffer, size_t *i)
 {
-	// Pass the opening quote
-	(*i)++;
+    // Pass the opening quote
+    (*i)++;
 
-	context->quoted = 1;
+    context->quoted = 1;
 
-	while (str[*i] != '\0' && str[*i] != '"')
-	{
-		// We have a variable extension
-		if (str[*i] == '$')
-		{
-			expand_variable(context, str, i);
-			continue;
-		}
-		// When inside double quotes the \ char does not act like the
-		// normal \.
-		// It only escapes when followed by $, `, ", \, or <newline>
-		else if (str[*i] == '\\' && is_special_char(str[*i + 1]) == 1)
-		{
-			// We skip the \ since it is supposed to escape
-			(*i)++;
-			fputc(str[(*i)++], context->stream);
-			(*i)++;
-		}
-		else
-		{
-			fputc(str[(*i)++], context->stream);
-		}
-	}
+    while (str[*i] != '\0' && str[*i] != '"')
+    {
+        // We have a variable extension
+        if (str[*i] == '$')
+        {
+            expand_variable(context, str, i);
+            continue;
+        }
+        // When inside double quotes the \ char does not act like the
+        // normal \.
+        // It only escapes when followed by $, `, ", \, or <newline>
+        else if (str[*i] == '\\' && is_special_char(str[*i + 1]) == 1)
+        {
+            // We skip the \ since it is supposed to escape
+            (*i)++;
+            fputc(str[(*i)++], context->stream);
+            (*i)++;
+        }
+        else
+        {
+            fputc(str[(*i)++], context->stream);
+        }
+    }
 
-	if (str[*i] == '\0')
-	{
-		fprintf(stderr, "Error: Expected closing quote\n");
-		fclose(context->stream);
-		free(buffer);
-	}
+    if (str[*i] == '\0')
+    {
+        fprintf(stderr, "Error: Expected closing quote\n");
+        fclose(context->stream);
+        free(buffer);
+    }
 
-	if (str[*i] == '"')
-		(*i)++;
+    if (str[*i] == '"')
+        (*i)++;
 }
 
 /**
@@ -413,7 +412,7 @@ char **expand(char *str)
         // escaping inside
         else if (str[i] == '"')
         {
-			handle_double_quotes(&context, str, buffer, &i);
+            handle_double_quotes(&context, str, buffer, &i);
         }
         else if (str[i] == '$')
             expand_variable(&context, str, &i);

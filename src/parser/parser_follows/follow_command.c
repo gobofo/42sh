@@ -12,8 +12,8 @@ bool follow_command(struct token *token)
     enum types type = token->type;
     return type == PIPE || type == AND || type == OR || type == SEMICOLON
         || type == NEWLINE || type == THEN || type == DO || type == DONE
-        || type == ELSE || type == ELIF || type == FI || type==R_BRACE || type == R_PAREN;
-
+        || type == ELSE || type == ELIF || type == FI || type == R_BRACE
+        || type == R_PAREN;
 }
 
 bool follow_shell_command(struct token *token)
@@ -23,8 +23,8 @@ bool follow_shell_command(struct token *token)
     enum types type = token->type;
     return type == REDIR || type == PIPE || type == AND || type == OR
         || type == SEMICOLON || type == NEWLINE || type == THEN || type == DO
-        || type == DONE || type == ELSE || type == ELIF || type == FI || type==R_BRACE || type == R_PAREN;
-
+        || type == DONE || type == ELSE || type == ELIF || type == FI
+        || type == R_BRACE || type == R_PAREN;
 }
 
 bool follow_simple_command(struct token *token)
@@ -36,8 +36,3 @@ bool follow_funcdec(struct token *token)
 {
     return follow_shell_command(token);
 }
-
-
-
-
-
