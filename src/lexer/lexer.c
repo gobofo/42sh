@@ -347,7 +347,7 @@ struct token *read_input(FILE *file)
             // Sync the stream
             fflush(stream);
 
-            if (size > 0)
+            if (size > 0 && c!='!')
                 return empty_stream(file, &stream, &buffer, c);
 
             // If we were already reading a token, then we need to save
