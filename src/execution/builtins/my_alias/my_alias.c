@@ -12,11 +12,16 @@ extern struct env *env;
 
 static int is_valid_alias(char *str)
 {
-	return strcmp(str, "|") == 1 && strcmp(str, "&") == 1 &&
-		   strcmp(str, ";") == 1 && strcmp(str, "(") == 1 &&
-		   strcmp(str, ")") == 1 && strcmp(str, "<") == 1 &&
-		   strcmp(str, ">") == 1 && strcmp(str, " ") == 1 &&
-		   strcmp(str, "\n") == 1;
+	if (strcmp(str, "|") == 0 || strcmp(str, "&") == 0 ||
+			strcmp(str, ";") == 0 || strcmp(str, "(") == 0 ||
+			strcmp(str, ")") == 0 || strcmp(str, "<") == 0 ||
+			strcmp(str, ">") == 0 || strcmp(str, " ") == 0 ||
+			strcmp(str, "\n") == 0)
+	{
+		return 0;
+	}
+
+	return 1;
 }
 
 /**
