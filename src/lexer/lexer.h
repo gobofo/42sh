@@ -14,6 +14,7 @@
 
 #include "../token.h"
 #include "../environment/environment.h"
+#include "../hash_map/hash_map.h"
 
 struct input_stack
 {
