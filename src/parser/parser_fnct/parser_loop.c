@@ -120,6 +120,69 @@ err:
     return NULL;
 }
 
+//this function is here to parse the body of the for
+//( [';'] | [ {'\n'} 'in' { ( WORD | SUBSHELL) } ( ';' | '\n') ] )
+//it return -1 if the parsing is bad
+//and ut return 0 if the parsing is good
+
+static int parse_for_body(struct lexer **lexer, struct AST *ast){
+
+    // Cas 1
+    if (get_current_type(*lexer) == SEMICOLON)
+    {
+        *lexer = eat(*lexer);
+    }
+    else // Cas 2
+    {
+        eat_newlines(lexer); // enleve le {\n}
+
+        if (get_current_token(*lexer) != NULL
+            && get_current_type(*lexer) == IN) // cas avec le in
+        {
+            *lexer = eat(*lexer);
+
+            if (get_current_token(*lexer) == NULL) // eviter pb
+                return -1;
+
+            while (get_current_token(*lexer) != NULL
+                   && get_current_type(*lexer) != SEMICOLON
+                   && get_current_type(*lexer)
+                       != NEWLINE) // va mager tous les words
+            {
+                if (!is_valid_word(*lexer)) // c pas un mots alors c une err
+                    return -1;
+
+                struct AST *word =
+                    create_ast(AST_VALUE,
+                               strdup(get_current_content(
+                                   *lexer))); // prend la valeur du mot
+                ast = add_children(ast, word);
+
+                // pour gerer les subshell
+
+                if (get_current_type(*lexer) == SUBSHELL
+                    && !verif_subshell(*lexer))
+                {
+                    return -1;
+                }
+
+                *lexer = eat(*lexer);
+            }
+
+            if (get_current_token(*lexer) == NULL
+                || (get_current_type(*lexer) != SEMICOLON
+                    && get_current_type(*lexer)
+                        != NEWLINE)) // problem de grammaire
+                return -1;
+
+            *lexer = eat(*lexer); // on eat le ; ou le \n
+        }
+    }
+
+    return 0;
+
+}
+
 //(16) rule_for = 'for' WORD ( [';']
 //                          | [ {'\n'} 'in' { ( WORD | SUBSHELL) } ( ';' | '\n'
 //                          ) ] )
@@ -146,56 +209,8 @@ struct AST *rule_for(struct lexer **lexer)
     if (get_current_token(*lexer) == NULL) // si ya rien c erreur
         goto err;
 
-    // Cas 1
-    if (get_current_type(*lexer) == SEMICOLON)
-    {
-        *lexer = eat(*lexer);
-    }
-    else // Cas 2
-    {
-        eat_newlines(lexer); // enleve le {\n}
-
-        if (get_current_token(*lexer) != NULL
-            && get_current_type(*lexer) == IN) // cas avec le in
-        {
-            *lexer = eat(*lexer);
-
-            if (get_current_token(*lexer) == NULL) // eviter pb
-                goto err;
-
-            while (get_current_token(*lexer) != NULL
-                   && get_current_type(*lexer) != SEMICOLON
-                   && get_current_type(*lexer)
-                       != NEWLINE) // va mager tous les words
-            {
-                if (!is_valid_word(*lexer)) // c pas un mots alors c une err
-                    goto err;
-
-                struct AST *word =
-                    create_ast(AST_VALUE,
-                               strdup(get_current_content(
-                                   *lexer))); // prend la valeur du mot
-                ast = add_children(ast, word);
-
-                // pour gerer les subshell
-
-                if (get_current_type(*lexer) == SUBSHELL
-                    && !verif_subshell(*lexer))
-                {
-                    goto err;
-                }
-
-                *lexer = eat(*lexer);
-            }
-
-            if (get_current_token(*lexer) == NULL
-                || (get_current_type(*lexer) != SEMICOLON
-                    && get_current_type(*lexer)
-                        != NEWLINE)) // problem de grammaire
-                goto err;
-
-            *lexer = eat(*lexer); // on eat le ; ou le \n
-        }
+    if (parse_for_body(lexer, ast) == -1){ //gere tous le body du for
+        goto err;
     }
 
     eat_newlines(lexer); // enleve le {\n}
