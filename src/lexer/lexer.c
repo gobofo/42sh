@@ -378,7 +378,7 @@ struct token *read_input(FILE *file)
 				else
 					fputs("$(", stream);
 
-				while (nesting > 0 && (c = fgetc(file)) != EOF)
+				while ((back_quote > 0 || nesting > 0) && (c = fgetc(file)) != EOF)
 				{
 					if (c == '(')
 						nesting++;
@@ -387,9 +387,13 @@ struct token *read_input(FILE *file)
 
 					if (c == '\\')
 					{
-						fputc(c, stream);
 						c = fgetc(file);
+						
+						if (c != '`')
+							fputc('\\', stream);
+						
 						fputc(c, stream);
+
 						continue;
 					}
 
@@ -408,10 +412,7 @@ struct token *read_input(FILE *file)
             if (size > 0)
                 return empty_stream(file, &stream, &buffer, c);
 
-			if (c == ')')
-				fputc(c, stream);
-			else
-				fputc(')', stream);
+			fputc(c, stream);
 
             return flush_stream(stream, &buffer);
         }
