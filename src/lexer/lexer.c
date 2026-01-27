@@ -130,7 +130,7 @@ struct lexer *get_token(struct lexer *lexer)
 
 			lexer->stack = new_stream;
 
-			free(tok);
+			free_token(tok);
 			return get_token(lexer);
 		}
 	}
