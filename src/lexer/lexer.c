@@ -359,37 +359,39 @@ struct token *read_input(FILE *file)
             return flush_stream(stream, &buffer);
         }
 
-        if (c == '(' || c == ')')
+        if (c == '(' || c == ')' || c == '`')
         {
             fflush(stream);
 
-            if (c == '(' && size > 0 && buffer[size - 1] == '$')
+            if ((c == '(' && size > 0 && buffer[size - 1] == '$') || c == '`')
             {
                 int nesting = 1;
-                fputc(c, stream);
+
+				if (c == '(')
+					fputc(c, stream);
+				else
+					fputs("$(", stream);
 
                 while (nesting > 0 && (c = fgetc(file)) != EOF)
                 {
-                    if (c == '(')
+                    if (c == '(' || c == '`')
                         nesting++;
-                    if (c == ')')
+                    if (c == ')' || c == '`')
                         nesting--;
 
                     fputc(c, stream);
                 }
 
-                //	struct token *tok = flush_stream(stream, &buffer);
-                //	if (tok)
-                //		tok->type = SUBSHELL;
-
-                //	return tok;
                 continue;
             }
 
             if (size > 0)
                 return empty_stream(file, &stream, &buffer, c);
 
-            fputc(c, stream);
+			if (c == ')')
+				fputc(c, stream);
+			else
+				fputc(')', stream);
 
             return flush_stream(stream, &buffer);
         }
