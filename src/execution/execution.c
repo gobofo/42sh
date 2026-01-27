@@ -43,6 +43,16 @@ int do_redir(struct AST *root, struct AST **redir)
 // ###############################
 // #   SIMPLE & SHELL COMMANDS   #
 // ###############################
+
+void free_command(char **command)
+{
+    for (int i = 0; command[i] != NULL; i++)
+        free(command[i]);
+
+    free(command);
+}
+
+
 /**
  * Exécute une commande simple
  * Cherche d'abord dans les builtins, puis les fonctions, puis exécute en
@@ -88,10 +98,7 @@ static int execute_cmd(char **command)
 
 clean_up:
 
-    for (int i = 0; command[i] != NULL; i++)
-        free(command[i]);
-
-    free(command);
+	free_command(command);
 
     env->last_exit_code = status;
 
@@ -614,6 +621,7 @@ struct builtin builtins_table[] = { { "true", my_true },
                                     { "export", my_export },
                                     { "return", my_return },
                                     { ".", my_dot },
+									{ "alias", my_alias },
                                     { NULL, NULL } };
 
 // Helps to reference each type of node to its corresponding func
