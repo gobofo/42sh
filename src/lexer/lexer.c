@@ -10,9 +10,9 @@ extern struct env *env;
 
 struct lexer *init_lexer(FILE *input)
 {
-    struct lexer *lexer = malloc(sizeof(struct lexer));
-    if (!lexer)
-        return NULL;
+	struct lexer *lexer = malloc(sizeof(struct lexer));
+	if (!lexer)
+		return NULL;
 
 	struct input_stack *base_input = malloc(sizeof(struct input_stack));
 	if (input == NULL)
@@ -25,18 +25,19 @@ struct lexer *init_lexer(FILE *input)
 	base_input->alias_name = NULL;
 	base_input->next = NULL;
 
-	lexer->stack = input;
-    lexer->next = NULL;
+	lexer->stack = base_input;
+	lexer->next = NULL;
+	lexer->current = NULL;
 
 	get_token(lexer);
 
-    return lexer;
+	return lexer;
 }
 
 void free_lexer(struct lexer *lexer)
 {
-    if (!lexer)
-        return;
+	if (!lexer)
+		return;
 
 	struct input_stack *cur = lexer->stack;
 	while (cur)
@@ -53,11 +54,11 @@ void free_lexer(struct lexer *lexer)
 		free(temp);
 	}
 
-    if (lexer->current != NULL)
-        free_token(lexer->current);
+	if (lexer->current != NULL)
+		free_token(lexer->current);
 
-    if (lexer->next != NULL)
-        free_token(lexer->next);
+	if (lexer->next != NULL)
+		free_token(lexer->next);
 
     free(lexer);
 }
@@ -146,7 +147,10 @@ struct lexer *get_token(struct lexer *lexer)
 
 void next_token(struct lexer **lexer)
 {
-    (*lexer)->next = read_input((*lexer)->input);
+	if ((*lexer)->next != NULL)
+		free_token((*lexer)->next);
+
+	(*lexer)->next = read_input((*lexer)->stack->file);
 }
 
 // ##############
