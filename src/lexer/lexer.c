@@ -1,34 +1,64 @@
 #include "lexer.h"
 
+extern struct env *env;
+
 /**
  * Initialise un lexer avec un fichier d'entrée.
  * Alloue la structure lexer et lit le premier token depuis l'input.
  * Retourne le lexer initialisé ou NULL en cas d'erreur d'allocation.
  */
+
 struct lexer *init_lexer(FILE *input)
 {
-    struct lexer *lexer = malloc(sizeof(struct lexer));
-    if (!lexer)
-        return NULL;
+	struct lexer *lexer = malloc(sizeof(struct lexer));
+	if (!lexer)
+		return NULL;
 
-    lexer->input = input;
+	struct input_stack *base_input = malloc(sizeof(struct input_stack));
+	if (input == NULL)
+	{
+		free(lexer);
+		return NULL;
+	}
 
-    lexer->current = read_input(input);
-    lexer->next = NULL;
+	base_input->file = input;
+	base_input->alias_name = NULL;
+	base_input->next = NULL;
 
-    return lexer;
+	lexer->stack = base_input;
+	lexer->next = NULL;
+	lexer->current = NULL;
+
+	get_token(lexer);
+
+	return lexer;
 }
 
 void free_lexer(struct lexer *lexer)
 {
-    if (!lexer)
-        return;
+	if (!lexer)
+		return;
 
-    if (lexer->current != NULL)
-        free_token(lexer->current);
+	struct input_stack *cur = lexer->stack;
+	while (cur)
+	{
+		struct input_stack *temp = cur;
+		cur = cur->next;
 
-    if (lexer->next != NULL)
-        free_token(lexer->next);
+		if (temp->alias_name)
+		{
+			fclose(temp->file);
+			free(temp->alias_name);
+		}
+
+		free(temp);
+	}
+
+	if (lexer->current != NULL)
+		free_token(lexer->current);
+
+	if (lexer->next != NULL)
+		free_token(lexer->next);
 
     free(lexer);
 }
@@ -46,15 +76,70 @@ void free_lexer(struct lexer *lexer)
  */
 
 struct lexer *get_token(struct lexer *lexer)
-{
+{	
+	struct token *tok = NULL;
+
+	// We look if a look ahead token was read
+	// If yes we use it as our current token
+	// Else we return the token just read in the input
     if (lexer->next == NULL)
-        lexer->current = read_input(lexer->input);
-    else
+	{
+        tok = read_input(lexer->stack->file);
+	}
+	else
     {
-        lexer->current = lexer->next;
+        tok = lexer->next;
         lexer->next = NULL;
     }
 
+	// We read all our current stream and the stack is still not empty after
+	if (tok == NULL && lexer->stack->next != NULL)
+	{
+		struct input_stack *temp = lexer->stack;
+
+		lexer->stack = lexer->stack->next;
+		fclose(temp->file);
+
+		if (temp->alias_name != NULL)
+			free(temp->alias_name);
+
+		free(temp);
+		
+		return get_token(lexer);
+	}
+
+	// We find an alias
+	if (tok != NULL && tok->type == WORDS)
+	{
+		char *value = hash_map_get(env->alias, tok->content);
+
+		int in_alias = 0;
+
+		// We want to avoid getting in a recursion loop of aliases
+		// So if we find an alias containing this alias already we dont expand
+		// again this same alias
+		for (struct input_stack *s = lexer->stack; s != NULL; s = s->next)
+		{
+			if(s->alias_name && strcmp(s->alias_name, tok->content) == 0)
+				in_alias = 1;
+		}
+
+		if (value != NULL && in_alias == 0)
+		{
+			struct input_stack *new_stream = malloc(sizeof(struct input_stack));
+
+			new_stream->file = fmemopen(value, strlen(value), "r");
+			new_stream->alias_name = strdup(tok->content);
+			new_stream->next = lexer->stack;
+
+			lexer->stack = new_stream;
+
+			free_token(tok);
+			return get_token(lexer);
+		}
+	}
+	
+	lexer->current = tok;
     return lexer;
 }
 
@@ -66,7 +151,10 @@ struct lexer *get_token(struct lexer *lexer)
 
 void next_token(struct lexer **lexer)
 {
-    (*lexer)->next = read_input((*lexer)->input);
+	if ((*lexer)->next != NULL)
+		free_token((*lexer)->next);
+
+	(*lexer)->next = read_input((*lexer)->stack->file);
 }
 
 // ##############
@@ -94,7 +182,11 @@ static struct token *flush_stream(FILE *stream, char **buffer)
     struct token *new_token = create_token(*buffer);
 
     if (!new_token)
+	{
         free(*buffer);
+		
+		*buffer = NULL;
+	}
 
     return new_token;
 }

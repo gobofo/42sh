@@ -10,8 +10,20 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "../token.h"
 #include "lexer_utils.h"
+
+#include "../token.h"
+#include "../environment/environment.h"
+#include "../hash_map/hash_map.h"
+
+struct input_stack
+{
+	FILE *file;
+
+	char *alias_name;
+
+	struct input_stack *next;
+};
 
 struct lexer
 {
@@ -19,6 +31,8 @@ struct lexer
 
 	struct token *current;
 	struct token *next;
+
+	struct input_stack *stack;
 };
 
 struct lexer *init_lexer(FILE *input);

@@ -42,6 +42,7 @@ struct env
 
     struct hash_map *variables;
 	struct hash_map *functions;
+	struct hash_map *alias;
 };
 
 struct env *init_env(int argc, char **argv);
