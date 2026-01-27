@@ -46,7 +46,11 @@ enum types
     R_PAREN,
 
     // SUBSHELL
-    SUBSHELL
+    SUBSHELL,
+
+    //switch
+    CASE,
+    ESAC
 };
 
 struct token
