@@ -82,6 +82,9 @@ int my_alias(char **command)
 		}
 		
 		char *key = expanded_key[0];
+
+		for (size_t i = 1; expanded_key[i] != NULL; i++)
+			free(expanded_key[i]);
 		free(expanded_key);
 		
 		// Make sure the alias name is valid
@@ -138,6 +141,8 @@ int my_alias(char **command)
 			free(expanded_value[0]);
 			free(expanded_value);
 		}
+
+		free(key);
 	}
 
 	return status;

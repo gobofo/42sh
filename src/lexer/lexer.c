@@ -99,6 +99,10 @@ struct lexer *get_token(struct lexer *lexer)
 
 		lexer->stack = lexer->stack->next;
 		fclose(temp->file);
+
+		if (temp->alias_name != NULL)
+			free(temp->alias_name);
+
 		free(temp);
 		
 		return get_token(lexer);
@@ -178,7 +182,11 @@ static struct token *flush_stream(FILE *stream, char **buffer)
     struct token *new_token = create_token(*buffer);
 
     if (!new_token)
+	{
         free(*buffer);
+		
+		*buffer = NULL;
+	}
 
     return new_token;
 }
