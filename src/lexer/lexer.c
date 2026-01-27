@@ -365,19 +365,39 @@ struct token *read_input(FILE *file)
 
             if ((c == '(' && size > 0 && buffer[size - 1] == '$') || c == '`')
             {
-                int nesting = 1;
+                int nesting = 0;
+				int back_quote = 0;
+
+				if (c == '(')
+					nesting++;
+				else
+					back_quote++;
 
 				if (c == '(')
 					fputc(c, stream);
 				else
 					fputs("$(", stream);
 
-                while (nesting > 0 && (c = fgetc(file)) != EOF)
-                {
-                    if (c == '(' || c == '`')
-                        nesting++;
-                    if (c == ')' || c == '`')
-                        nesting--;
+				while (nesting > 0 && (c = fgetc(file)) != EOF)
+				{
+					if (c == '(')
+						nesting++;
+					if (c == ')')
+						nesting--;
+
+					if (c == '\\')
+					{
+						fputc(c, stream);
+						c = fgetc(file);
+						fputc(c, stream);
+						continue;
+					}
+
+					if (back_quote == 1 && c == '`')
+					{
+						fputc(')', stream);
+						break;
+					}
 
                     fputc(c, stream);
                 }
