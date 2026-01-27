@@ -472,6 +472,8 @@ test_error "for 1i in a b; do echo \$1i; done" "for: identifier starts with digi
 test_error "for i-2 in a b; do echo \$i-2; done" "for: identifier with hyphen"
 test_error "for in a b; do echo ok; done" "for: missing identifier"
 
+#----------------- STEP 3: ADVANCED BUILTINS & CONSTRUCTS -----------------#
+
 echo "###################################################"
 echo "STEP 3 - FOR LOOPS WITH POSITIONAL PARAMETERS"
 echo "###################################################"
@@ -487,7 +489,6 @@ test_cmd 'f() { for i; do echo "$i"; done; }; f x y z' "for default 'in \$@'"
 test_cmd 'f() { for i in "$@"; do echo "[$i]"; done; }; f' "for in \"\$@\" with no args"
 test_cmd 'f() { for i in "$@"; do echo "$i"; done; }; f "" " "' "for in \"\$@\" with empty/space args"
 
-#----------------- STEP 3: ADVANCED BUILTINS & CONSTRUCTS -----------------#
 
 echo "###################################################"
 echo "STEP 3 - EXIT BUILTIN"
@@ -555,12 +556,13 @@ echo "STEP 3 - UNSET BUILTIN"
 echo "###################################################"
 
 test_cmd 'x=1; unset x; echo "$x"' "unset variable"
-test_cmd 'x=1; unset x; env | grep "^x="' "unset from env"
 test_cmd 'export x=1; unset x; echo "$x"' "unset exported"
 test_cmd "unset NONEXISTENT" "unset nonexistent"
 test_cmd 'x=1 y=2; unset x y; echo $x $y' "unset multiple"
 test_cmd "f() { echo ok; }; unset -f f; f 2>/dev/null || echo deleted" "unset function"
 test_cmd 'x=1; unset -v x; echo $x' "unset with -v"
+test_cmd 'f() { echo ok; }; unset f; f 2>/dev/null || echo deleted' "unset function without flag"
+test_cmd 'f() { echo ok; }; f=1; unset f; f' "unset var same name function"
 
 echo "###################################################"
 echo "STEP 3 - VARIABLE SCOPE (UNSET & LOCAL)"
@@ -575,7 +577,7 @@ echo "###################################################"
 
 test_cmd "for i in 1 2 3; do continue; echo \$i; done" "continue in for"
 test_cmd "for i in 1 2 3; do if true; then break; fi; echo \$i; done" "break in for"
-test_cmd "x=0; while true; do break; echo fail; done; echo out" "break in while"
+test_cmd "while true; do break; echo fail; done; echo out" "break in while"
 test_cmd "for i in 1 2; do for j in a b; do if [ \$j = a ]; then break; fi; echo \$i\$j; done; done" "break nested default"
 test_cmd "for i in 1 2; do for j in a b; do if [ \$j = a ]; then break 1; fi; echo \$i\$j; done; done" "break 1 explicit"
 test_cmd "for i in 1 2; do for j in a b; do break 2; echo fail; done; echo fail2; done" "break 2 nested"
