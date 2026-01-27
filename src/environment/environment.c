@@ -58,6 +58,8 @@ struct env *init_env(int argc, char **argv)
             env->argv[env->argc] = argv[i];
             i++;
         }
+		if(env->argc<0)
+			env->argc = 0;
     }
 
     char *oldpwd = getenv("OLDPWD");
