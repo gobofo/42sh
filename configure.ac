@@ -15,14 +15,14 @@ CFLAGS="$CFLAGS -std=c99 -pedantic -Werror -Wall -Wextra -Wvla"
 AC_CONFIG_FILES([
 				 Makefile
 				 src/Makefile
+				 src/hash_map/Makefile
+				 src/environment/Makefile
 				 src/ast/Makefile
 				 src/lexer/Makefile
 				 src/parser/Makefile
 				 src/expansion/Makefile
 				 src/execution/Makefile
 				 src/io_backend/Makefile
-				 src/environment/Makefile
-				 src/hash_map/Makefile
 				 tests/Makefile
 				 tests/unit/Makefile
 				 ])

@@ -805,6 +805,60 @@ test_cmd "echo a | grep a | grep a | grep a | cat" "very long pipe"
 test_cmd 'foo=bar; echo "$foo"_$foo' "mixed quotes raw"
 test_cmd "cat < /dev/null" "input from null"
 
+#----------------- STEP 3: ADVANCED BUILTINS & CONSTRUCTS -----------------#
+
+echo "###################################################"
+echo "STEP 4 - ALIAS BASIC"
+echo "###################################################"
+
+test_cmd "alias l='ls -F'
+l | sort" "simple alias expansion"
+
+test_cmd "alias greet='echo hello world'
+greet" "alias with multiple words"
+
+test_cmd "alias cls='clear'
+alias cls='echo cleared'
+cls" "redefining an alias"
+
+test_cmd "alias my_true='true'
+my_true && echo ok" "alias for a builtin"
+
+echo "###################################################"
+echo "STEP 4 - ALIAS NESTING & RECURSION"
+echo "###################################################"
+
+test_cmd "alias a='echo'
+alias b='a'
+b hello" "nested alias level 2"
+
+test_cmd "alias l='ls -F'
+alias ll='l -l'
+ll | sort" "nested alias"
+
+test_cmd "alias x='echo'
+alias y='x'
+alias z='y'
+z deep" "deep nesting level 3"
+
+test_cmd "alias a='b'; alias b='a'
+a 2>/dev/null || echo 'recursion_guarded'" "indirect recursion guard"
+
+echo "###################################################"
+echo "STEP 4 - ALIAS GRAMMAR & OPERATORS"
+echo "###################################################"
+
+test_cmd "alias list_files='ls | cat'
+list_files | sort" "alias containing a pipe"
+
+test_cmd "alias check='true && echo ok'
+check" "alias with AND operator"
+
+test_cmd "alias start_if='if true; then'
+start_if 
+echo yes
+fi" "partial grammar expansion"
+
 #----------------- SYNTAX ERRORS -----------------#
 
 echo "###################################################"
@@ -941,6 +995,7 @@ test_stdin "func() { echo inside; }; func" "stdin function"
 #----------------- CLEANUP -----------------#
 
 rm -rf /tmp/42sh_* /tmp/*_42sh* 2>/dev/null
+rm -rf file in out empty_file
 
 PERCENT=$(($SUCCESS * 100 / $TOTAL))
 echo -e "${BBLU}Succeed:${GRN} $SUCCESS${WHT}"
