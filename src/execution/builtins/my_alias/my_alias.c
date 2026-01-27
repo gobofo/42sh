@@ -16,7 +16,7 @@ static int is_valid_alias(char *str)
 		   strcmp(str, ";") == 1 && strcmp(str, "(") == 1 &&
 		   strcmp(str, ")") == 1 && strcmp(str, "<") == 1 &&
 		   strcmp(str, ">") == 1 && strcmp(str, " ") == 1 &&
-		   strcmp(str, "\n") == 1 &&
+		   strcmp(str, "\n") == 1;
 }
 
 /**
@@ -51,7 +51,7 @@ int my_alias(char **command)
 			// No value was found so we have an error
 			if(value == NULL)
 			{
-				fprintf(stderr, "Error: alias: %s : not found\n", value);
+				fprintf(stderr, "Error: alias: %s : not found\n", actual);
 				status = 1;
 			}
 			else
@@ -72,6 +72,7 @@ int my_alias(char **command)
 
 		if (expanded_key == NULL || expanded_key[0] == NULL)
 		{
+			free(expanded_key);
 			continue;
 		}
 		
@@ -79,9 +80,12 @@ int my_alias(char **command)
 		free(expanded_key);
 		
 		// Make sure the alias name is valid
-		if (is_valid_alias(key))
+		if (is_valid_alias(key) == 0)
 		{
 			fprintf(stderr, "Error: alias: '%s': invalid alias name\n", key);
+
+			free(key);
+
 			continue;
 		}
 
@@ -117,20 +121,18 @@ int my_alias(char **command)
 			}
 
 			char *value = strndup(actual, value_len);
-			char** list = expand(value);
+			char** expanded_value = expand(value);
 
 			free(value);
 
-			if(list == NULL)
+			if(expanded_value == NULL)
 				continue;
 
-			hash_map_insert(env->alias, key, strdup(list[0]), free);
+			hash_map_insert(env->alias, key, strdup(expanded_value[0]), free);
 
-			free(list[0]);
-			free(list);
+			free(expanded_value[0]);
+			free(expanded_value);
 		}
-
-		free(key);
 	}
 
 	return status;
