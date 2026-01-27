@@ -42,6 +42,7 @@ struct env *init_env(int argc, char **argv)
         {
             // Skip the -c
             i += 2;
+			env->argc--;
         }
         // Case we give a script
         else
