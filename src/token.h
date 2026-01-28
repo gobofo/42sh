@@ -51,11 +51,7 @@ enum types
 	ESAC,
 
     // SUBSHELL
-    SUBSHELL,
-
-    //switch
-    CASE,
-    ESAC
+    SUBSHELL
 };
 
 struct token
