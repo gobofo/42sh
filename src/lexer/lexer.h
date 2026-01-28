@@ -19,7 +19,14 @@
 
 struct lexer
 {
-	FILE *input;
+	int in_var;
+
+	char c;
+	char *buffer;
+
+	size_t size;
+
+	FILE *stream;
 
 	struct token *current;
 	struct token *next;
