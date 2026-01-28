@@ -62,7 +62,7 @@ err:
 
 struct AST *case_clause(struct lexer **lexer){
 
-    struct AST *ast = create_ast(AST_CASE_ITEM, NULL);
+    struct AST *ast = create_ast(AST_CASE_CLAUSE, NULL);
     
     if (!(first_case_item(get_current_token(*lexer)))){
         goto err;
