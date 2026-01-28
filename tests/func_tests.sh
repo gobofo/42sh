@@ -19,8 +19,8 @@ fi
 test_cmd()
 {
   TOTAL=$((TOTAL + 1))
-  local expected=$(timeout $TIMEOUT bash --posix -c "$1" 2>&1)
-  local actual=$(timeout $TIMEOUT "$BIN_PATH" -c "$1" 2>&1)
+  local expected=$(timeout $TIMEOUT env LC_ALL=C bash --posix -c "$1" 2>&1)
+  local actual=$(timeout $TIMEOUT env LC_ALL=C "$BIN_PATH" -c "$1" 2>&1)
 
   if [ "$expected" = "$actual" ]; then
     SUCCESS=$((SUCCESS + 1))
