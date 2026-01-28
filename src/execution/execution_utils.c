@@ -189,12 +189,14 @@ bool pattern_match(char* word,char *pattern){
   }
   /*if(pattern[0]=='['){
     char* pos_bracket_close=strchr(pattern+1,']');
-    if(!pos_bracket_close==NULL){
-       
-
+    if(pos_bracket_close==NULL){
+        goto simple; 
     }
+    int index_b_c=pos_bracket_close-pattern; 
+    char* index_tiret =strchr(pattern+1,'-');
   }
   */
+simple:
   return pattern[0]==word[0] 
     && pattern_match(word+1,pattern+1);
 }
