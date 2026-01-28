@@ -19,7 +19,7 @@ int variable_assignation(struct AST *root)
     if (value_raw == NULL)
         value_raw = "";
 
-    char **expanded = expand(value_raw);
+    char **expanded = expand(value_raw, 1);
 
     char *value = "";
 
@@ -61,7 +61,7 @@ char **create_command(struct AST *root)
     {
         if (root->children[i]->rule == AST_VALUE)
         {
-            char **expanded_values = expand(root->children[i]->content);
+            char **expanded_values = expand(root->children[i]->content, 0);
 
             for (int j = 0; expanded_values[j] != NULL; j++)
             {

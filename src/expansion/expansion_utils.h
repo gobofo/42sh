@@ -10,6 +10,8 @@
 
 int is_special_char(char c);
 int is_valid_identifier(char *name);
+int is_ifs(char c, char *ifs);
+int is_ifs_white_space(char c, char *ifs);
 
 char **separate_white_space(char *output);
 
