@@ -19,6 +19,7 @@ static const struct type_string_map debug_names[] = {
     { FI, "FI" },
 
     { SEMICOLON, "SEMICOLON" },
+    { D_SEMICOLON, "D_SEMICOLON" },
     { NEWLINE, "NEWLINE" },
 
     { S_QUOTE, "S_QUOTE" },

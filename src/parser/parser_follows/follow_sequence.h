@@ -10,6 +10,7 @@
 #include "follow_command.h"
 #include "follow_condition.h"
 #include "follow_loop.h"
+#include "switch_follow.h"
 
 bool follow_list(struct token *token);
 bool follow_and_or(struct token *token);

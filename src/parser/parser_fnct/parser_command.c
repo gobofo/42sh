@@ -162,6 +162,13 @@ struct AST *shell_command(struct lexer **lexer)
             return NULL;
         return ast;
     }
+    else if (first_rule_case(get_current_token(*lexer))) // cas for
+    {
+        struct AST *ast = rule_case(lexer);
+        if (ast == NULL)
+            return NULL;
+        return ast;
+    }
     else if (get_current_token(*lexer) != NULL
              && (get_current_type(*lexer) == L_BRACE
                  || get_current_type(*lexer) == L_PAREN))
