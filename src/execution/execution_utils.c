@@ -120,3 +120,10 @@ int create_function(struct AST *root)
                     destroy_AST_void);
     return 0;
 }
+
+
+
+static int pattern_match(char* word, char *pattern)){
+
+
+}

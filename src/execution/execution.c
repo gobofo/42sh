@@ -600,6 +600,40 @@ static int execute_function(struct AST *root, char **command)
     return status;
 }
 
+static int execute_case_item(struct AST *root,char* word,int * find){
+  int i=0;
+  int status=0;
+  while(i<root->count_children-1){
+    if(pattern_match(word,root->children[i]->content)){
+      *find=1;
+      status=execute_node(root->children[root->count_children-1]);
+      break;
+    }
+  }
+  return status;
+}
+
+static int execute_case_clause(struct AST *root,char* word){
+  int find=0;
+  int i=0;
+  int status=0;
+
+  while(find==0 && i<root->count_children){
+    int status =execute_case_item(root->children[i],word,&find);
+    i++;
+  }
+  return  status;
+}
+
+static int execute_case(struct AST *root){
+
+  if(root->count_children==0){
+    return 0;
+  }
+  return execute_case_clause(root->children[0],root->content);
+}
+
+
 // ###################
 // #   LOOKUP TABLES #
 // ###################
