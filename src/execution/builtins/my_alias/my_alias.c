@@ -147,3 +147,35 @@ int my_alias(char **command)
 
 	return status;
 }
+
+
+
+int my_unalias(char **command)
+{
+
+	if(!*command)
+	{
+		fprintf(stderr, "Error: unalias : no argument given");
+		return 2;
+	}
+
+	int status = 0;
+	for(; *command; command++)
+	{
+		if(strcmp("-a", *command) == 0)
+		{
+			hash_map_free(env->alias, free);
+			env->alias = hash_map_init(64);
+		}
+		else
+		{
+			bool removed = hash_map_remove(env->alias, *command, free);
+			if(!removed)
+			{
+				fprintf(stderr, "Error: unalias : no alias named %s\n", *command);
+				status = 1;
+			}
+		}
+	}
+	return status;
+}
