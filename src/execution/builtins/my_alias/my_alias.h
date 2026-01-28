@@ -9,5 +9,7 @@
 #include "../../../expansion/expansion.h"
 
 int my_alias(char **command);
+int my_unalias(char **command);
+
 
 #endif // ! MY_ALIAS_H
