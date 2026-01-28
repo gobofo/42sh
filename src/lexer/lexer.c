@@ -14,16 +14,12 @@ struct lexer *init_lexer(FILE *input)
 	if (!lexer)
 		return NULL;
 
-	struct input_stack *base_input = malloc(sizeof(struct input_stack));
+	struct input_stack *base_input = init_input_stack(input); 
 	if (input == NULL)
 	{
 		free(lexer);
 		return NULL;
 	}
-
-	base_input->file = input;
-	base_input->alias_name = NULL;
-	base_input->next = NULL;
 
 	lexer->stack = base_input;
 	lexer->next = NULL;
@@ -39,20 +35,7 @@ void free_lexer(struct lexer *lexer)
 	if (!lexer)
 		return;
 
-	struct input_stack *cur = lexer->stack;
-	while (cur)
-	{
-		struct input_stack *temp = cur;
-		cur = cur->next;
-
-		if (temp->alias_name)
-		{
-			fclose(temp->file);
-			free(temp->alias_name);
-		}
-
-		free(temp);
-	}
+	free(lexer->stack);
 
 	if (lexer->current != NULL)
 		free_token(lexer->current);
@@ -95,16 +78,7 @@ struct lexer *get_token(struct lexer *lexer)
 	// We read all our current stream and the stack is still not empty after
 	if (tok == NULL && lexer->stack->next != NULL)
 	{
-		struct input_stack *temp = lexer->stack;
-
-		lexer->stack = lexer->stack->next;
-		fclose(temp->file);
-
-		if (temp->alias_name != NULL)
-			free(temp->alias_name);
-
-		free(temp);
-		
+		pop_input_stack(&(lexer->stack));
 		return get_token(lexer);
 	}
 
@@ -126,13 +100,9 @@ struct lexer *get_token(struct lexer *lexer)
 
 		if (value != NULL && in_alias == 0)
 		{
-			struct input_stack *new_stream = malloc(sizeof(struct input_stack));
+			FILE *alias_file = fmemopen(value, strlen(value), "r");
 
-			new_stream->file = fmemopen(value, strlen(value), "r");
-			new_stream->alias_name = strdup(tok->content);
-			new_stream->next = lexer->stack;
-
-			lexer->stack = new_stream;
+			push_input_stack(&(lexer->stack), alias_file, tok->content);
 
 			free_token(tok);
 			return get_token(lexer);
