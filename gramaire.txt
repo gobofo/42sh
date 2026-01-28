@@ -1,5 +1,3 @@
-// #include "../lexer/lexer.h"
-
 /* === GRAMMAR === */
 
 /*
@@ -28,9 +26,10 @@
    | rule_if
    | rule_while
    | rule_until
+   | rule_case
    | rule_for
 
-funcdec = WORD '(' ')' {'\n'} shell_command ;
+
 
 (11) rule_if = 'if' compound_list 'then' compound_list [else_clause] 'fi'
 
@@ -61,4 +60,11 @@ WORD
 (22) element =
         WORD
         | redirection
-*/
+
+(23)rule_case = 'case' WORD {'\n'} 'in' {'\n'} [case_clause] 'esac' ;
+
+(24)case_clause = case_item { ';;' {'\n'} case_item } [';;'] {'\n'} ;
+
+(25)case_item = ['('] WORD { '|' WORD } ')' {'\n'} [compound_list] ;
+
+(26)funcdec = WORD '(' ')' {'\n'} shell_command ;

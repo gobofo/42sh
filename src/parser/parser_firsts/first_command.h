@@ -10,6 +10,7 @@
 #include "first_loop.h"
 #include "first_sequence.h"
 #include "first_token.h"
+#include "switch_first.h"
 
 bool first_command(struct token *token);
 bool first_shell_command(struct token *token);

@@ -13,7 +13,7 @@ bool follow_command(struct token *token)
     return type == PIPE || type == AND || type == OR || type == SEMICOLON
         || type == NEWLINE || type == THEN || type == DO || type == DONE
         || type == ELSE || type == ELIF || type == FI || type == R_BRACE
-        || type == R_PAREN;
+        || type == R_PAREN || type == D_SEMICOLON || type == ESAC;
 }
 
 bool follow_shell_command(struct token *token)
@@ -24,7 +24,7 @@ bool follow_shell_command(struct token *token)
     return type == REDIR || type == PIPE || type == AND || type == OR
         || type == SEMICOLON || type == NEWLINE || type == THEN || type == DO
         || type == DONE || type == ELSE || type == ELIF || type == FI
-        || type == R_BRACE || type == R_PAREN;
+        || type == R_BRACE || type == R_PAREN || type == D_SEMICOLON || type == ESAC;
 }
 
 bool follow_simple_command(struct token *token)

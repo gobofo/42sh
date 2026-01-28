@@ -11,6 +11,7 @@ enum types
     FI,
 
     // END OF COMMAND
+    D_SEMICOLON,
     SEMICOLON,
     NEWLINE,
 
