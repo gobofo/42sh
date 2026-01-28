@@ -49,8 +49,11 @@ unit_tests-lexer_tests.o: lexer_tests.c /usr/include/stdc-predef.h \
  /usr/include/bits/thread-shared-types.h \
  /usr/include/bits/pthreadtypes-arch.h \
  /usr/include/bits/atomic_wide_counter.h /usr/include/bits/struct_mutex.h \
- /usr/include/bits/struct_rwlock.h ../../src/lexer/../token.h \
- ../../src/lexer/lexer_utils.h
+ /usr/include/bits/struct_rwlock.h ../../src/lexer/lexer_utils.h \
+ ../../src/lexer/../token.h ../../src/lexer/input_stack.h \
+ ../../src/lexer/../environment/environment.h \
+ ../../src/lexer/../environment/../hash_map/hash_map.h \
+ ../../src/lexer/../hash_map/hash_map.h
 /usr/include/stdc-predef.h:
 /usr/include/criterion/criterion.h:
 /usr/include/criterion/types.h:
@@ -134,5 +137,9 @@ unit_tests-lexer_tests.o: lexer_tests.c /usr/include/stdc-predef.h \
 /usr/include/bits/atomic_wide_counter.h:
 /usr/include/bits/struct_mutex.h:
 /usr/include/bits/struct_rwlock.h:
-../../src/lexer/../token.h:
 ../../src/lexer/lexer_utils.h:
+../../src/lexer/../token.h:
+../../src/lexer/input_stack.h:
+../../src/lexer/../environment/environment.h:
+../../src/lexer/../environment/../hash_map/hash_map.h:
+../../src/lexer/../hash_map/hash_map.h:

@@ -7,8 +7,9 @@ unit_tests_SOURCES = \
 	export_tests.c \
 	unset_tests.c \
     $(top_srcdir)/src/environment/environment.c \
+	$(top_srcdir)/src/lexer/input_stack.c \
     $(top_srcdir)/src/ast/ast.c \
-    $(top_srcdir)/src/hash_map/hash_map.c $(top_srcdir)/src/hash_map/hash.c \ 
+    $(top_srcdir)/src/hash_map/hash_map.c $(top_srcdir)/src/hash_map/hash.c \
     $(top_srcdir)/src/lexer/lexer_utils.c \
     $(top_srcdir)/src/lexer/lexer.c \
 	$(top_srcdir)/src/execution/builtins/my_echo/my_echo.c \

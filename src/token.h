@@ -46,6 +46,10 @@ enum types
     L_PAREN,
     R_PAREN,
 
+	// SWITCH
+	CASE,
+	ESAC,
+
     // SUBSHELL
     SUBSHELL,
 
