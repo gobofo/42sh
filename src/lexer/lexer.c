@@ -409,6 +409,7 @@ struct token *read_input(FILE *file)
             // Sync the stream
             fflush(stream);
 
+
             if (size > 0 && c!='!')
                 return empty_stream(file, &stream, &buffer, c);
 
@@ -416,7 +417,19 @@ struct token *read_input(FILE *file)
             // the delim, return the current token, then read again the
             // delim So once the token is processed we put back the delim in
             // the file stream. This way it can be read again.
+
             fputc(c, stream);
+
+            if(c==';'){
+
+              int next = fgetc(file); // regarde le next pour savoir si c est un ;
+              if(next==';'){
+                fputc(next, stream);// alors on l ajoute pour le token D_SEMICOLON
+              }
+              else{
+                ungetc(next,file); //Sinon on le remet
+              }
+            }
 
             return flush_stream(stream, &buffer);
         }

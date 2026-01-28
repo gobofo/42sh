@@ -6,6 +6,7 @@ libparser_a_SOURCES =  parser.h \
 					   parser_fnct/parser_loop.c \
 					   parser_fnct/parser_sequence.c \
 					   parser_fnct/parser_token.c \
+					   parser_fnct/parser_switch.c \
 					   usefull_fnct.c \
 					   parser_firsts/first_command.c \
 					   parser_firsts/first_command.h \
@@ -17,6 +18,8 @@ libparser_a_SOURCES =  parser.h \
 					   parser_firsts/first_loop.h \
 					   parser_firsts/first_token.c \
 					   parser_firsts/first_token.h \
+					   parser_firsts/switch_first.c \
+					   parser_firsts/switch_first.h \
 					   parser_follows/follow_command.c \
 					   parser_follows/follow_command.h \
 					   parser_follows/follow_sequence.c \
@@ -27,6 +30,8 @@ libparser_a_SOURCES =  parser.h \
 					   parser_follows/follow_loop.h \
 					   parser_follows/follow_token.c \
 					   parser_follows/follow_token.h \
+					   parser_follows/switch_follow.c \
+					   parser_follows/switch_follow.h \
 					   usefull_fnct.h \
 					   print_parser.c 
 

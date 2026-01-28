@@ -1,6 +1,6 @@
 #include "lexer.h"
 #include "lexer_utils.h"
-#include "token.h"
+#include "../token.h"
 
 /**
  * Fichier de test pour le lexer.
@@ -20,8 +20,9 @@ static const struct type_string_map debug_names[] = {
 	{ ELSE, "ELSE" },
 	{ FI, "FI" },
 
-	{ SEMICOLON, "SEMICOLON" },
-	{ NEWLINE, "NEWLINE" },
+    { SEMICOLON, "SEMICOLON" },
+    { D_SEMICOLON, "D_SEMICOLON" },
+    { NEWLINE, "NEWLINE" },
 
 	{ S_QUOTE, "S_QUOTE" },
 	{ D_QUOTE, "D_QUOTE" },
@@ -52,7 +53,11 @@ static const struct type_string_map debug_names[] = {
 
 	{ SUBSHELL, "SUBSHELL" },
 
-	{ 0, NULL }
+
+    { CASE, "CASE" },
+    { ESAC, "ESAC" },
+
+    { 0, NULL }
 };
 
 static const char *get_type(enum types type)
