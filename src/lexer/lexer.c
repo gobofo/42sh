@@ -395,6 +395,37 @@ static void handle_command_sub(FILE *file, FILE **stream, int *c)
 	}
 }
 
+static struct token *handle_operators(FILE *file, FILE **stream, char **buffer, 
+		int c)
+{
+	fputc(c, *stream);
+
+	int next_c = fgetc(file);
+	if (next_c == EOF)
+		return NULL;
+
+	// A double is found
+	if (next_c == c)
+	{
+		fputc(next_c, *stream);
+
+		return flush_stream(*stream, buffer);
+	}
+	// No double is found and we are in a pipe case
+	else if (c == '|')
+	{
+		// Put back the next character since it is part of a different
+		// token than the pipe
+		ungetc(next_c, file);
+
+		return flush_stream(*stream, buffer);
+	}
+
+	ungetc(next_c, file);
+
+	return NULL;
+}
+
 // #####################
 // #   INPUT READING   #
 // #####################
@@ -412,46 +443,43 @@ static void handle_command_sub(FILE *file, FILE **stream, int *c)
  * @return			The next valid token in the stream
  */
 
-struct token *read_input(FILE *file)
+// 69 LINES
+struct token *read_input(struct lexer *lexer)
 {
-    int in_var = 0;
-    int c;
-
-    char *buffer = NULL;
-
-    size_t size = 0;
-
-    FILE *stream = open_memstream(&buffer, &size);
+    lexer->in_var = 0;
+    lexer->size = 0;
+    lexer->buffer = NULL;
+    lexer->stream = open_memstream(&buffer, &size);
 
     // We read each character in the input one by one
     // Each time we encounter a token delimiter we create a new token
     // Store it in our list of tokens
-    while ((c = fgetc(file)) != EOF)
+    while ((lexer->c = fgetc(lexer->stack->file)) != EOF)
     {
-        if (c == '\\')
+        if (lexer->c == '\\')
         {
-            fputc(c, stream);
-            c = fgetc(file);
-            fputc(c, stream);
+            fputc(lexer->c, lexer->stream);
+            lexer->c = fgetc(lexer->stack->file);
+            fputc(lexer->c, lexer->stream);
             continue;
         }
 
         // A whitespace marks the end of the token
-        if (c == ' ' || c == '\t')
+        if (lexer->c == ' ' || lexer->c == '\t')
         {
-            fflush(stream);
+            fflush(lexer->stream);
 
             if (size == 0)
                 continue;
 
-            return flush_stream(stream, &buffer);
+            return flush_stream(lexer->stream, &buffer);
         }
 
         // Same as before but those charcacters need to be safed as tokens
         if (c == ';' || c == '\n' || c == '!')
         {
             // Sync the stream
-            fflush(stream);
+            fflush(lexer->stream);
 
             if (size > 0 && c != '!')
                 return empty_stream(file, &stream, &buffer, c);
@@ -460,93 +488,52 @@ struct token *read_input(FILE *file)
             // the delim, return the current token, then read again the
             // delim So once the token is processed we put back the delim in
             // the file stream. This way it can be read again.
-            fputc(c, stream);
+            fputc(c, lexer->stream);
 
             return flush_stream(stream, &buffer);
         }
 
-        if (c == '(' || c == ')' || c == '`')
+        if (c == '(' || lexer->c == ')' || lexer->c == '`')
         {
-            fflush(stream);
+            fflush(lexer->stream);
 
-            if ((c == '(' && size > 0 && buffer[size - 1] == '$') || c == '`')
+            if ((lexer->c == '(' && size > 0 && buffer[size - 1] == '$') || lexer->c == '`')
             {
-				handle_command_sub(file, &stream, &c);
-//                int nesting = 0;
-//				int back_quote = 0;
-//
-//				if (c == '(')
-//					nesting++;
-//				else
-//					back_quote++;
-//
-//				if (c == '(')
-//					fputc(c, stream);
-//				else
-//					fputs("$(", stream);
-//
-//				while ((back_quote > 0 || nesting > 0) && (c = fgetc(file)) != EOF)
-//				{
-//					if (c == '(')
-//						nesting++;
-//					if (c == ')')
-//						nesting--;
-//
-//					if (c == '\\')
-//					{
-//						c = fgetc(file);
-//						
-//						if (c != '`')
-//							fputc('\\', stream);
-//						
-//						fputc(c, stream);
-//
-//						continue;
-//					}
-//
-//					if (back_quote == 1 && c == '`')
-//					{
-//						fputc(')', stream);
-//						break;
-//					}
-//
-//                    fputc(c, stream);
-//                }
-
+				handle_command_sub(file, &stream, &lexer->c);
                 continue;
             }
 
             if (size > 0)
-                return empty_stream(file, &stream, &buffer, c);
+                return empty_stream(file, &stream, &buffer, lexer->c);
 
-			fputc(c, stream);
+			fputc(lexer->c, lexer->stream);
 
             return flush_stream(stream, &buffer);
         }
 
-        if (c == '{' || c == '}')
+        if (lexer->c == '{' || lexer->c == '}')
         {
-            fflush(stream);
+            fflush(lexer->stream);
 
-            if (c == '{' && size > 0 && buffer[size - 1] == '$')
+            if (lexer->c == '{' && size > 0 && buffer[size - 1] == '$')
             {
                 in_var = 1;
-                fputc(c, stream);
+                fputc(lexer->c, lexer->stream);
 
                 continue;
             }
 
-            if (c == '}' && in_var)
+            if (lexer->c == '}' && in_var)
             {
                 in_var = 0;
-                fputc(c, stream);
+                fputc(lexer->c, lexer->stream);
                 continue;
             }
 
             if (size > 0)
                 return empty_stream(file, &stream, &buffer, c);
 
-            fputc(c, stream);
+            fputc(lexer->c, lexer->stream);
 
             return flush_stream(stream, &buffer);
         }
@@ -555,54 +542,34 @@ struct token *read_input(FILE *file)
         // For the | it can also be considered as a pipe if it is alone.
         // If one this two charcaters is found we need to check if the next one
         // is also the same character.
-        if (c == '|' || c == '&')
+        if (lexer->c == '|' || lexer->c == '&')
         {
-            fflush(stream);
+            fflush(lexer->stream);
 
             if (size > 0)
                 return empty_stream(file, &stream, &buffer, c);
 
-            fputc(c, stream);
+			struct token *tok = handle_operators(file, &stream, &buffer, c);
+			if (tok != NULL)
+				return tok;
 
-            int next_c = fgetc(file);
-            if (next_c == EOF)
-                break;
-
-            // A double is found
-            if (next_c == c)
-            {
-                fputc(next_c, stream);
-
-                return flush_stream(stream, &buffer);
-            }
-            // No double is found and we are in a pipe case
-            else if (c == '|')
-            {
-                // Put back the next character since it is part of a different
-                // token than the pipe
-                ungetc(next_c, file);
-
-                return flush_stream(stream, &buffer);
-            }
-
-            ungetc(next_c, file);
             continue;
         }
 
-        if (c == '\'' || c == '"')
+        if (lexer->c == '\'' || lexer->c == '"')
         {
             handle_quotes(file, &stream, &c);
 
-            if (c == -2)
+            if (lexer->c == -2)
                 continue;
         }
 
-        if (c == '#')
+        if (lexer->c == '#')
             hanlde_comments(file, &stream, &size, &c);
 
-        fflush(stream);
+        fflush(lexer->stream);
 
-        if (('0' <= c && c <= '9' && size == 0) || c == '<' || c == '>')
+        if (('0' <= lexer->c && lexer->c <= '9' && size == 0) || lexer->c == '<' || lexer->c == '>')
         {
             // If we find a character potentially identifying a redirection, we
             // read the next characters (until 3 read since the max size of a
@@ -610,7 +577,7 @@ struct token *read_input(FILE *file)
             // If we found a valid redirection then we return the token found,
             // else we keep going.
 			
-			if (is_redir_c(c) && size > 0)
+			if (is_redir_c(lexer->c) && size > 0)
 				return empty_stream(file, &stream, &buffer, c);
 
             struct token *token = handle_redir(file, &stream, &buffer, c);
@@ -619,8 +586,8 @@ struct token *read_input(FILE *file)
                 return token;
         }
 
-        if (c != EOF && c != '\n')
-            fputc(c, stream);
+        if (lexer->c != EOF && lexer->c != '\n')
+            fputc(lexer->c, lexer->stream);
     }
 
     return flush_stream(stream, &buffer);
