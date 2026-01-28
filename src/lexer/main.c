@@ -1,6 +1,6 @@
 #include "lexer.h"
 #include "lexer_utils.h"
-#include "token.h"
+#include "../token.h"
 
 /**
  * Fichier de test pour le lexer.
@@ -21,6 +21,7 @@ static const struct type_string_map debug_names[] = {
     { FI, "FI" },
 
     { SEMICOLON, "SEMICOLON" },
+    { D_SEMICOLON, "D_SEMICOLON" },
     { NEWLINE, "NEWLINE" },
 
     { S_QUOTE, "S_QUOTE" },
@@ -51,6 +52,10 @@ static const struct type_string_map debug_names[] = {
     { R_PAREN, "R_PAREN" },
 
     { SUBSHELL, "SUBSHELL" },
+
+
+    { CASE, "CASE" },
+    { ESAC, "ESAC" },
 
     { 0, NULL }
 };

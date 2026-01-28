@@ -11,6 +11,7 @@
 #include "follow_loop.h"
 #include "follow_sequence.h"
 #include "../parser_firsts/first_token.h"
+#include "switch_follow.h"
 
 bool follow_prefix(struct token *token);
 bool follow_redirection(struct token *token);

@@ -14,19 +14,24 @@ struct AST *rule_case(struct lexer **lexer){
 
     *lexer = eat(*lexer);//mange le case
 
-    if (!is_valid_world(*lexer)){//pas un vrai mot
+    if (!is_valid_word(*lexer)){//pas un vrai mot
         goto err;
     }
 
     ast->content = strdup(get_current_content(*lexer));
+    *lexer = eat(*lexer);//mange le case
 
-    eat_newline(lexer); //mange les nouvelle lignes
+
+    eat_newlines(lexer); //mange les nouvelle lignes
 
     if (!get_current_token(*lexer) || get_current_type(*lexer) != IN){//pas de in
         goto err;
     }
 
-    eat_newline(lexer);//mange {\n}
+    *lexer = eat(*lexer);//mange le case
+
+
+    eat_newlines(lexer);//mange {\n}
 
     if (first_case_clause(get_current_token(*lexer))){ //si case_clause
         struct AST *children = case_clause(lexer);
@@ -43,7 +48,8 @@ struct AST *rule_case(struct lexer **lexer){
         goto err;
 
     }
-
+    
+    *lexer = eat(*lexer);//mange le case
     return ast;
 
 err:
@@ -73,21 +79,16 @@ struct AST *case_clause(struct lexer **lexer){
     ast = add_children(ast, child); // premier child
 
 
-    while (get_current_token(*lexer) && get_current_type(*lexer) == SEMICOLON){
+    while (get_current_token(*lexer) && get_current_type(*lexer) == D_SEMICOLON){
 
         *lexer = eat(*lexer);
 
-        if (get_current_token(*lexer)){ //vide
+        /*if (get_current_token(*lexer)){ //vide
             goto err;
         }
+        */
 
-        if (get_current_type(*lexer) != SEMICOLON){ //pas double semicolon
-            goto err;
-        }
-
-        *lexer = eat(*lexer);
-
-        eat_newline(lexer);
+        eat_newlines(lexer);
 
         if (follow_case_clause(get_current_token(*lexer))){ //fin de la grammaire
             return ast;
@@ -173,7 +174,7 @@ struct AST *case_item(struct lexer **lexer){
 
     *lexer = eat(*lexer);//mange la )
 
-    eat_newline(lexer);// mange les {\n}
+    eat_newlines(lexer);// mange les {\n}
 
     if (follow_case_item(get_current_token(*lexer))){ //pas de coumpound_list
         return ast;
@@ -185,7 +186,7 @@ struct AST *case_item(struct lexer **lexer){
         goto err;
     }
 
-    struct AST *children = coumpound_list(lexer); //creer l'arbre compound list
+    struct AST *children = compound_list(lexer); //creer l'arbre compound list
 
     if (children == NULL){ //err dans compound list
         goto err;

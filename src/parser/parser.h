@@ -22,6 +22,7 @@
 #include "parser_firsts/first_loop.h"
 #include "parser_firsts/first_sequence.h"
 #include "parser_firsts/first_token.h"
+#include "parser_firsts/switch_first.h"
 
 /* ============= FOLLOW ============= */
 
@@ -30,6 +31,7 @@
 #include "parser_follows/follow_loop.h"
 #include "parser_follows/follow_sequence.h"
 #include "parser_follows/follow_token.h"
+#include "parser_follows/switch_follow.h"
 
 /* ============= GRAMMAR ============= */
 
