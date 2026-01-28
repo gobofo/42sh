@@ -67,7 +67,7 @@ struct lexer *get_token(struct lexer *lexer)
 	// Else we return the token just read in the input
     if (lexer->next == NULL)
 	{
-        tok = read_input(lexer->stack->file);
+        tok = read_input(lexer);
 	}
 	else
     {
@@ -124,7 +124,7 @@ void next_token(struct lexer **lexer)
 	if ((*lexer)->next != NULL)
 		free_token((*lexer)->next);
 
-	(*lexer)->next = read_input((*lexer)->stack->file);
+	(*lexer)->next = read_input(*lexer);
 }
 
 // ##############
@@ -145,17 +145,17 @@ void next_token(struct lexer **lexer)
  * @return 			The token in the stream
  */
 
-static struct token *flush_stream(FILE *stream, char **buffer)
+static struct token *flush_stream(struct lexer *lexer)
 {
-    fclose(stream);
+    fclose(lexer->stream);
 
-    struct token *new_token = create_token(*buffer);
+    struct token *new_token = create_token(lexer->buffer);
 
     if (!new_token)
 	{
-        free(*buffer);
+        free(lexer->buffer);
 		
-		*buffer = NULL;
+		lexer->buffer = NULL;
 	}
 
     return new_token;
@@ -179,12 +179,11 @@ static struct token *flush_stream(FILE *stream, char **buffer)
  * @return			The token before the delim
  */
 
-static struct token *empty_stream(FILE *file, FILE **stream, char **buffer,
-                                  char c)
+static struct token *empty_stream(struct lexer *lexer)
 {
-    ungetc(c, file);
+    ungetc(lexer->c, lexer->stack->file);
 
-    return flush_stream(*stream, buffer);
+    return flush_stream(lexer);
 }
 
 // ######################
@@ -202,44 +201,44 @@ static struct token *empty_stream(FILE *file, FILE **stream, char **buffer,
  * @param c			The start of the quoting token
  */
 
-static void handle_quotes(FILE *file, FILE **stream, int *c)
+static void handle_quotes(struct lexer *lexer)
 {
-    int open_quote = *c;
+    int open_quote = lexer->c;
 
-    fputc(*c, *stream);
+    fputc(lexer->c, lexer->stream);
 
     // While we not find the corresponding closing quote we add each char
     // between the quotes in the stream
-    while ((*c = fgetc(file)) != EOF && *c != open_quote)
+    while ((lexer->c = fgetc(lexer->stack->file)) != EOF && lexer->c != open_quote)
     {
         // In double quotes, some characters can be escaped with the \ so when
         // one is found we have to take a particular action
-        if (*c == '\\' && open_quote == '"')
+        if (lexer->c == '\\' && open_quote == '"')
         {
-            int next = fgetc(file);
+            int next = fgetc(lexer->stack->file);
 
             if (next != EOF)
             {
                 if (next == '$' || next == '`' || next == '"' || next == '\\'
                     || next == '\n')
                 {
-                    fputc('\\', *stream);
-                    fputc(next, *stream);
+                    fputc('\\', lexer->stream);
+                    fputc(next, lexer->stream);
                 }
                 else
                 {
-                    ungetc(next, file);
+                    ungetc(next, lexer->stack->file);
                 }
             }
         }
 
-        fputc(*c, *stream);
+        fputc(lexer->c, lexer->stream);
 
         // If we find the closing quote then we indicate it by setting the
         // value of the char to something we know is not possible
-        if (*c == open_quote)
+        if (lexer->c == open_quote)
         {
-            *c = -2;
+            lexer->c = -2;
             return;
         }
     }
@@ -259,18 +258,19 @@ static void handle_quotes(FILE *file, FILE **stream, int *c)
  * @param c			The start of the quoting token
  */
 
-static void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
+static void hanlde_comments(struct lexer *lexer)
 {
-    fflush(*stream);
+    fflush(lexer->stream);
 
-    if (*size == 0)
+    if (lexer->size == 0)
     {
-        while ((*c = fgetc(file)) != EOF && *c != '\n')
+        while ((lexer->c = fgetc(lexer->stack->file)) != EOF &&
+				lexer->c != '\n')
             ;
     }
 
-    if (*c == '\n')
-        ungetc(*c, file);
+    if (lexer->c == '\n')
+        ungetc(lexer->c, lexer->stack->file);
 }
 
 /**
@@ -290,14 +290,13 @@ static void hanlde_comments(FILE *file, FILE **stream, size_t *size, int *c)
  * redirection
  */
 
-static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
-                                  int c)
+static struct token *handle_redir(struct lexer *lexer)
 {
     char buff[4] = { 0 };
 
-    buff[0] = c;
+    buff[0] = lexer->c;
 
-	int next = fgetc(file);
+	int next = fgetc(lexer->stack->file);
 
 	if (next != EOF)
 	{
@@ -308,7 +307,7 @@ static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
 		if (is_redir_c(buff[1]))
 		{
 			// Get the 3rd char
-			int third = fgetc(file);
+			int third = fgetc(lexer->stack->file);
 			
 			if (third != EOF)
 			{
@@ -317,12 +316,12 @@ static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
 				// We have a redir
 				if (is_redir(buff))
 				{
-					fprintf(*stream, "%s", buff);
-					return flush_stream(*stream, buffer);
+					fprintf(lexer->stream, "%s", buff);
+					return flush_stream(lexer);
 				}
 
 				// Else we put back the third char
-				ungetc(buff[2], file);
+				ungetc(buff[2], lexer->stack->file);
 			}
 
 			buff[2] = '\0';
@@ -331,97 +330,97 @@ static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
 			// dont know if tgt they form a REDIR
 			if (is_redir(buff))
 			{
-				fprintf(*stream, "%s", buff);
-				return flush_stream(*stream, buffer);
+				fprintf(lexer->stream, "%s", buff);
+				return flush_stream(lexer);
 			}
 		}
 
 		// We could not create a 3 or 2 char redir so we try for a single char
-		ungetc(buff[1], file);
+		ungetc(buff[1], lexer->stack->file);
 	}
 
     buff[1] = '\0';
 
     if (is_redir(buff))
     {
-        fprintf(*stream, "%s", buff);
-        return flush_stream(*stream, buffer);
+        fprintf(lexer->stream, "%s", buff);
+        return flush_stream(lexer);
     }
 
     return NULL;
 }
 
-static void handle_command_sub(FILE *file, FILE **stream, int *c)
+static void handle_command_sub(struct lexer *lexer)
 {
 	int nesting = 0;
 	int back_quote = 0;
 
-	if (*c == '(')
+	if (lexer->c == '(')
 		nesting++;
 	else
 		back_quote++;
 
-	if (*c == '(')
-		fputc(*c, *stream);
+	if (lexer->c == '(')
+		fputc(lexer->c, lexer->stream);
 	else
-		fputs("$(", *stream);
+		fputs("$(", lexer->stream);
 
-	while ((back_quote > 0 || nesting > 0) && (*c = fgetc(file)) != EOF)
+	while ((back_quote > 0 || nesting > 0) &&
+			(lexer->c = fgetc(lexer->stack->file)) != EOF)
 	{
-		if (*c == '(')
+		if (lexer->c == '(')
 			nesting++;
-		if (*c == ')')
+		if (lexer->c == ')')
 			nesting--;
 
-		if (*c == '\\')
+		if (lexer->c == '\\')
 		{
-			*c = fgetc(file);
+			lexer->c = fgetc(lexer->stack->file);
 
-			if (*c != '`')
-				fputc('\\', *stream);
+			if (lexer->c != '`')
+				fputc('\\', lexer->stream);
 
-			fputc(*c, *stream);
+			fputc(lexer->c, lexer->stream);
 
 			continue;
 		}
 
-		if (back_quote == 1 && *c == '`')
+		if (back_quote == 1 && lexer->c == '`')
 		{
-			fputc(')', *stream);
+			fputc(')', lexer->stream);
 			break;
 		}
 
-		fputc(*c, *stream);
+		fputc(lexer->c, lexer->stream);
 	}
 }
 
-static struct token *handle_operators(FILE *file, FILE **stream, char **buffer, 
-		int c)
+static struct token *handle_operators(struct lexer *lexer)
 {
-	fputc(c, *stream);
+	fputc(lexer->c, lexer->stream);
 
-	int next_c = fgetc(file);
+	int next_c = fgetc(lexer->stack->file);
 	if (next_c == EOF)
 		return NULL;
 
 	// A double is found
-	if (next_c == c)
+	if (next_c == lexer->c)
 	{
-		fputc(next_c, *stream);
+		fputc(next_c, lexer->stream);
 
-		return flush_stream(*stream, buffer);
+		return flush_stream(lexer);
 	}
 	// No double is found and we are in a pipe case
-	else if (c == '|')
+	else if (lexer->c == '|')
 	{
 		// Put back the next character since it is part of a different
 		// token than the pipe
-		ungetc(next_c, file);
+		ungetc(next_c, lexer->stack->file);
 
-		return flush_stream(*stream, buffer);
+		return flush_stream(lexer);
 	}
 
-	ungetc(next_c, file);
+	ungetc(next_c, lexer->stack->file);
 
 	return NULL;
 }
@@ -449,7 +448,7 @@ struct token *read_input(struct lexer *lexer)
     lexer->in_var = 0;
     lexer->size = 0;
     lexer->buffer = NULL;
-    lexer->stream = open_memstream(&buffer, &size);
+    lexer->stream = open_memstream(&(lexer->buffer), &(lexer->size));
 
     // We read each character in the input one by one
     // Each time we encounter a token delimiter we create a new token
@@ -469,73 +468,73 @@ struct token *read_input(struct lexer *lexer)
         {
             fflush(lexer->stream);
 
-            if (size == 0)
+            if (lexer->size == 0)
                 continue;
 
-            return flush_stream(lexer->stream, &buffer);
+            return flush_stream(lexer);
         }
 
         // Same as before but those charcacters need to be safed as tokens
-        if (c == ';' || c == '\n' || c == '!')
+        if (lexer->c == ';' || lexer->c == '\n' || lexer->c == '!')
         {
             // Sync the stream
             fflush(lexer->stream);
 
-            if (size > 0 && c != '!')
-                return empty_stream(file, &stream, &buffer, c);
+            if (lexer->size > 0 && lexer->c != '!')
+                return empty_stream(lexer);
 
             // If we were already reading a token, then we need to save
             // the delim, return the current token, then read again the
             // delim So once the token is processed we put back the delim in
             // the file stream. This way it can be read again.
-            fputc(c, lexer->stream);
+            fputc(lexer->c, lexer->stream);
 
-            return flush_stream(stream, &buffer);
+            return flush_stream(lexer);
         }
 
-        if (c == '(' || lexer->c == ')' || lexer->c == '`')
+        if (lexer->c == '(' || lexer->c == ')' || lexer->c == '`')
         {
             fflush(lexer->stream);
 
-            if ((lexer->c == '(' && size > 0 && buffer[size - 1] == '$') || lexer->c == '`')
+            if ((lexer->c == '(' && lexer->size > 0 && lexer->buffer[lexer->size - 1] == '$') || lexer->c == '`')
             {
-				handle_command_sub(file, &stream, &lexer->c);
+				handle_command_sub(lexer);
                 continue;
             }
 
-            if (size > 0)
-                return empty_stream(file, &stream, &buffer, lexer->c);
+            if (lexer->size > 0)
+                return empty_stream(lexer);
 
 			fputc(lexer->c, lexer->stream);
 
-            return flush_stream(stream, &buffer);
+            return flush_stream(lexer);
         }
 
         if (lexer->c == '{' || lexer->c == '}')
         {
             fflush(lexer->stream);
 
-            if (lexer->c == '{' && size > 0 && buffer[size - 1] == '$')
+            if (lexer->c == '{' && lexer->size > 0 && lexer->buffer[lexer->size - 1] == '$')
             {
-                in_var = 1;
+                lexer->in_var = 1;
                 fputc(lexer->c, lexer->stream);
 
                 continue;
             }
 
-            if (lexer->c == '}' && in_var)
+            if (lexer->c == '}' && lexer->in_var)
             {
-                in_var = 0;
+                lexer->in_var = 0;
                 fputc(lexer->c, lexer->stream);
                 continue;
             }
 
-            if (size > 0)
-                return empty_stream(file, &stream, &buffer, c);
+            if (lexer->size > 0)
+                return empty_stream(lexer);
 
             fputc(lexer->c, lexer->stream);
 
-            return flush_stream(stream, &buffer);
+            return flush_stream(lexer);
         }
 
         // Those two characters are considered as operators if they are doubled
@@ -546,10 +545,10 @@ struct token *read_input(struct lexer *lexer)
         {
             fflush(lexer->stream);
 
-            if (size > 0)
-                return empty_stream(file, &stream, &buffer, c);
+            if (lexer->size > 0)
+                return empty_stream(lexer);
 
-			struct token *tok = handle_operators(file, &stream, &buffer, c);
+			struct token *tok = handle_operators(lexer);
 			if (tok != NULL)
 				return tok;
 
@@ -558,18 +557,18 @@ struct token *read_input(struct lexer *lexer)
 
         if (lexer->c == '\'' || lexer->c == '"')
         {
-            handle_quotes(file, &stream, &c);
+            handle_quotes(lexer);
 
             if (lexer->c == -2)
                 continue;
         }
 
         if (lexer->c == '#')
-            hanlde_comments(file, &stream, &size, &c);
+            hanlde_comments(lexer);
 
         fflush(lexer->stream);
 
-        if (('0' <= lexer->c && lexer->c <= '9' && size == 0) || lexer->c == '<' || lexer->c == '>')
+        if (('0' <= lexer->c && lexer->c <= '9' && lexer->size == 0) || lexer->c == '<' || lexer->c == '>')
         {
             // If we find a character potentially identifying a redirection, we
             // read the next characters (until 3 read since the max size of a
@@ -577,10 +576,10 @@ struct token *read_input(struct lexer *lexer)
             // If we found a valid redirection then we return the token found,
             // else we keep going.
 			
-			if (is_redir_c(lexer->c) && size > 0)
-				return empty_stream(file, &stream, &buffer, c);
+			if (is_redir_c(lexer->c) && lexer->size > 0)
+				return empty_stream(lexer);
 
-            struct token *token = handle_redir(file, &stream, &buffer, c);
+            struct token *token = handle_redir(lexer);
 
             if (token)
                 return token;
@@ -590,7 +589,7 @@ struct token *read_input(struct lexer *lexer)
             fputc(lexer->c, lexer->stream);
     }
 
-    return flush_stream(stream, &buffer);
+    return flush_stream(lexer);
 }
 
 // #############
