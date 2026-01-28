@@ -10,6 +10,7 @@
 #include "follow_command.h"
 #include "follow_condition.h"
 #include "follow_sequence.h"
+#include "switch_follow.h"
 
 bool follow_rule_while(struct token *token);
 bool follow_rule_until(struct token *token);

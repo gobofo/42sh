@@ -22,6 +22,7 @@
 #include "parser_firsts/first_loop.h"
 #include "parser_firsts/first_sequence.h"
 #include "parser_firsts/first_token.h"
+#include "parser_firsts/switch_first.h"
 
 /* ============= FOLLOW ============= */
 
@@ -30,6 +31,7 @@
 #include "parser_follows/follow_loop.h"
 #include "parser_follows/follow_sequence.h"
 #include "parser_follows/follow_token.h"
+#include "parser_follows/switch_follow.h"
 
 /* ============= GRAMMAR ============= */
 
@@ -59,6 +61,14 @@
    | rule_while
    | rule_until
    | rule_for
+   | rule_case
+
+rule_case = 'case' WORD {'\n'} 'in' {'\n'} [case_clause] 'esac'
+
+case_clause = case_item { ';;' {'\n'} case_item } [';;'] {'\n'}
+
+case_item = ['('] WORD { '|' WORD } ')' {'\n'} [compound_list]
+
 
 funcdec = WORD '(' ')' {'\n'} shell_command ;
 
@@ -91,6 +101,7 @@ funcdec = WORD '(' ')' {'\n'} shell_command ;
 (22) element =
         ( WORD | SUBSHELL )
         | redirection
+
 */
 
 /* ============= FONCTION DE DEPART ============= */
@@ -115,5 +126,8 @@ struct AST *rule_for(struct lexer **lexer);
 struct AST *rule_while(struct lexer **lexer);
 struct AST *rule_until(struct lexer **lexer);
 struct AST *funcdec(struct lexer **lexer);
+struct AST *rule_case(struct lexer **lexer);
+struct AST *case_clause(struct lexer **lexer);
+struct AST *case_item(struct lexer **lexer);
 
 #endif /* ! PARSER_H */

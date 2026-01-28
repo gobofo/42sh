@@ -10,6 +10,7 @@
 #include "first_condition.h"
 #include "first_loop.h"
 #include "first_sequence.h"
+#include "switch_first.h"
 
 bool first_prefix(struct token *token);
 bool first_redirection(struct token *token);

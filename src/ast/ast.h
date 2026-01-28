@@ -23,7 +23,10 @@ enum rule
     AST_REDIR,
     AST_ASSIGNEMENT,
     AST_FUNC,
-    AST_SUB
+    AST_SUB,
+    AST_CASE,
+    AST_CASE_ITEM,
+    AST_CASE_CLAUSE
 
 };
 
