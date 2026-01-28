@@ -859,6 +859,170 @@ start_if
 echo yes
 fi" "partial grammar expansion"
 
+echo "###################################################"
+echo "IFS - DEFAULT IFS BEHAVIOR"
+echo "###################################################"
+
+# Default IFS is space, tab, and newline
+test_cmd "x='a b c'; echo \$x" "default IFS variable expansion"
+test_cmd "x='a	b	c'; echo \$x" "default IFS with tabs"
+test_cmd "x='a
+b
+c'; echo \$x" "default IFS with newlines"
+test_cmd "echo \$(echo 'a b c')" "default IFS command substitution"
+test_cmd "x=\$(echo 'hello world'); echo \$x" "default IFS assign from command sub"
+
+echo "###################################################"
+echo "IFS - CUSTOM IFS VALUES"
+echo "###################################################"
+
+# Using colon as IFS
+test_cmd "IFS=:; x='a:b:c'; echo \$x" "IFS colon separator"
+test_cmd "IFS=:; echo \$(echo 'a:b:c')" "IFS colon command sub"
+test_cmd "IFS=,; x='one,two,three'; echo \$x" "IFS comma separator"
+test_cmd "IFS=/; x='usr/bin/ls'; echo \$x" "IFS slash separator"
+test_cmd "IFS=.; x='file.txt.bak'; echo \$x" "IFS dot separator"
+
+echo "###################################################"
+echo "IFS - EMPTY IFS (NO SPLITTING)"
+echo "###################################################"
+
+# Empty IFS means no field splitting at all
+test_cmd "IFS=; x='a b c'; echo \$x" "empty IFS preserves spaces"
+test_cmd "IFS=''; x='hello world'; echo \$x" "empty IFS quoted preserves"
+test_cmd "IFS=; echo \$(echo 'a b c')" "empty IFS command sub no split"
+test_cmd "IFS=''; x=\$(echo 'one two three'); echo \$x" "empty IFS assign preserves"
+
+echo "###################################################"
+echo "IFS - WHITESPACE VS NON-WHITESPACE DELIMITERS"
+echo "###################################################"
+
+# Whitespace IFS chars (space, tab, newline) behave differently
+test_cmd "IFS=' '; x='a  b  c'; echo \$x" "IFS space multiple delimiters"
+test_cmd "IFS=':'; x='a::b::c'; echo \$x" "IFS colon multiple delimiters"
+test_cmd "IFS=' '; x='  a  b  '; echo \$x" "IFS space leading trailing"
+test_cmd "IFS=':'; x='::a::b::'; echo \$x" "IFS colon leading trailing"
+
+echo "###################################################"
+echo "IFS - LEADING AND TRAILING DELIMITERS"
+echo "###################################################"
+
+test_cmd "x='  hello  '; echo \$x" "default IFS trim whitespace"
+test_cmd "x='	hello	'; echo \$x" "default IFS trim tabs"
+test_cmd "IFS=:; x=':hello:'; echo \$x" "IFS colon preserve empty fields"
+test_cmd "IFS=,; x=',a,b,'; echo \$x" "IFS comma empty fields"
+test_cmd "x='
+hello
+'; echo \$x" "default IFS trim newlines"
+
+echo "###################################################"
+echo "IFS - MIXED WHITESPACE AND NON-WHITESPACE"
+echo "###################################################"
+
+test_cmd "IFS=' :'; x='a:b c:d'; echo \$x" "IFS mixed space colon"
+test_cmd "IFS=': '; x='a: b :c'; echo \$x" "IFS mixed colon space order"
+test_cmd "IFS=' ,'; x='a,b c,d'; echo \$x" "IFS mixed space comma"
+test_cmd "IFS='	:'; x='a:b	c:d'; echo \$x" "IFS mixed tab colon"
+
+echo "###################################################"
+echo "IFS - COMMAND SUBSTITUTION BEHAVIOR"
+echo "###################################################"
+
+# Command substitution strips trailing newlines, then applies IFS
+test_cmd "echo \$(echo a; echo b)" "command sub multiline default IFS"
+test_cmd "echo \$(echo 'a b c')" "command sub spaces default IFS"
+test_cmd "IFS=:; echo \$(echo 'a:b:c')" "command sub custom IFS"
+test_cmd "x=\$(echo 'multiple words'); echo \$x" "assign from command sub"
+test_cmd "x=\$(echo a; echo b); echo \$x" "assign multiline command sub"
+
+echo "###################################################"
+echo "IFS - LOOPS WITH IFS"
+echo "###################################################"
+
+test_cmd "IFS=:; for i in a:b:c; do echo \$i; done" "for loop with IFS colon"
+test_cmd "IFS=,; for i in x,y,z; do echo \$i; done" "for loop with IFS comma"
+test_cmd "for i in \$(echo 'a:b:c'); do echo \$i; done" "for loop command sub default IFS"
+test_cmd "IFS=:; for i in \$(echo 'a:b:c'); do echo \$i; done" "for loop command sub custom IFS"
+
+echo "###################################################"
+echo "IFS - QUOTED CONTEXTS (NO SPLITTING)"
+echo "###################################################"
+
+# IFS should not split in quoted contexts
+test_cmd "x='a b c'; echo \"\$x\"" "quoted variable no split"
+test_cmd "IFS=:; x='a:b:c'; echo \"\$x\"" "quoted variable custom IFS no split"
+test_cmd "echo \"\$(echo 'a b c')\"" "quoted command sub no split"
+test_cmd "IFS=:; echo \"\$(echo 'a:b:c')\"" "quoted command sub custom IFS no split"
+test_cmd "x='hello world'; echo \"test \$x end\"" "quoted mixed content no split"
+
+echo "###################################################"
+echo "IFS - VARIABLE ASSIGNMENTS (NO SPLITTING)"
+echo "###################################################"
+
+# Variable assignments should not perform field splitting
+test_cmd "x=\$(echo 'one two three'); echo \$x" "assign command sub no split"
+test_cmd "IFS=:; x=\$(echo 'a:b:c'); echo \$x" "assign command sub custom IFS no split"
+test_cmd "y='hello world'; x=\$y; echo \$x" "assign from variable no split"
+test_cmd "IFS=:; y='a:b:c'; x=\$y; echo \$x" "assign from variable custom IFS no split"
+
+echo "###################################################"
+echo "IFS - SPECIAL IFS CHARACTERS"
+echo "###################################################"
+
+test_cmd "IFS='|'; x='a|b|c'; echo \$x" "IFS pipe character"
+test_cmd "IFS='&'; x='a&b&c'; echo \$x" "IFS ampersand character"
+test_cmd "IFS=';'; x='a;b;c'; echo \$x" "IFS semicolon character"
+test_cmd "IFS='*'; x='a*b*c'; echo \$x" "IFS asterisk character"
+
+echo "###################################################"
+echo "IFS - MULTIPLE CONSECUTIVE DELIMITERS"
+echo "###################################################"
+
+test_cmd "x='a    b    c'; echo \$x" "multiple spaces collapse"
+test_cmd "x='a		b		c'; echo \$x" "multiple tabs collapse"
+test_cmd "IFS=:; x='a:::b:::c'; echo \$x" "multiple colons create empty fields"
+test_cmd "IFS=,; x='a,,,b,,,c'; echo \$x" "multiple commas create empty fields"
+
+echo "###################################################"
+echo "IFS - COMPLEX SCENARIOS"
+echo "###################################################"
+
+test_cmd "IFS=:; x='a:b c:d'; echo \$x" "IFS colon with spaces"
+test_cmd "IFS=' :'; x='a: b :c  :d'; echo \$x" "complex mixed IFS"
+test_cmd "x=\$(printf 'a\tb\nc'); echo \$x" "command sub with tab and newline"
+test_cmd "IFS=:; for i in \$(echo 'x:y:z'); do echo \$i; done" "for loop complex IFS"
+test_cmd "IFS=,; x=''; echo \"empty:\$x\"" "empty variable with custom IFS"
+
+echo "###################################################"
+echo "IFS - IFS RESTORATION"
+echo "###################################################"
+
+test_cmd "IFS=:; (IFS=' '; x='a b'; echo \$x); x='a:b'; echo \$x" "IFS subshell local"
+test_cmd "OLD_IFS=\$IFS; IFS=:; x='a:b'; IFS=\$OLD_IFS; echo \$x" "IFS restore manual"
+
+echo "###################################################"
+echo "IFS - EDGE CASES"
+echo "###################################################"
+
+test_cmd "IFS=; x=''; echo \"result:\$x\"" "empty IFS empty variable"
+test_cmd "x='   '; echo \"result:\$x\"" "variable only whitespace"
+test_cmd "IFS=:; x=':'; echo \"result:\$x\"" "variable only IFS char"
+test_cmd "IFS=' '; x='a	b'; echo \$x" "IFS space but tab in value"
+test_cmd "IFS='
+'; x='a
+b
+c'; echo \$x" "IFS newline separator"
+
+test_cmd "x=\$(printf 'line1\nline2\nline3'); echo \$x" "command sub with newlines"
+
+echo "###################################################"
+echo "IFS - UNSET IFS (DEFAULT BEHAVIOR)"
+echo "###################################################"
+
+test_cmd "unset IFS; x='a b c'; echo \$x" "unset IFS uses default"
+test_cmd "unset IFS; echo \$(echo 'a b c')" "unset IFS command sub default"
+test_cmd "IFS=:; unset IFS; x='a:b'; echo \$x" "unset IFS after custom"
+
 #----------------- SYNTAX ERRORS -----------------#
 
 echo "###################################################"

@@ -15,6 +15,8 @@
 
 #include "../environment/environment.h"
 
+extern struct env *env;
+
 struct expanded_words
 {
 	char **words;
@@ -26,6 +28,7 @@ struct expansion_context
 	FILE *stream;
 
 	int quoted;
+	int is_assign;
 
 	char **buffer;
 
@@ -34,6 +37,6 @@ struct expansion_context
 	struct expanded_words *words;
 };
 
-char **expand(char *str);
+char **expand(char *str, int is_assign);
 
 #endif /* ! EXPANSION_H */
