@@ -1,34 +1,47 @@
 #include "lexer.h"
 
+extern struct env *env;
+
 /**
  * Initialise un lexer avec un fichier d'entrée.
  * Alloue la structure lexer et lit le premier token depuis l'input.
  * Retourne le lexer initialisé ou NULL en cas d'erreur d'allocation.
  */
+
 struct lexer *init_lexer(FILE *input)
 {
-    struct lexer *lexer = malloc(sizeof(struct lexer));
-    if (!lexer)
-        return NULL;
+	struct lexer *lexer = malloc(sizeof(struct lexer));
+	if (!lexer)
+		return NULL;
 
-    lexer->input = input;
+	struct input_stack *base_input = init_input_stack(input); 
+	if (input == NULL)
+	{
+		free(lexer);
+		return NULL;
+	}
 
-    lexer->current = read_input(input);
-    lexer->next = NULL;
+	lexer->stack = base_input;
+	lexer->next = NULL;
+	lexer->current = NULL;
 
-    return lexer;
+	get_token(lexer);
+
+	return lexer;
 }
 
 void free_lexer(struct lexer *lexer)
 {
-    if (!lexer)
-        return;
+	if (!lexer)
+		return;
 
-    if (lexer->current != NULL)
-        free_token(lexer->current);
+	free(lexer->stack);
 
-    if (lexer->next != NULL)
-        free_token(lexer->next);
+	if (lexer->current != NULL)
+		free_token(lexer->current);
+
+	if (lexer->next != NULL)
+		free_token(lexer->next);
 
     free(lexer);
 }
@@ -46,15 +59,57 @@ void free_lexer(struct lexer *lexer)
  */
 
 struct lexer *get_token(struct lexer *lexer)
-{
+{	
+	struct token *tok = NULL;
+
+	// We look if a look ahead token was read
+	// If yes we use it as our current token
+	// Else we return the token just read in the input
     if (lexer->next == NULL)
-        lexer->current = read_input(lexer->input);
-    else
+	{
+        tok = read_input(lexer->stack->file);
+	}
+	else
     {
-        lexer->current = lexer->next;
+        tok = lexer->next;
         lexer->next = NULL;
     }
 
+	// We read all our current stream and the stack is still not empty after
+	if (tok == NULL && lexer->stack->next != NULL)
+	{
+		pop_input_stack(&(lexer->stack));
+		return get_token(lexer);
+	}
+
+	// We find an alias
+	if (tok != NULL && tok->type == WORDS)
+	{
+		char *value = hash_map_get(env->alias, tok->content);
+
+		int in_alias = 0;
+
+		// We want to avoid getting in a recursion loop of aliases
+		// So if we find an alias containing this alias already we dont expand
+		// again this same alias
+		for (struct input_stack *s = lexer->stack; s != NULL; s = s->next)
+		{
+			if(s->alias_name && strcmp(s->alias_name, tok->content) == 0)
+				in_alias = 1;
+		}
+
+		if (value != NULL && in_alias == 0)
+		{
+			FILE *alias_file = fmemopen(value, strlen(value), "r");
+
+			push_input_stack(&(lexer->stack), alias_file, tok->content);
+
+			free_token(tok);
+			return get_token(lexer);
+		}
+	}
+	
+	lexer->current = tok;
     return lexer;
 }
 
@@ -66,7 +121,10 @@ struct lexer *get_token(struct lexer *lexer)
 
 void next_token(struct lexer **lexer)
 {
-    (*lexer)->next = read_input((*lexer)->input);
+	if ((*lexer)->next != NULL)
+		free_token((*lexer)->next);
+
+	(*lexer)->next = read_input((*lexer)->stack->file);
 }
 
 // ##############
@@ -94,7 +152,11 @@ static struct token *flush_stream(FILE *stream, char **buffer)
     struct token *new_token = create_token(*buffer);
 
     if (!new_token)
+	{
         free(*buffer);
+		
+		*buffer = NULL;
+	}
 
     return new_token;
 }
@@ -372,37 +434,60 @@ struct token *read_input(FILE *file)
             return flush_stream(stream, &buffer);
         }
 
-        if (c == '(' || c == ')')
+        if (c == '(' || c == ')' || c == '`')
         {
             fflush(stream);
 
-            if (c == '(' && size > 0 && buffer[size - 1] == '$')
+            if ((c == '(' && size > 0 && buffer[size - 1] == '$') || c == '`')
             {
-                int nesting = 1;
-                fputc(c, stream);
+                int nesting = 0;
+				int back_quote = 0;
 
-                while (nesting > 0 && (c = fgetc(file)) != EOF)
-                {
-                    if (c == '(')
-                        nesting++;
-                    if (c == ')')
-                        nesting--;
+				if (c == '(')
+					nesting++;
+				else
+					back_quote++;
+
+				if (c == '(')
+					fputc(c, stream);
+				else
+					fputs("$(", stream);
+
+				while ((back_quote > 0 || nesting > 0) && (c = fgetc(file)) != EOF)
+				{
+					if (c == '(')
+						nesting++;
+					if (c == ')')
+						nesting--;
+
+					if (c == '\\')
+					{
+						c = fgetc(file);
+						
+						if (c != '`')
+							fputc('\\', stream);
+						
+						fputc(c, stream);
+
+						continue;
+					}
+
+					if (back_quote == 1 && c == '`')
+					{
+						fputc(')', stream);
+						break;
+					}
 
                     fputc(c, stream);
                 }
 
-                //	struct token *tok = flush_stream(stream, &buffer);
-                //	if (tok)
-                //		tok->type = SUBSHELL;
-
-                //	return tok;
                 continue;
             }
 
             if (size > 0)
                 return empty_stream(file, &stream, &buffer, c);
 
-            fputc(c, stream);
+			fputc(c, stream);
 
             return flush_stream(stream, &buffer);
         }

@@ -32,6 +32,7 @@
 #include "builtins/my_export/my_export.h"
 #include "builtins/my_dot/my_dot.h"
 #include "builtins/operators/operators.h"
+#include "builtins/my_alias/my_alias.h"
 
 struct builtin
 {

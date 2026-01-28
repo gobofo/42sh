@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
     // free env
     hash_map_free(env->variables, free);
     hash_map_free(env->functions, destroy_AST_void);
+	hash_map_free(env->alias, free);
     free_export(env->export_variables);
     free_env(env);
 

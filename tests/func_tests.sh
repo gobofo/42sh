@@ -19,8 +19,8 @@ fi
 test_cmd()
 {
   TOTAL=$((TOTAL + 1))
-  local expected=$(timeout $TIMEOUT bash --posix -c "$1" 2>&1)
-  local actual=$(timeout $TIMEOUT "$BIN_PATH" -c "$1" 2>&1)
+  local expected=$(timeout $TIMEOUT env LC_ALL=C bash --posix -c "$1" 2>&1)
+  local actual=$(timeout $TIMEOUT env LC_ALL=C "$BIN_PATH" -c "$1" 2>&1)
 
   if [ "$expected" = "$actual" ]; then
     SUCCESS=$((SUCCESS + 1))
@@ -298,13 +298,6 @@ test_cmd "false && echo 'no' | cat" "pipe with and"
 test_cmd "true || echo 'no' | cat" "pipe with or"
 
 echo "###################################################"
-echo "STEP 3 - EXIT STATUS & PIPE"
-echo "###################################################"
-
-test_cmd "(exit 42); echo \$?" "42" "subshell exit status"
-test_cmd "f() { return 10; }; f; echo \$?" "10" "function return status"
-
-echo "###################################################"
 echo "STEP 2 - NEGATION"
 echo "###################################################"
 
@@ -506,6 +499,13 @@ test_cmd "if true; then exit 5; fi; echo fail" "exit in if"
 test_cmd "(exit 12); echo \$?" "exit in subshell"
 
 echo "###################################################"
+echo "STEP 3 - EXIT STATUS & PIPE"
+echo "###################################################"
+
+test_cmd "(exit 42); echo \$?" "42" "subshell exit status"
+test_cmd "f() { return 10; }; f; echo \$?" "10" "function return status"
+
+echo "###################################################"
 echo "STEP 3 - CD BUILTIN"
 echo "###################################################"
 
@@ -695,6 +695,33 @@ test_cmd "echo \$(cat /dev/null)" "command sub null"
 test_cmd "f() { echo \$(echo inner); }; f" "command sub in function"
 
 echo "###################################################"
+echo "STEP 3 - COMMAND SUBSTITUTION BACKQUOTE"
+echo "###################################################"
+
+test_cmd "echo '\$(echo no)'" "single quoted dollar sub"
+test_cmd "echo '\`echo no\`'" "single quoted backtick sub"
+test_cmd 'echo `test`' "backquote basic"
+test_cmd 'echo "`test`"' "double quoted backquote"
+test_cmd "echo '\`test\`'" "single quoted backquote"
+test_cmd 'echo `echo simple`' "backquote simple"
+test_cmd 'echo `echo \`echo nested\``' "nested backquote level 2"
+test_error 'echo `echo \`echo \\\`deep\\\`\``' "nested backquote level 3"
+test_cmd 'echo `echo $(echo a) and $(echo b)`' "mixed sub styles"
+test_cmd 'a=test; echo $(echo "$a")' "var expansion in sub double quotes"
+test_cmd "a=test; echo \$(echo '\$a')" "var expansion in sub single quotes (no expansion)"
+test_cmd 'a=test; echo $(echo "x${a}y")' "brace expansion in sub"
+test_cmd 'echo $(echo "(")' "special char in sub"
+test_cmd 'echo $(echo "(test)")' "parens in sub"
+test_cmd 'echo $( (echo subshell) )' "subshell inside cmd sub"
+test_cmd '`echo echo` test' "backtick result as command"
+test_cmd '`echo \`echo echo\`` test' "nested backtick result as command"
+#test_cmd '`echo \`echo \\\`echo echo\\\`\`` test' "deep nested backtick command"
+#test_cmd '`echo \`echo \\\`echo \\\\\\\`echo echo\\\\\\\`\\\`\`` test' "ultra deep backtick escaping"
+test_error '`echo nested`' "backtick execution nested"
+test_error '`echo \`echo level2\``' "backtick execution level 2"
+#test_cmd '`echo \`echo \\\`echo level3\\\`\``' "backtick execution level 3"
+
+echo "###################################################"
 echo "STEP 3 - COMMAND SUBSTITUTION NESTING"
 echo "###################################################"
 
@@ -777,6 +804,60 @@ test_cmd "abc=123; echo \${abc}" "braces expansion"
 test_cmd "echo a | grep a | grep a | grep a | cat" "very long pipe"
 test_cmd 'foo=bar; echo "$foo"_$foo' "mixed quotes raw"
 test_cmd "cat < /dev/null" "input from null"
+
+#----------------- STEP 3: ADVANCED BUILTINS & CONSTRUCTS -----------------#
+
+echo "###################################################"
+echo "STEP 4 - ALIAS BASIC"
+echo "###################################################"
+
+test_cmd "alias l='ls -F'
+l | sort" "simple alias expansion"
+
+test_cmd "alias greet='echo hello world'
+greet" "alias with multiple words"
+
+test_cmd "alias cls='clear'
+alias cls='echo cleared'
+cls" "redefining an alias"
+
+test_cmd "alias my_true='true'
+my_true && echo ok" "alias for a builtin"
+
+echo "###################################################"
+echo "STEP 4 - ALIAS NESTING & RECURSION"
+echo "###################################################"
+
+test_cmd "alias a='echo'
+alias b='a'
+b hello" "nested alias level 2"
+
+test_cmd "alias l='ls -F'
+alias ll='l -l'
+ll | sort" "nested alias"
+
+test_cmd "alias x='echo'
+alias y='x'
+alias z='y'
+z deep" "deep nesting level 3"
+
+test_cmd "alias a='b'; alias b='a'
+a 2>/dev/null || echo 'recursion_guarded'" "indirect recursion guard"
+
+echo "###################################################"
+echo "STEP 4 - ALIAS GRAMMAR & OPERATORS"
+echo "###################################################"
+
+test_cmd "alias list_files='ls | cat'
+list_files | sort" "alias containing a pipe"
+
+test_cmd "alias check='true && echo ok'
+check" "alias with AND operator"
+
+test_cmd "alias start_if='if true; then'
+start_if 
+echo yes
+fi" "partial grammar expansion"
 
 #----------------- SYNTAX ERRORS -----------------#
 
@@ -914,6 +995,7 @@ test_stdin "func() { echo inside; }; func" "stdin function"
 #----------------- CLEANUP -----------------#
 
 rm -rf /tmp/42sh_* /tmp/*_42sh* 2>/dev/null
+rm -rf file in out empty_file
 
 PERCENT=$(($SUCCESS * 100 / $TOTAL))
 echo -e "${BBLU}Succeed:${GRN} $SUCCESS${WHT}"

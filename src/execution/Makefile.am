@@ -12,7 +12,8 @@ libexecution_a_SOURCES = execution.c execution.h \
 						 builtins/my_unset/my_unset.c builtins/my_unset/my_unset.h \
 						 builtins/my_export/my_export.c builtins/my_export/my_export.h\
 						 builtins/my_dot/my_dot.c builtins/my_dot/my_dot.h \
-						 builtins/operators/operators.c builtins/operators/operators.h 
+						 builtins/operators/operators.c builtins/operators/operators.h \
+						 builtins/my_alias/my_alias.c builtins/my_alias/my_alias.h
 
 libexecution_a_CPPFLAGS = -I$(top_srcdir)/src
 
