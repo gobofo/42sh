@@ -11,6 +11,7 @@ enum types
     FI,
 
     // END OF COMMAND
+    D_SEMICOLON,
     SEMICOLON,
     NEWLINE,
 
@@ -50,7 +51,11 @@ enum types
 	ESAC,
 
     // SUBSHELL
-    SUBSHELL
+    SUBSHELL,
+
+    //switch
+    CASE,
+    ESAC
 };
 
 struct token

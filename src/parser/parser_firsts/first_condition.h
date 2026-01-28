@@ -10,6 +10,7 @@
 #include "first_loop.h"
 #include "first_sequence.h"
 #include "first_token.h"
+#include "switch_first.h"
 
 bool first_rule_if(struct token *token);
 bool first_else_clause(struct token *token);
