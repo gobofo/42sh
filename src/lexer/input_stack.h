@@ -14,6 +14,11 @@ struct input_stack
 };
 
 struct input_stack *init_input_stack(FILE *input);
+
+void push_input_stack(struct input_stack **stack,
+		FILE *input, char *alias_name);
+
+void pop_input_stack(struct input_stack **stack)
 void free_input_stack(struct input_stack *stack);
 
 #endif /* ! INPUT_STACK_H */
