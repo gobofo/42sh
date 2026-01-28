@@ -19,7 +19,14 @@
 
 struct lexer
 {
-	FILE *input;
+	int in_var;
+
+	char c;
+	char *buffer;
+
+	size_t size;
+
+	FILE *stream;
 
 	struct token *current;
 	struct token *next;
@@ -33,7 +40,7 @@ void free_lexer(struct lexer *lexer);
 struct lexer *get_token(struct lexer *lexer);
 void next_token(struct lexer **lexer);
 
-struct token *read_input(FILE *file);
+struct token *read_input(struct lexer *lexer);
 
 void free_token(struct token *token);
 
