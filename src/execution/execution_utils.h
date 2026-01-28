@@ -19,4 +19,7 @@ char **create_command(struct AST *root);
 
 struct AST **create_redir(struct AST *root);
 
+bool pattern_match(char* word,char *pattern);
+
+char* join_tab_string(char** expanded_v);
 #endif /* EXECUTION_UTILS_H */

@@ -1,8 +1,9 @@
 #!/bin/sh
-case word in
-a | b | c)
+case abc in
+ab?)
   echo abc
   ;;
+
 x | y)
   echo xy
   ;;

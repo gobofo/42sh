@@ -11,6 +11,44 @@ extern struct env *env;
  * @param root	The AST node
  */
 
+
+char* join_tab_string(char** expanded_v){
+    int count = 0;
+    while (expanded_v[count])
+        count++;
+    if(count==0)
+      return strdup("");
+
+    int total_len = 0;
+    int i = 0;
+
+    while (expanded_v[i])
+    {
+      total_len += strlen(expanded_v[i]);
+      i++;
+    }
+
+    total_len += (count - 1);
+    char *result = malloc(total_len + 1);
+  
+    char* ptr=result;
+    i=0;
+    while(expanded_v[i]){
+      if(i>0){
+        ptr[0]=' ';
+        ptr++;
+      }
+
+      strcpy(ptr,expanded_v[i]);
+      ptr= ptr+ strlen(expanded_v[i]);
+      free(expanded_v[i]);
+      i++;
+    }
+    free(expanded_v);
+    ptr[0]=0;
+    return result;
+}
+
 int variable_assignation(struct AST *root)
 {
     char *key = strtok(root->content, "=");
@@ -123,7 +161,43 @@ int create_function(struct AST *root)
 
 
 
-static int pattern_match(char* word, char *pattern)){
 
 
+bool pattern_match(char* word,char *pattern){
+  if(word[0]==0 || pattern[0]==0){
+    return word[0]==0 && pattern[0]==0;
+  }
+
+  if(pattern[0]=='*'){
+    pattern++;
+
+    while (word[0]!=0){
+      if(pattern_match(word++,pattern)){
+        return true;
+      }
+    }
+    return pattern_match(word,pattern);
+  }
+
+  if(pattern[0]=='?'){
+    return pattern_match(word+1,pattern+1);
+  }
+  if(pattern[0]=='\\'){
+    pattern++;
+    return pattern[0]==word[0] 
+      && pattern_match(word+1,pattern+1);
+  }
+  /*if(pattern[0]=='['){
+    char* pos_bracket_close=strchr(pattern+1,']');
+    if(!pos_bracket_close==NULL){
+       
+
+    }
+  }
+  */
+  return pattern[0]==word[0] 
+    && pattern_match(word+1,pattern+1);
 }
+
+
+
