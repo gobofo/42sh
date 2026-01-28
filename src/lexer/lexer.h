@@ -11,19 +11,11 @@
 #include <stdbool.h>
 
 #include "lexer_utils.h"
+#include "input_stack.h"
 
 #include "../token.h"
 #include "../environment/environment.h"
 #include "../hash_map/hash_map.h"
-
-struct input_stack
-{
-	FILE *file;
-
-	char *alias_name;
-
-	struct input_stack *next;
-};
 
 struct lexer
 {
