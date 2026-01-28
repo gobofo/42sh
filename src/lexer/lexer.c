@@ -244,6 +244,40 @@ static void handle_quotes(struct lexer *lexer)
     }
 }
 
+static void handle_escape(struct lexer *lexer)
+{
+	fputc(lexer->c, lexer->stream);
+	lexer->c = fgetc(lexer->stack->file);
+	fputc(lexer->c, lexer->stream);
+}
+
+static struct token *handle_ifs(struct lexer *lexer)
+{
+	fflush(lexer->stream);
+
+	if (lexer->size == 0)
+		return NULL;
+
+	return flush_stream(lexer);
+}
+
+static struct token *handle_special_token(struct lexer *lexer)
+{
+	// Sync the stream
+	fflush(lexer->stream);
+
+	if (lexer->size > 0 && lexer->c != '!')
+		return empty_stream(lexer);
+
+	// If we were already reading a token, then we need to save
+	// the delim, return the current token, then read again the
+	// delim So once the token is processed we put back the delim in
+	// the file stream. This way it can be read again.
+	fputc(lexer->c, lexer->stream);
+
+	return flush_stream(lexer);
+}
+
 /**
  * @brief			Process the comment token
  *
@@ -258,7 +292,7 @@ static void handle_quotes(struct lexer *lexer)
  * @param c			The start of the quoting token
  */
 
-static void hanlde_comments(struct lexer *lexer)
+static void handle_comments(struct lexer *lexer)
 {
     fflush(lexer->stream);
 
@@ -292,6 +326,9 @@ static void hanlde_comments(struct lexer *lexer)
 
 static struct token *handle_redir(struct lexer *lexer)
 {
+	if (is_redir_c(lexer->c) && lexer->size > 0)
+		return empty_stream(lexer);
+
     char buff[4] = { 0 };
 
     buff[0] = lexer->c;
@@ -350,7 +387,7 @@ static struct token *handle_redir(struct lexer *lexer)
     return NULL;
 }
 
-static void handle_command_sub(struct lexer *lexer)
+static void command_sub_helper(struct lexer *lexer)
 {
 	int nesting = 0;
 	int back_quote = 0;
@@ -395,8 +432,60 @@ static void handle_command_sub(struct lexer *lexer)
 	}
 }
 
+static struct token *handle_command_block(struct lexer *lexer)
+{
+	fflush(lexer->stream);
+
+	if (lexer->c == '{' && lexer->size > 0 && lexer->buffer[lexer->size - 1] == '$')
+	{
+		lexer->in_var = 1;
+		fputc(lexer->c, lexer->stream);
+
+		return NULL;
+	}
+
+	if (lexer->c == '}' && lexer->in_var)
+	{
+		lexer->in_var = 0;
+		fputc(lexer->c, lexer->stream);
+
+		return NULL;
+	}
+
+	if (lexer->size > 0)
+		return empty_stream(lexer);
+
+	fputc(lexer->c, lexer->stream);
+
+	return flush_stream(lexer);
+}
+
+static struct token *handle_command_sub(struct lexer *lexer)
+{
+	fflush(lexer->stream);
+
+	if ((lexer->c == '(' && lexer->size > 0 &&
+				lexer->buffer[lexer->size - 1] == '$') || lexer->c == '`')
+	{
+		command_sub_helper(lexer);
+		return NULL;
+	}
+
+	if (lexer->size > 0)
+		return empty_stream(lexer);
+
+	fputc(lexer->c, lexer->stream);
+
+	return flush_stream(lexer);
+}
+
 static struct token *handle_operators(struct lexer *lexer)
 {
+	fflush(lexer->stream);
+
+	if (lexer->size > 0)
+		return empty_stream(lexer);
+
 	fputc(lexer->c, lexer->stream);
 
 	int next_c = fgetc(lexer->stack->file);
@@ -442,7 +531,7 @@ static struct token *handle_operators(struct lexer *lexer)
  * @return			The next valid token in the stream
  */
 
-// 69 LINES
+// 52 LINES
 struct token *read_input(struct lexer *lexer)
 {
     lexer->in_var = 0;
@@ -457,84 +546,40 @@ struct token *read_input(struct lexer *lexer)
     {
         if (lexer->c == '\\')
         {
-            fputc(lexer->c, lexer->stream);
-            lexer->c = fgetc(lexer->stack->file);
-            fputc(lexer->c, lexer->stream);
+			handle_escape(lexer);
             continue;
         }
 
         // A whitespace marks the end of the token
         if (lexer->c == ' ' || lexer->c == '\t')
         {
-            fflush(lexer->stream);
-
-            if (lexer->size == 0)
-                continue;
-
-            return flush_stream(lexer);
+			struct token *tok = handle_ifs(lexer);
+			if (tok == NULL)
+				continue;
+			
+			return tok;
         }
 
         // Same as before but those charcacters need to be safed as tokens
         if (lexer->c == ';' || lexer->c == '\n' || lexer->c == '!')
-        {
-            // Sync the stream
-            fflush(lexer->stream);
-
-            if (lexer->size > 0 && lexer->c != '!')
-                return empty_stream(lexer);
-
-            // If we were already reading a token, then we need to save
-            // the delim, return the current token, then read again the
-            // delim So once the token is processed we put back the delim in
-            // the file stream. This way it can be read again.
-            fputc(lexer->c, lexer->stream);
-
-            return flush_stream(lexer);
-        }
+			return handle_special_token(lexer);
 
         if (lexer->c == '(' || lexer->c == ')' || lexer->c == '`')
         {
-            fflush(lexer->stream);
+			struct token *tok = handle_command_sub(lexer);
+			if (tok == NULL)
+				continue;
 
-            if ((lexer->c == '(' && lexer->size > 0 && lexer->buffer[lexer->size - 1] == '$') || lexer->c == '`')
-            {
-				handle_command_sub(lexer);
-                continue;
-            }
-
-            if (lexer->size > 0)
-                return empty_stream(lexer);
-
-			fputc(lexer->c, lexer->stream);
-
-            return flush_stream(lexer);
+			return tok;
         }
 
         if (lexer->c == '{' || lexer->c == '}')
         {
-            fflush(lexer->stream);
+			struct token *tok = handle_command_block(lexer);
+			if (tok == NULL)
+				continue;
 
-            if (lexer->c == '{' && lexer->size > 0 && lexer->buffer[lexer->size - 1] == '$')
-            {
-                lexer->in_var = 1;
-                fputc(lexer->c, lexer->stream);
-
-                continue;
-            }
-
-            if (lexer->c == '}' && lexer->in_var)
-            {
-                lexer->in_var = 0;
-                fputc(lexer->c, lexer->stream);
-                continue;
-            }
-
-            if (lexer->size > 0)
-                return empty_stream(lexer);
-
-            fputc(lexer->c, lexer->stream);
-
-            return flush_stream(lexer);
+			return tok;
         }
 
         // Those two characters are considered as operators if they are doubled
@@ -543,11 +588,6 @@ struct token *read_input(struct lexer *lexer)
         // is also the same character.
         if (lexer->c == '|' || lexer->c == '&')
         {
-            fflush(lexer->stream);
-
-            if (lexer->size > 0)
-                return empty_stream(lexer);
-
 			struct token *tok = handle_operators(lexer);
 			if (tok != NULL)
 				return tok;
@@ -564,7 +604,7 @@ struct token *read_input(struct lexer *lexer)
         }
 
         if (lexer->c == '#')
-            hanlde_comments(lexer);
+            handle_comments(lexer);
 
         fflush(lexer->stream);
 
@@ -575,11 +615,7 @@ struct token *read_input(struct lexer *lexer)
             // redir is 3).
             // If we found a valid redirection then we return the token found,
             // else we keep going.
-			
-			if (is_redir_c(lexer->c) && lexer->size > 0)
-				return empty_stream(lexer);
-
-            struct token *token = handle_redir(lexer);
+			struct token *token = handle_redir(lexer);
 
             if (token)
                 return token;
