@@ -618,6 +618,7 @@ struct builtin builtins_table[] = { { "true", my_true },
                                     { "return", my_return },
                                     { ".", my_dot },
 									{ "alias", my_alias },
+									{ "unalias", my_unalias },
                                     { NULL, NULL } };
 
 // Helps to reference each type of node to its corresponding func
