@@ -275,16 +275,16 @@ static struct token *handle_special_token(struct lexer *lexer)
 	// the file stream. This way it can be read again.
 	fputc(lexer->c, lexer->stream);
 
-	if(c==';')
+	if(lexer->c == ';')
 	{
 		// We take the next char to see if we find another ;
-		int next = fgetc(file);
+		int next = fgetc(lexer->stack->file);
 
 		// We find it so we create a token D_SEMICOLON
-		if(next==';')
-			fputc(next, stream);
+		if(next == ';')
+			fputc(next, lexer->stream);
 		else
-			ungetc(next,file); 
+			ungetc(next, lexer->stack->file); 
 	}
 
 	return flush_stream(lexer);
@@ -448,7 +448,8 @@ static struct token *handle_command_block(struct lexer *lexer)
 {
 	fflush(lexer->stream);
 
-	if (lexer->c == '{' && lexer->size > 0 && lexer->buffer[lexer->size - 1] == '$')
+	if (lexer->c == '{' && lexer->size > 0
+			&& lexer->buffer[lexer->size - 1] == '$')
 	{
 		lexer->in_var = 1;
 		fputc(lexer->c, lexer->stream);
