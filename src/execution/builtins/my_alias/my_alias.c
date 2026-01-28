@@ -72,7 +72,7 @@ int my_alias(char **command)
 
 		// We need to expand the value of the key
 		char *key_raw = strndup(actual, key_len);
-		char **expanded_key = expand(key_raw);
+		char **expanded_key = expand(key_raw, 1);
 		free(key_raw);
 
 		if (expanded_key == NULL || expanded_key[0] == NULL)
@@ -129,7 +129,7 @@ int my_alias(char **command)
 			}
 
 			char *value = strndup(actual, value_len);
-			char** expanded_value = expand(value);
+			char** expanded_value = expand(value, 1);
 
 			free(value);
 

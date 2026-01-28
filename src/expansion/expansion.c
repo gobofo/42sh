@@ -1,6 +1,6 @@
 #include "expansion.h"
 
-extern struct env *env;
+//extern struct env *env;
 
 // ####################
 // #   WORDS STRUCT   #
@@ -26,6 +26,79 @@ static void add_word(struct expanded_words *words, char *word)
     words->words[words->count] = NULL;
 }
 
+//#####################
+//#   IFS SPLITTING   #
+//#####################
+
+void split_fields(struct expansion_context *context, char *str)
+{
+	char *ifs = hash_map_get(env->variables, "IFS");
+	if (ifs == NULL)
+		ifs = " \t\n";
+
+	if (ifs[0] == '\0')
+	{
+		fputs(str, context->stream);
+		return;
+	}
+
+	char *cur = str;
+
+	// We ignore whitespaces at the start
+	while (*cur && is_ifs_white_space(*cur, ifs))
+		cur++;
+
+	while (*cur)
+	{
+		// We put in the stream the values that are not a delim defined in IFS
+		while (*cur && is_ifs(*cur, ifs) == 0)
+		{
+			fputc(*cur, context->stream);
+			cur++;
+		}
+		
+		if (*cur != '\0')
+		{
+			// We find a delim so we create a new word
+			fclose(context->stream);
+
+			add_word(context->words, strdup(*(context->buffer)));
+
+			free(*(context->buffer));
+			*(context->buffer) = NULL;
+			*(context->size) = 0;
+
+			context->stream = open_memstream(context->buffer, context->size);
+
+			if (is_ifs_white_space(*cur, ifs) == 1)
+			{
+				// Whitespaces delim words no matter how many of them are present
+				while (*cur && is_ifs_white_space(*cur, ifs))
+					cur++;
+
+				// We find a delim that is not a whitespace
+				if (*cur && is_ifs(*cur, ifs) && is_ifs_white_space(*cur, ifs) == 0)
+				{
+					// Skip the delim
+					cur++;
+
+					// We skip all following whitespaces
+					while (*cur && is_ifs_white_space(*cur, ifs))
+						cur++;
+				}
+			}
+			// The delim is not a whitespace
+			else
+			{
+				cur++;
+
+				while (*cur && is_ifs_white_space(*cur, ifs))
+					cur++;
+			}
+		}
+	}
+}
+
 // ################
 // #   SUBSHELL   #
 // ################
@@ -38,22 +111,22 @@ static void add_word(struct expanded_words *words, char *word)
  * @param list_sub		The list of words to expand as a single one
  */
 
-static void expand_subshell(struct expansion_context *context, char **list_sub)
-{
-    int i = 0;
-
-    while (list_sub[i] != NULL)
-    {
-        fputs(list_sub[i], context->stream);
-
-        free(list_sub[i]);
-
-        if (list_sub[i + 1] != NULL)
-            fputc(' ', context->stream);
-
-        i++;
-    }
-}
+//static void expand_subshell(struct expansion_context *context, char **list_sub)
+//{
+//    int i = 0;
+//
+//    while (list_sub[i] != NULL)
+//    {
+//        fputs(list_sub[i], context->stream);
+//
+//        free(list_sub[i]);
+//
+//        if (list_sub[i + 1] != NULL)
+//            fputc(' ', context->stream);
+//
+//        i++;
+//    }
+//}
 
 /**
  * @brief 			Expands the subshells and commands substitution
@@ -95,12 +168,28 @@ static void handle_subshell(struct expansion_context *context, char *str,
     fclose(subshell);
 
     char *output = expand_command_substitution(sub_buffer);
-    char **list_sub = separate_white_space(output);
 
-    expand_subshell(context, list_sub);
+	if (output != NULL)
+    {
+        size_t len = strlen(output);
+        while (len > 0 && output[len - 1] == '\n')
+        {
+            output[len - 1] = '\0';
+            len--;
+        }
+    }
+	
+	if (context->quoted == 1 || context->is_assign == 1)
+		fputs(output, context->stream);
+	else
+		split_fields(context, output);
+
+//    char **list_sub = separate_white_space(output);
+
+ //   expand_subshell(context, list_sub);
 
     free(sub_buffer);
-    free(list_sub);
+//    free(list_sub);
     free(output);
 }
 
@@ -285,8 +374,13 @@ static void expand_variable(struct expansion_context *context, char *str,
         char *var_value = hash_map_get(env->variables, var_name);
 
         if (var_value)
-            fputs(var_value, context->stream);
-    }
+		{
+			if (context->quoted == 1 || context->is_assign == 1)
+				fputs(var_value, context->stream);
+			else
+				split_fields(context, var_value);
+    	}
+	}
 
     free(var_name);
 }
@@ -334,6 +428,8 @@ static void handle_double_quotes(struct expansion_context *context, char *str,
         fclose(context->stream);
         free(buffer);
     }
+	
+	context->quoted = 0;
 
     if (str[*i] == '"')
         (*i)++;
@@ -358,7 +454,7 @@ static void handle_double_quotes(struct expansion_context *context, char *str,
  * @return			The extended string on an array format
  */
 
-char **expand(char *str)
+char **expand(char *str, int is_assign)
 {
     size_t size = 0;
 
@@ -368,7 +464,8 @@ char **expand(char *str)
 
     FILE *stream = open_memstream(&buffer, &size);
 
-    struct expansion_context context = { stream, 0, &buffer, &size, &words };
+    struct expansion_context context = { stream, 0, is_assign,
+		&buffer, &size, &words };
 
     size_t i = 0;
 
