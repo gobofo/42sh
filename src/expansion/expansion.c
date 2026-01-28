@@ -48,6 +48,18 @@ void split_fields(struct expansion_context *context, char *str)
 	while (*cur && is_ifs_white_space(*cur, ifs))
 		cur++;
 
+	while (*cur && is_ifs(*cur, ifs) && !is_ifs_white_space(*cur, ifs))
+	{
+		// Create an empty word for each leading non-whitespace delimiter
+		fclose(context->stream);
+		add_word(context->words, strdup(""));
+		free(*(context->buffer));
+		*(context->buffer) = NULL;
+		*(context->size) = 0;
+		context->stream = open_memstream(context->buffer, context->size);
+		cur++;
+	}
+
 	while (*cur)
 	{
 		// We put in the stream the values that are not a delim defined in IFS

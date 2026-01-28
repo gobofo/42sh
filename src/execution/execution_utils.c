@@ -63,11 +63,16 @@ char **create_command(struct AST *root)
         {
             char **expanded_values = expand(root->children[i]->content, 0);
 
+			int word_count = 0;
+            for (int j = 0; expanded_values[j] != NULL; j++)
+                word_count++;
+
             for (int j = 0; expanded_values[j] != NULL; j++)
             {
                 if (expanded_values[j][0] != '\0'
                     || strcmp(root->children[i]->content, "''") == 0
-                    || strcmp(root->children[i]->content, "\"\"") == 0)
+                    || strcmp(root->children[i]->content, "\"\"") == 0
+					|| word_count > 1)
                 {
                     command = realloc(command, sizeof(char *) * (idx + 2));
                     command[idx++] = expanded_values[j];
