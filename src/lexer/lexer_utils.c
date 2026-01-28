@@ -38,7 +38,13 @@ struct token_map token_lookup[] = {
     // MISC
     { "!", NEG },
     { ";", SEMICOLON },
+    { ";;", D_SEMICOLON },
     { "\n", NEWLINE },
+
+    //CASE
+    { "case", CASE },
+    { "esac", ESAC },
+
 
     { NULL, 0 }
 };
