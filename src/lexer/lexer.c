@@ -351,6 +351,50 @@ static struct token *handle_redir(FILE *file, FILE **stream, char **buffer,
     return NULL;
 }
 
+static void handle_command_sub(FILE *file, FILE **stream, int *c)
+{
+	int nesting = 0;
+	int back_quote = 0;
+
+	if (*c == '(')
+		nesting++;
+	else
+		back_quote++;
+
+	if (*c == '(')
+		fputc(*c, *stream);
+	else
+		fputs("$(", *stream);
+
+	while ((back_quote > 0 || nesting > 0) && (*c = fgetc(file)) != EOF)
+	{
+		if (*c == '(')
+			nesting++;
+		if (*c == ')')
+			nesting--;
+
+		if (*c == '\\')
+		{
+			*c = fgetc(file);
+
+			if (*c != '`')
+				fputc('\\', *stream);
+
+			fputc(*c, *stream);
+
+			continue;
+		}
+
+		if (back_quote == 1 && *c == '`')
+		{
+			fputc(')', *stream);
+			break;
+		}
+
+		fputc(*c, *stream);
+	}
+}
+
 // #####################
 // #   INPUT READING   #
 // #####################
@@ -409,7 +453,7 @@ struct token *read_input(FILE *file)
             // Sync the stream
             fflush(stream);
 
-            if (size > 0 && c!='!')
+            if (size > 0 && c != '!')
                 return empty_stream(file, &stream, &buffer, c);
 
             // If we were already reading a token, then we need to save
@@ -427,46 +471,47 @@ struct token *read_input(FILE *file)
 
             if ((c == '(' && size > 0 && buffer[size - 1] == '$') || c == '`')
             {
-                int nesting = 0;
-				int back_quote = 0;
-
-				if (c == '(')
-					nesting++;
-				else
-					back_quote++;
-
-				if (c == '(')
-					fputc(c, stream);
-				else
-					fputs("$(", stream);
-
-				while ((back_quote > 0 || nesting > 0) && (c = fgetc(file)) != EOF)
-				{
-					if (c == '(')
-						nesting++;
-					if (c == ')')
-						nesting--;
-
-					if (c == '\\')
-					{
-						c = fgetc(file);
-						
-						if (c != '`')
-							fputc('\\', stream);
-						
-						fputc(c, stream);
-
-						continue;
-					}
-
-					if (back_quote == 1 && c == '`')
-					{
-						fputc(')', stream);
-						break;
-					}
-
-                    fputc(c, stream);
-                }
+				handle_command_sub(file, &stream, &c);
+//                int nesting = 0;
+//				int back_quote = 0;
+//
+//				if (c == '(')
+//					nesting++;
+//				else
+//					back_quote++;
+//
+//				if (c == '(')
+//					fputc(c, stream);
+//				else
+//					fputs("$(", stream);
+//
+//				while ((back_quote > 0 || nesting > 0) && (c = fgetc(file)) != EOF)
+//				{
+//					if (c == '(')
+//						nesting++;
+//					if (c == ')')
+//						nesting--;
+//
+//					if (c == '\\')
+//					{
+//						c = fgetc(file);
+//						
+//						if (c != '`')
+//							fputc('\\', stream);
+//						
+//						fputc(c, stream);
+//
+//						continue;
+//					}
+//
+//					if (back_quote == 1 && c == '`')
+//					{
+//						fputc(')', stream);
+//						break;
+//					}
+//
+//                    fputc(c, stream);
+//                }
 
                 continue;
             }
