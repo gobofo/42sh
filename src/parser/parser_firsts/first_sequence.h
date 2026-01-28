@@ -10,6 +10,7 @@
 #include "first_condition.h"
 #include "first_loop.h"
 #include "first_token.h"
+#include "switch_first.h"
 
 bool first_list(struct token *token);
 bool first_and_or(struct token *token);
