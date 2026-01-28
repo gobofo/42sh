@@ -103,6 +103,7 @@ am_unit_tests_OBJECTS = unit_tests-lexer_tests.$(OBJEXT) \
 	unit_tests-export_tests.$(OBJEXT) \
 	unit_tests-unset_tests.$(OBJEXT) \
 	$(top_builddir)/src/environment/unit_tests-environment.$(OBJEXT) \
+	$(top_builddir)/src/lexer/unit_tests-input_stack.$(OBJEXT) \
 	$(top_builddir)/src/ast/unit_tests-ast.$(OBJEXT) \
 	$(top_builddir)/src/hash_map/unit_tests-hash_map.$(OBJEXT) \
 	$(top_builddir)/src/hash_map/unit_tests-hash.$(OBJEXT) \
@@ -140,6 +141,7 @@ am__depfiles_remade =  \
 	$(top_builddir)/src/execution/builtins/my_unset/$(DEPDIR)/unit_tests-my_unset.Po \
 	$(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Po \
 	$(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Po \
+	$(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-input_stack.Po \
 	$(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer.Po \
 	$(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer_utils.Po \
 	./$(DEPDIR)/unit_tests-cd_tests.Po \
@@ -190,13 +192,13 @@ am__define_uniq_tagged_files = \
   done | $(am__uniquify_input)`
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} '/home/lennyt/42/42sh/missing' aclocal-1.18
+ACLOCAL = ${SHELL} '/home/yann/Desktop/42sh/missing' aclocal-1.18
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 0
 AR = ar
-AUTOCONF = ${SHELL} '/home/lennyt/42/42sh/missing' autoconf
-AUTOHEADER = ${SHELL} '/home/lennyt/42/42sh/missing' autoheader
-AUTOMAKE = ${SHELL} '/home/lennyt/42/42sh/missing' automake-1.18
+AUTOCONF = ${SHELL} '/home/yann/Desktop/42sh/missing' autoconf
+AUTOHEADER = ${SHELL} '/home/yann/Desktop/42sh/missing' autoheader
+AUTOMAKE = ${SHELL} '/home/yann/Desktop/42sh/missing' automake-1.18
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -221,7 +223,7 @@ LDFLAGS =
 LIBOBJS = 
 LIBS = 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} '/home/lennyt/42/42sh/missing' makeinfo
+MAKEINFO = ${SHELL} '/home/yann/Desktop/42sh/missing' makeinfo
 MKDIR_P = /usr/bin/mkdir -p
 OBJEXT = o
 PACKAGE = 42sh
@@ -237,10 +239,10 @@ SET_MAKE =
 SHELL = /bin/sh
 STRIP = 
 VERSION = 1.0
-abs_builddir = /home/lennyt/42/42sh/tests/unit
-abs_srcdir = /home/lennyt/42/42sh/tests/unit
-abs_top_builddir = /home/lennyt/42/42sh
-abs_top_srcdir = /home/lennyt/42/42sh
+abs_builddir = /home/yann/Desktop/42sh/tests/unit
+abs_srcdir = /home/yann/Desktop/42sh/tests/unit
+abs_top_builddir = /home/yann/Desktop/42sh
+abs_top_srcdir = /home/yann/Desktop/42sh
 ac_ct_AR = ar
 ac_ct_CC = gcc
 am__include = include
@@ -262,7 +264,7 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/lennyt/42/42sh/install-sh
+install_sh = ${SHELL} /home/yann/Desktop/42sh/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -290,6 +292,7 @@ unit_tests_SOURCES = \
 	export_tests.c \
 	unset_tests.c \
     $(top_srcdir)/src/environment/environment.c \
+	$(top_srcdir)/src/lexer/input_stack.c \
     $(top_srcdir)/src/ast/ast.c \
     $(top_srcdir)/src/hash_map/hash_map.c $(top_srcdir)/src/hash_map/hash.c \
     $(top_srcdir)/src/lexer/lexer_utils.c \
@@ -346,6 +349,15 @@ $(top_builddir)/src/environment/$(DEPDIR)/$(am__dirstamp):
 $(top_builddir)/src/environment/unit_tests-environment.$(OBJEXT):  \
 	$(top_builddir)/src/environment/$(am__dirstamp) \
 	$(top_builddir)/src/environment/$(DEPDIR)/$(am__dirstamp)
+$(top_builddir)/src/lexer/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/src/lexer
+	@: >>$(top_builddir)/src/lexer/$(am__dirstamp)
+$(top_builddir)/src/lexer/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) $(top_builddir)/src/lexer/$(DEPDIR)
+	@: >>$(top_builddir)/src/lexer/$(DEPDIR)/$(am__dirstamp)
+$(top_builddir)/src/lexer/unit_tests-input_stack.$(OBJEXT):  \
+	$(top_builddir)/src/lexer/$(am__dirstamp) \
+	$(top_builddir)/src/lexer/$(DEPDIR)/$(am__dirstamp)
 $(top_builddir)/src/ast/$(am__dirstamp):
 	@$(MKDIR_P) $(top_builddir)/src/ast
 	@: >>$(top_builddir)/src/ast/$(am__dirstamp)
@@ -367,12 +379,6 @@ $(top_builddir)/src/hash_map/unit_tests-hash_map.$(OBJEXT):  \
 $(top_builddir)/src/hash_map/unit_tests-hash.$(OBJEXT):  \
 	$(top_builddir)/src/hash_map/$(am__dirstamp) \
 	$(top_builddir)/src/hash_map/$(DEPDIR)/$(am__dirstamp)
-$(top_builddir)/src/lexer/$(am__dirstamp):
-	@$(MKDIR_P) $(top_builddir)/src/lexer
-	@: >>$(top_builddir)/src/lexer/$(am__dirstamp)
-$(top_builddir)/src/lexer/$(DEPDIR)/$(am__dirstamp):
-	@$(MKDIR_P) $(top_builddir)/src/lexer/$(DEPDIR)
-	@: >>$(top_builddir)/src/lexer/$(DEPDIR)/$(am__dirstamp)
 $(top_builddir)/src/lexer/unit_tests-lexer_utils.$(OBJEXT):  \
 	$(top_builddir)/src/lexer/$(am__dirstamp) \
 	$(top_builddir)/src/lexer/$(DEPDIR)/$(am__dirstamp)
@@ -439,6 +445,7 @@ include $(top_builddir)/src/execution/builtins/my_export/$(DEPDIR)/unit_tests-my
 include $(top_builddir)/src/execution/builtins/my_unset/$(DEPDIR)/unit_tests-my_unset.Po # am--include-marker
 include $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Po # am--include-marker
 include $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Po # am--include-marker
+include $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-input_stack.Po # am--include-marker
 include $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer.Po # am--include-marker
 include $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer_utils.Po # am--include-marker
 include ./$(DEPDIR)/unit_tests-cd_tests.Po # am--include-marker
@@ -552,6 +559,20 @@ $(top_builddir)/src/environment/unit_tests-environment.obj: $(top_builddir)/src/
 #	$(AM_V_CC)source='$(top_builddir)/src/environment/environment.c' object='$(top_builddir)/src/environment/unit_tests-environment.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/environment/unit_tests-environment.obj `if test -f '$(top_builddir)/src/environment/environment.c'; then $(CYGPATH_W) '$(top_builddir)/src/environment/environment.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/environment/environment.c'; fi`
+
+$(top_builddir)/src/lexer/unit_tests-input_stack.o: $(top_builddir)/src/lexer/input_stack.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/lexer/unit_tests-input_stack.o -MD -MP -MF $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-input_stack.Tpo -c -o $(top_builddir)/src/lexer/unit_tests-input_stack.o `test -f '$(top_builddir)/src/lexer/input_stack.c' || echo '$(srcdir)/'`$(top_builddir)/src/lexer/input_stack.c
+	$(AM_V_at)$(am__mv) $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-input_stack.Tpo $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-input_stack.Po
+#	$(AM_V_CC)source='$(top_builddir)/src/lexer/input_stack.c' object='$(top_builddir)/src/lexer/unit_tests-input_stack.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/lexer/unit_tests-input_stack.o `test -f '$(top_builddir)/src/lexer/input_stack.c' || echo '$(srcdir)/'`$(top_builddir)/src/lexer/input_stack.c
+
+$(top_builddir)/src/lexer/unit_tests-input_stack.obj: $(top_builddir)/src/lexer/input_stack.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/lexer/unit_tests-input_stack.obj -MD -MP -MF $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-input_stack.Tpo -c -o $(top_builddir)/src/lexer/unit_tests-input_stack.obj `if test -f '$(top_builddir)/src/lexer/input_stack.c'; then $(CYGPATH_W) '$(top_builddir)/src/lexer/input_stack.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/lexer/input_stack.c'; fi`
+	$(AM_V_at)$(am__mv) $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-input_stack.Tpo $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-input_stack.Po
+#	$(AM_V_CC)source='$(top_builddir)/src/lexer/input_stack.c' object='$(top_builddir)/src/lexer/unit_tests-input_stack.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -c -o $(top_builddir)/src/lexer/unit_tests-input_stack.obj `if test -f '$(top_builddir)/src/lexer/input_stack.c'; then $(CYGPATH_W) '$(top_builddir)/src/lexer/input_stack.c'; else $(CYGPATH_W) '$(srcdir)/$(top_builddir)/src/lexer/input_stack.c'; fi`
 
 $(top_builddir)/src/ast/unit_tests-ast.o: $(top_builddir)/src/ast/ast.c
 	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(unit_tests_CFLAGS) $(CFLAGS) -MT $(top_builddir)/src/ast/unit_tests-ast.o -MD -MP -MF $(top_builddir)/src/ast/$(DEPDIR)/unit_tests-ast.Tpo -c -o $(top_builddir)/src/ast/unit_tests-ast.o `test -f '$(top_builddir)/src/ast/ast.c' || echo '$(srcdir)/'`$(top_builddir)/src/ast/ast.c
@@ -828,6 +849,7 @@ distclean: distclean-am
 	-rm -f $(top_builddir)/src/execution/builtins/my_unset/$(DEPDIR)/unit_tests-my_unset.Po
 	-rm -f $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Po
 	-rm -f $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Po
+	-rm -f $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-input_stack.Po
 	-rm -f $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer.Po
 	-rm -f $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer_utils.Po
 	-rm -f ./$(DEPDIR)/unit_tests-cd_tests.Po
@@ -888,6 +910,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f $(top_builddir)/src/execution/builtins/my_unset/$(DEPDIR)/unit_tests-my_unset.Po
 	-rm -f $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash.Po
 	-rm -f $(top_builddir)/src/hash_map/$(DEPDIR)/unit_tests-hash_map.Po
+	-rm -f $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-input_stack.Po
 	-rm -f $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer.Po
 	-rm -f $(top_builddir)/src/lexer/$(DEPDIR)/unit_tests-lexer_utils.Po
 	-rm -f ./$(DEPDIR)/unit_tests-cd_tests.Po
