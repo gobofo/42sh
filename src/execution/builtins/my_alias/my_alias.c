@@ -26,48 +26,48 @@ static int is_valid_alias(char *str)
 
 static void alias_insert(char *key, char *actual)
 {
-	// If the alias value is in single quotes we take the literal value
-	if (actual[0] == '\'')
-	{
-		// Skip the opening quote
-		actual++;
+    // If the alias value is in single quotes we take the literal value
+    if (actual[0] == '\'')
+    {
+        // Skip the opening quote
+        actual++;
 
-		// We dont wanna take into consideration the closing quote so we
-		// dont use it for the total len
-		size_t value_len = strlen(actual) - 1;
+        // We dont wanna take into consideration the closing quote so we
+        // dont use it for the total len
+        size_t value_len = strlen(actual) - 1;
 
-		hash_map_insert(env->alias, key, strndup(actual, value_len), free);
-	}
-	else
-	{
-		// Else expansion needs to be done
-		size_t value_len;
+        hash_map_insert(env->alias, key, strndup(actual, value_len), free);
+    }
+    else
+    {
+        // Else expansion needs to be done
+        size_t value_len;
 
-		if (actual[0] == '\"')
-		{
-			// Skip the opening quote
-			actual++;
-			// minus one for the closing quote
-			value_len = strlen(actual) - 1;
-		}
-		else
-		{
-			value_len = strlen(actual);
-		}
+        if (actual[0] == '\"')
+        {
+            // Skip the opening quote
+            actual++;
+            // minus one for the closing quote
+            value_len = strlen(actual) - 1;
+        }
+        else
+        {
+            value_len = strlen(actual);
+        }
 
-		char *value = strndup(actual, value_len);
-		char **expanded_value = expand(value, 1);
+        char *value = strndup(actual, value_len);
+        char **expanded_value = expand(value, 1);
 
-		free(value);
+        free(value);
 
-		if (expanded_value == NULL)
-			return;
+        if (expanded_value == NULL)
+            return;
 
-		hash_map_insert(env->alias, key, strdup(expanded_value[0]), free);
+        hash_map_insert(env->alias, key, strdup(expanded_value[0]), free);
 
-		free(expanded_value[0]);
-		free(expanded_value);
-	}
+        free(expanded_value[0]);
+        free(expanded_value);
+    }
 }
 
 /**
@@ -141,7 +141,7 @@ int my_alias(char **command)
 
         actual += key_len + 1;
 
-		alias_insert(key, actual);
+        alias_insert(key, actual);
 
         free(key);
     }
