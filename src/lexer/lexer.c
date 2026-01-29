@@ -572,9 +572,9 @@ struct token *read_input(struct lexer *lexer)
 			
 			return tok;
         }
-
+        fflush(lexer->stream);
         // Same as before but those charcacters need to be safed as tokens
-        if (lexer->c == ';' || lexer->c == '\n' || lexer->c == '!')
+        if (lexer->c == ';' || lexer->c == '\n' || (lexer->c == '!' && lexer->size==0))
 			return handle_special_token(lexer);
 
         if (lexer->c == '(' || lexer->c == ')' || lexer->c == '`')

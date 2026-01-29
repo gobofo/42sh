@@ -600,12 +600,16 @@ static int execute_case_item(struct AST *root,char* word,int * find){
   int i=0;
   int status=0;
   while(i<root->count_children-1){
-
-    char** word_extend=expand(root->children[i]->content);
+    bool quoted=false;
+    char* patt=root->children[i]->content;
+    if(patt[0]=='"' && patt[strlen(patt)-1]=='"'){
+      quoted=true;
+    }
+    char** word_extend=expand(root->children[i]->content,0);
 
     char * word_extend_join= join_tab_string(word_extend);
 
-    if(fnmatch(word_extend_join,word,0)==0){
+    if((!quoted &&fnmatch(word_extend_join,word,0)==0) || (quoted && strcmp(word_extend_join,word)==0)){
       *find=1;
       status=execute_node(root->children[root->count_children-1]);
       free(word_extend_join);
@@ -634,7 +638,7 @@ static int execute_case(struct AST *root){
   if(root->count_children==0){
     return 0;
   }
-  char **word_extend=expand(root->content);
+  char **word_extend=expand(root->content,0);
 
   char* word_join=join_tab_string(word_extend);
 

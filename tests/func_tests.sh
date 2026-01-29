@@ -16,8 +16,7 @@ if [ -z "$BIN_PATH" ]; then
   exit 0
 fi
 
-test_cmd()
-{
+test_cmd() {
   TOTAL=$((TOTAL + 1))
   local expected=$(timeout $TIMEOUT env LC_ALL=C bash --posix -c "$1" 2>&1)
   local actual=$(timeout $TIMEOUT env LC_ALL=C "$BIN_PATH" -c "$1" 2>&1)
@@ -32,8 +31,7 @@ test_cmd()
   fi
 }
 
-test_file()
-{
+test_file() {
   TOTAL=$((TOTAL + 1))
 
   local expected=$(timeout $TIMEOUT bash --posix "$1" 2>&1)
@@ -49,8 +47,7 @@ test_file()
   fi
 }
 
-test_error()
-{
+test_error() {
   TOTAL=$((TOTAL + 1))
 
   timeout $TIMEOUT "$BIN_PATH" -c "$1" >/dev/null 2>&1
@@ -481,7 +478,6 @@ test_cmd 'f() { for i; do echo "$i"; done; }; f x y z' "for default 'in \$@'"
 
 test_cmd 'f() { for i in "$@"; do echo "[$i]"; done; }; f' "for in \"\$@\" with no args"
 test_cmd 'f() { for i in "$@"; do echo "$i"; done; }; f "" " "' "for in \"\$@\" with empty/space args"
-
 
 echo "###################################################"
 echo "STEP 3 - EXIT BUILTIN"
@@ -1379,6 +1375,479 @@ test_error "!" "lone negation"
 test_error "if; then echo test; fi" "if empty condition"
 test_error "while; do echo test; done" "while empty condition"
 test_error "until; do echo test; done" "until empty condition"
+
+echo "###################################################"
+echo "CASE - BASIC PATTERN MATCHING"
+echo "###################################################"
+
+test_cmd "x='hello'
+case \"\$x\" in
+  hello) echo 'match' ;;
+esac" "exact string match"
+
+test_cmd "x='test.txt'
+case \"\$x\" in
+  *.txt) echo 'text file' ;;
+  *.pdf) echo 'pdf file' ;;
+esac" "wildcard extension match"
+
+test_cmd "x='file.pdf'
+case \"\$x\" in
+  *.txt) echo 'text' ;;
+  *.pdf) echo 'pdf' ;;
+  *) echo 'other' ;;
+esac" "match second pattern"
+
+test_cmd "x='unknown.xyz'
+case \"\$x\" in
+  *.txt) echo 'text' ;;
+  *.pdf) echo 'pdf' ;;
+  *) echo 'default' ;;
+esac" "default catch-all pattern"
+
+test_cmd "x='a'
+case \"\$x\" in
+  ?) echo 'single char' ;;
+  ??) echo 'two chars' ;;
+esac" "question mark pattern"
+
+echo "###################################################"
+echo "CASE - RANGE AND CHARACTER CLASSES"
+echo "###################################################"
+
+test_cmd "x='a'
+case \"\$x\" in
+  [a-z]) echo 'lowercase' ;;
+  [A-Z]) echo 'uppercase' ;;
+esac" "lowercase range match"
+
+test_cmd "x='Z'
+case \"\$x\" in
+  [a-z]) echo 'lower' ;;
+  [A-Z]) echo 'upper' ;;
+  *) echo 'other' ;;
+esac" "uppercase range match"
+
+test_cmd "x='5'
+case \"\$x\" in
+  [0-9]) echo 'digit' ;;
+  [a-z]) echo 'letter' ;;
+esac" "digit range match"
+
+test_cmd "x='hello123'
+case \"\$x\" in
+  [a-z]*) echo 'starts with letter' ;;
+  [0-9]*) echo 'starts with digit' ;;
+esac" "range with wildcard"
+
+test_cmd "x='abc'
+case \"\$x\" in
+  [!0-9]*) echo 'not digit' ;;
+  *) echo 'starts with digit' ;;
+esac" "negation pattern [!...]"
+
+echo "###################################################"
+echo "CASE - POSIX CHARACTER CLASSES"
+echo "###################################################"
+
+test_cmd "x='5'
+case \"\$x\" in
+  [[:digit:]]) echo 'digit' ;;
+  [[:alpha:]]) echo 'letter' ;;
+esac" "digit class match"
+
+test_cmd "x='a'
+case \"\$x\" in
+  [[:digit:]]) echo 'digit' ;;
+  [[:alpha:]]) echo 'letter' ;;
+esac" "alpha class match"
+
+test_cmd "x='hello'
+case \"\$x\" in
+  [[:digit:]]*) echo 'digits' ;;
+  [[:alpha:]]*) echo 'letters' ;;
+esac" "alpha class with wildcard"
+
+test_cmd "x='A'
+case \"\$x\" in
+  [[:lower:]]) echo 'lower' ;;
+  [[:upper:]]) echo 'upper' ;;
+esac" "upper class match"
+
+test_cmd "x='test123'
+case \"\$x\" in
+  [[:alnum:]]*) echo 'alphanumeric' ;;
+  *) echo 'other' ;;
+esac" "alnum class match"
+
+test_cmd "x=' '
+case \"\$x\" in
+  [[:space:]]) echo 'space' ;;
+  *) echo 'not space' ;;
+esac" "space class match"
+
+echo "###################################################"
+echo "CASE - MULTIPLE PATTERNS (ALTERNATIVES)"
+echo "###################################################"
+
+test_cmd "x='quit'
+case \"\$x\" in
+  quit|exit) echo 'exiting' ;;
+  help) echo 'helping' ;;
+esac" "pipe alternative match first"
+
+test_cmd "x='exit'
+case \"\$x\" in
+  quit|exit) echo 'exiting' ;;
+  help) echo 'helping' ;;
+esac" "pipe alternative match second"
+
+test_cmd "x='main.c'
+case \"\$x\" in
+  *.c|*.h) echo 'C source' ;;
+  *.cpp|*.hpp) echo 'C++ source' ;;
+  *) echo 'other' ;;
+esac" "multiple wildcard alternatives"
+
+test_cmd "x='header.h'
+case \"\$x\" in
+  *.c|*.h) echo 'C source' ;;
+  *.cpp) echo 'C++' ;;
+esac" "alternative wildcard match second"
+
+test_cmd "x='test'
+case \"\$x\" in
+  foo|bar|baz) echo 'first' ;;
+  test|check|verify) echo 'second' ;;
+esac" "multiple word alternatives"
+
+echo "###################################################"
+echo "CASE - COMPLEX PATTERNS"
+echo "###################################################"
+
+test_cmd "x='archive.tar.gz'
+case \"\$x\" in
+  *.tar.gz) echo 'tarball' ;;
+  *.tar) echo 'tar' ;;
+  *.gz) echo 'gzip' ;;
+esac" "double extension pattern"
+
+test_cmd "x='a1'
+case \"\$x\" in
+  [a-z][0-9]) echo 'letter-digit' ;;
+  [0-9][a-z]) echo 'digit-letter' ;;
+esac" "letter followed by digit"
+
+test_cmd "x='/home/user/test.txt'
+case \"\$x\" in
+  /home/*) echo 'home dir' ;;
+  /tmp/*) echo 'tmp dir' ;;
+  *) echo 'other' ;;
+esac" "path pattern matching"
+
+test_cmd "x='test_file_v2'
+case \"\$x\" in
+  *test*) echo 'contains test' ;;
+  *file*) echo 'contains file' ;;
+esac" "wildcard in middle of pattern"
+
+test_cmd "x='a'
+case \"\$x\" in
+  [a-z][a-z]*) echo 'multi letter' ;;
+  [a-z]) echo 'single letter' ;;
+esac" "single vs multiple letters"
+
+echo "###################################################"
+echo "CASE - EMPTY AND EDGE CASES"
+echo "###################################################"
+
+test_cmd "x=''
+case \"\$x\" in
+  '') echo 'empty' ;;
+  *) echo 'not empty' ;;
+esac" "empty string match"
+
+test_cmd "x='anything'
+case \"\$x\" in
+  *) echo 'catch all' ;;
+esac" "universal match with *"
+
+test_cmd "x='test'
+case \"\$x\" in
+  ?????) echo 'five chars' ;;
+  ????) echo 'four chars' ;;
+  *) echo 'other' ;;
+esac" "exact length with ?"
+
+test_cmd "case 'fixed' in
+  fixed) echo 'inline match' ;;
+esac" "inline case expression"
+
+test_cmd "x='#comment'
+case \"\$x\" in
+  \\#*) echo 'starts with hash' ;;
+  *) echo 'no hash' ;;
+esac" "escaped special char"
+
+echo "###################################################"
+echo "CASE - NO MATCH SCENARIOS"
+echo "###################################################"
+
+test_cmd "x='nomatch'
+case \"\$x\" in
+  foo) echo 'foo' ;;
+  bar) echo 'bar' ;;
+esac" "no pattern matches - no output"
+
+test_cmd "x='test'
+case \"\$x\" in
+  [A-Z]*) echo 'uppercase' ;;
+  [0-9]*) echo 'digit' ;;
+esac" "no match with ranges"
+
+echo "###################################################"
+echo "CASE - COMPOUND LISTS IN CASE ITEMS"
+echo "###################################################"
+
+test_cmd "x='multi'
+case \"\$x\" in
+  multi)
+    echo 'line 1'
+    echo 'line 2'
+    ;;
+esac" "multiple commands in case item"
+
+test_cmd "x='test'
+case \"\$x\" in
+  test)
+    echo 'first'
+    echo 'second'; echo 'third'
+    ;;
+esac" "compound list with semicolons"
+
+test_cmd "x='var'
+case \"\$x\" in
+  var)
+    a=10
+    echo \"\$a\"
+    ;;
+esac" "variable assignment in case"
+
+echo "###################################################"
+echo "CASE - MULTIPLE CASE ITEMS"
+echo "###################################################"
+
+test_cmd "x='b'
+case \"\$x\" in
+  a) echo 'first' ;;
+  b) echo 'second' ;;
+  c) echo 'third' ;;
+esac" "match second of three items"
+
+test_cmd "x='z'
+case \"\$x\" in
+  a) echo 'a' ;;
+  b) echo 'b' ;;
+  c) echo 'c' ;;
+  *) echo 'default' ;;
+esac" "fall through to default"
+
+echo "###################################################"
+echo "CASE - SEMICOLON VARIATIONS"
+echo "###################################################"
+
+test_cmd "x='test'
+case \"\$x\" in
+  test) echo 'match';;
+esac" "no space before ;;"
+
+test_cmd "x='test'
+case \"\$x\" in
+  test) echo 'match' ;;
+  other) echo 'no' ;;
+esac" "semicolon after last item"
+
+test_cmd "x='first'
+case \"\$x\" in
+  first) echo 'one';;
+  second) echo 'two'
+esac" "missing ;; on last item"
+
+echo "###################################################"
+echo "CASE - EXIT STATUS"
+echo "###################################################"
+
+test_cmd "case 'match' in
+  match) true ;;
+esac
+echo \$?" "exit status 0 on match"
+
+test_cmd "case 'nomatch' in
+  other) false ;;
+esac
+echo \$?" "exit status 0 on no match"
+
+test_cmd "case 'test' in
+  test) false ;;
+esac
+echo \$?" "exit status from matched command"
+
+echo "###################################################"
+echo "CASE - WITH LOOPS AND CONDITIONS"
+echo "###################################################"
+
+test_cmd "for i in a b c; do
+  case \"\$i\" in
+    a) echo 'first' ;;
+    b) echo 'second' ;;
+    c) echo 'third' ;;
+  esac
+done" "case inside for loop"
+
+test_cmd "x='test'
+if true; then
+  case \"\$x\" in
+    test) echo 'in if' ;;
+  esac
+fi" "case inside if statement"
+
+test_cmd "x='yes'
+case \"\$x\" in
+  yes)
+    if true; then
+      echo 'nested if'
+    fi
+    ;;
+esac" "if inside case"
+
+echo "###################################################"
+echo "CASE - PARENTHESES IN PATTERNS"
+echo "###################################################"
+
+test_cmd "x='test'
+case \"\$x\" in
+  (test) echo 'with parens' ;;
+esac" "optional opening parenthesis"
+
+test_cmd "x='foo'
+case \"\$x\" in
+  (foo|bar) echo 'alternative with parens' ;;
+esac" "parenthesis with alternatives"
+
+echo "###################################################"
+echo "CASE - QUOTES IN PATTERNS"
+echo "###################################################"
+
+test_cmd "x='hello world'
+case \"\$x\" in
+  'hello world') echo 'quoted match' ;;
+esac" "single quoted pattern with space"
+
+test_cmd "x='test'
+case \"\$x\" in
+  \"test\") echo 'double quoted' ;;
+esac" "double quoted pattern"
+
+test_cmd "x='*'
+case \"\$x\" in
+  '*') echo 'literal star' ;;
+  *) echo 'wildcard' ;;
+esac" "quoted special character"
+
+echo "###################################################"
+echo "CASE - NESTED CASES"
+echo "###################################################"
+
+test_cmd "x='a'
+y='1'
+case \"\$x\" in
+  a)
+    case \"\$y\" in
+      1) echo 'a1' ;;
+      2) echo 'a2' ;;
+    esac
+    ;;
+  b) echo 'b' ;;
+esac" "nested case statements"
+
+echo "###################################################"
+echo "CASE - VARIABLES IN PATTERNS"
+echo "###################################################"
+
+test_cmd "pattern='*.txt'
+x='file.txt'
+case \"\$x\" in
+  \"\$pattern\") echo 'var pattern' ;;
+esac" "variable as pattern - literal match"
+
+test_cmd "x='test'
+case \"\$x\" in
+  te*) echo 'starts with te' ;;
+esac" "pattern with prefix"
+
+echo "###################################################"
+echo "CASE - REDIRECTIONS"
+echo "###################################################"
+
+test_cmd "x='test'
+case \"\$x\" in
+  test) echo 'redirected' > /tmp/case_test.txt ;;
+esac
+cat /tmp/case_test.txt
+rm /tmp/case_test.txt" "redirection in case item"
+
+test_cmd "x='input'
+case \"\$x\" in
+  input) cat < /dev/null ;;
+esac" "input redirection in case"
+
+echo "###################################################"
+echo "CASE - NEWLINES AND FORMATTING"
+echo "###################################################"
+
+test_cmd "x='test'
+case \"\$x\" in
+  test)
+    echo 'multiline'
+    ;;
+esac" "newline before ;;"
+
+test_cmd "x='a'
+case \"\$x\" in
+
+  a) echo 'match' ;;
+
+esac" "newlines around case items"
+
+echo "###################################################"
+echo "CASE - COMPLEX REAL WORLD EXAMPLES"
+echo "###################################################"
+
+test_cmd "file='script.sh'
+case \"\$file\" in
+  *.sh) echo 'shell script' ;;
+  *.py) echo 'python' ;;
+  *.js) echo 'javascript' ;;
+  *.c|*.cpp|*.h) echo 'C/C++' ;;
+  Makefile|*.mk) echo 'make' ;;
+  *) echo 'unknown type' ;;
+esac" "file type detector"
+
+test_cmd "cmd='start'
+case \"\$cmd\" in
+  start|begin|run) echo 'starting...' ;;
+  stop|end|quit) echo 'stopping...' ;;
+  restart) echo 'restarting...' ;;
+  status) echo 'checking status...' ;;
+  *) echo 'unknown command' ;;
+esac" "command dispatcher"
+
+test_cmd "response='yes'
+case \"\$response\" in
+  y|yes|Y|YES) echo 'affirmative' ;;
+  n|no|N|NO) echo 'negative' ;;
+  *) echo 'invalid response' ;;
+esac" "yes/no input handler"
 
 #----------------- FILE EXECUTION -----------------#
 
