@@ -12,13 +12,13 @@ extern struct env *env;
 
 static int is_valid_alias(char *str)
 {
-	if (strcmp(str, "|") == 0 || strcmp(str, "&") == 0 ||
-			strcmp(str, ";") == 0 || strcmp(str, "(") == 0 ||
-			strcmp(str, ")") == 0 || strcmp(str, "<") == 0 ||
-			strcmp(str, ">") == 0 || strcmp(str, " ") == 0 ||
-			strcmp(str, "\n") == 0)
-	{
+	if (str[0] == '\0')
 		return 0;
+	
+	for (int i = 0; str[i] != '\0'; i++)
+	{
+		if (isspace(str[i]) || strchr("|&;()<>", str[i]))
+			return 0;
 	}
     if(strchr(str,'\n')!=NULL || strchr(str,'\t')!=NULL || strchr(str,' ')!=NULL )
       return 0;
@@ -69,8 +69,6 @@ int my_alias(char **command)
 			continue;
 		}
 
-		// We compute the key len from the equal we found to the start
-
 		// We need to expand the value of the key
 		char *key_raw = strndup(actual, key_len);
 		char **expanded_key = expand(key_raw, 1);
@@ -92,10 +90,8 @@ int my_alias(char **command)
 		if (is_valid_alias(key) == 0)
 		{
 			fprintf(stderr, "Error: alias: '%s': invalid alias name\n", key);
-
 			free(key);
-
-			continue;
+			return 2;
 		}
 
 		actual += key_len + 1;

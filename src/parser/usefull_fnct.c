@@ -45,7 +45,7 @@ struct token *get_current_token(struct lexer *lexer)
 
 enum types get_current_type(struct lexer *lexer)
 {
-    return lexer->current->type;
+	return lexer->current->type;
 }
 
 // return le content du current token

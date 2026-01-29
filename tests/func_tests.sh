@@ -1102,7 +1102,7 @@ a 2>/dev/null || echo ok" "unalias multiple"
 
 test_error "unalias nonexistent" "unalias nonexistent"
 
-test_cmd "alias test='echo'
+test_error "alias test='echo'
 unalias test
 alias test='new value'
 test" "redefine after unalias"

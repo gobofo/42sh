@@ -21,6 +21,7 @@ struct lexer *init_lexer(FILE *input)
 		return NULL;
 	}
 
+	lexer->is_first = 0;
 	lexer->stack = base_input;
 	lexer->next = NULL;
 	lexer->current = NULL;
@@ -81,36 +82,44 @@ struct lexer *get_token(struct lexer *lexer)
 		pop_input_stack(&(lexer->stack));
 		return get_token(lexer);
 	}
-
-	// We find an alias
-	if (tok != NULL && tok->type == WORDS)
-	{
-		char *value = hash_map_get(env->alias, tok->content);
-
-		int in_alias = 0;
-
-		// We want to avoid getting in a recursion loop of aliases
-		// So if we find an alias containing this alias already we dont expand
-		// again this same alias
-		for (struct input_stack *s = lexer->stack; s != NULL; s = s->next)
-		{
-			if(s->alias_name && strcmp(s->alias_name, tok->content) == 0)
-				in_alias = 1;
-		}
-
-		if (value != NULL && in_alias == 0)
-		{
-			FILE *alias_file = fmemopen(value, strlen(value), "r");
-
-			push_input_stack(&(lexer->stack), alias_file, tok->content);
-
-			free_token(tok);
-			return get_token(lexer);
-		}
-	}
 	
 	lexer->current = tok;
     return lexer;
+}
+
+struct lexer *get_alias_token(struct lexer *lexer)
+{
+	if (lexer->current == NULL)
+		return lexer;
+
+	char *value = hash_map_get(env->alias, lexer->current->content);
+	if (value == NULL)
+		return lexer;
+
+	// We want to avoid getting in a recursion loop of aliases
+	// So if we find an alias containing this alias already we dont expand
+	// again this same alias
+
+	for (struct input_stack *s = lexer->stack; s != NULL; s = s->next)
+	{
+		if(s->alias_name &&
+				strcmp(s->alias_name, lexer->current->content) == 0)
+			return lexer;
+	}
+
+	FILE *alias_file = fmemopen(value, strlen(value), "r");
+	if (alias_file != NULL)
+	{
+		push_input_stack(&(lexer->stack), alias_file, lexer->current->content);
+
+		free_token(lexer->current);
+
+		get_token(lexer);
+
+		return get_alias_token(lexer);
+	}
+
+	return lexer;
 }
 
 /**
