@@ -17,5 +17,9 @@ int my_false(char **command)
 int my_return(char **command)
 {
     env->should_return = 1;
-    return atoi(command[0]);
+	
+	if (command[0])
+		return atoi(command[0]);
+
+	return 0;
 }

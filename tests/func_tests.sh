@@ -1994,6 +1994,163 @@ test_cmd "echo test;" "trailing semicolon allowed"
 
 test_cmd "(exit 42); echo \$?" "exit in subshell"
 
+echo "###################################################"
+echo "TRICKY - REDIRECTION ORDER & FILE DESCRIPTORS"
+echo "###################################################"
+
+test_cmd "echo output 2>&1 >/tmp/test_fd; cat /tmp/test_fd" "stderr before stdout redirect"
+test_cmd "echo output >/tmp/test_fd 2>&1; cat /tmp/test_fd" "stdout before stderr redirect"
+test_cmd "echo test 2>&1 1>&2" "swap stdout and stderr"
+test_cmd "{ echo out; echo err >&2; } 2>&1 | cat" "group stderr to stdout"
+test_cmd "echo test 1>&2 2>/tmp/test_err; cat /tmp/test_err" "redirect stdout to stderr then stderr to file"
+test_cmd "(echo a; echo b >&2) 2>/tmp/test; cat /tmp/test" "subshell stderr redirect"
+test_cmd "echo test >/tmp/test1 >/tmp/test2; cat /tmp/test2" "multiple stdout redirects"
+test_cmd "{ echo a >&2; } 2>&1 1>&2 | cat" "complex fd swapping"
+
+echo "###################################################"
+echo "TRICKY - WORD SPLITTING EDGE CASES"
+echo "###################################################"
+
+test_cmd "VAR='a  b  c'; echo \$VAR" "word splitting multiple spaces"
+test_cmd "VAR='a  b  c'; echo \"\$VAR\"" "no word splitting when quoted"
+test_cmd "VAR=''; echo x\${VAR}y" "empty variable in word"
+test_cmd "VAR='  '; echo \"[\$VAR]\"" "variable with only spaces"
+test_cmd "IFS=:; VAR='a:b:c'; echo \$VAR" "custom IFS word splitting"
+test_cmd "IFS=''; VAR='a b c'; echo \$VAR" "empty IFS no splitting"
+test_cmd "unset IFS; VAR='a	b'; echo \$VAR" "default IFS with tab"
+
+echo "###################################################"
+echo "TRICKY - RETURN IN VARIOUS CONTEXTS"
+echo "###################################################"
+
+test_cmd "f() { return; }; f; echo \$?" "return with no value"
+test_cmd "f() { return 0; return 1; }; f; echo \$?" "return stops execution"
+test_cmd "f() { while true; do return 5; done; }; f; echo \$?" "return from loop in function"
+test_cmd "f() { if true; then return 3; fi; }; f; echo \$?" "return from if in function"
+test_cmd "f() { ( return 10 ); echo after; }; f; echo \$?" "return in subshell doesn't exit function"
+test_cmd "f() { { return 7; }; echo after; }; f; echo \$?" "return in block exits function"
+test_cmd "f() { echo \$(return 2); }; f; echo \$?" "return in command substitution"
+test_error "return 5" "return outside function"
+
+echo "###################################################"
+echo "TRICKY - COMMAND EXECUTION ORDER"
+echo "###################################################"
+
+test_cmd "echo \$(echo inner) outer" "command sub before outer"
+test_cmd "VAR=\$(echo test); echo \$VAR" "command sub in assignment"
+test_cmd "echo a && echo b || echo c" "AND OR precedence"
+test_cmd "false || true && echo ok" "OR AND precedence"
+test_cmd "VAR=value echo \$VAR; echo \$VAR" "temp var in command"
+test_cmd "VAR=outer; { VAR=inner; echo \$VAR; }; echo \$VAR" "block modifies var"
+test_cmd "VAR=outer; ( VAR=inner; echo \$VAR ); echo \$VAR" "subshell isolates var"
+
+echo "###################################################"
+echo "TRICKY - VARIABLE ASSIGNMENT EDGE CASES"
+echo "###################################################"
+
+test_cmd "VAR=value; VAR=new echo \$VAR" "temp assignment doesn't persist in echo"
+test_cmd "A=1 B=2 C=3; echo \$A\$B\$C" "multiple assignments"
+test_cmd "VAR=\$(echo a b c); echo \$VAR" "assignment no word splitting"
+test_cmd "VAR=; echo [\$VAR]" "empty assignment"
+test_cmd "VAR='a  b'; echo \$VAR" "assignment preserves spaces internally"
+
+echo "###################################################"
+echo "TRICKY - QUOTE NESTING & ESCAPING"
+echo "###################################################"
+
+test_cmd "echo 'can\\'t'" "escaped quote in single quotes"
+test_cmd "echo \"nested \\\"quotes\\\"\"" "escaped quotes in double quotes"
+test_cmd "echo '\"not' \"escaped\"" "quotes don't nest"
+test_cmd "VAR='test'; echo '\$VAR'" "no expansion in single quotes"
+test_cmd "VAR='test'; echo \"\\\$VAR\"" "escaped dollar in double quotes"
+test_cmd "echo \"\\\`echo test\\\`\"" "escaped backtick"
+test_cmd "echo \"\\\\\"" "escaped backslash"
+test_cmd "echo '\\\\'\\''\\'\\''" "complex quote mixing"
+test_cmd "echo 'a'\"b\"'c'" "concatenated quotes"
+
+echo "###################################################"
+echo "TRICKY - PIPELINE & SUBSHELL INTERACTIONS"
+echo "###################################################"
+
+test_cmd "echo test | { VAR=\$(cat); echo \$VAR; }" "pipeline to block with var"
+test_cmd "VAR=outer; echo test | { VAR=inner; cat; }; echo \$VAR" "pipeline modifies var"
+test_cmd "VAR=outer; echo test | ( VAR=inner; cat ); echo \$VAR" "pipeline subshell isolates"
+test_cmd "{ echo a; echo b; } | wc -l" "block to pipeline"
+test_cmd "( echo a; echo b ) | wc -l" "subshell to pipeline"
+test_cmd "true | false | true && echo ok" "pipeline status"
+test_cmd "{ false; } | true && echo ok" "block failure in pipeline"
+test_cmd "echo test | read VAR 2>/dev/null; echo [\$VAR]" "read in pipeline subshell"
+
+echo "###################################################"
+echo "TRICKY - SPECIAL CHARACTERS IN VARIABLES"
+echo "###################################################"
+
+test_cmd "VAR='?'; echo \$VAR" "question mark in variable"
+test_cmd "VAR='[abc]'; echo \$VAR" "brackets in variable"
+test_cmd "VAR='\$'; echo \$VAR" "dollar in variable"
+test_cmd "VAR='!'; echo \$VAR" "exclamation in variable"
+test_cmd "VAR='#'; echo \$VAR" "hash in variable"
+test_cmd "VAR='~'; echo \$VAR" "tilde in variable"
+test_cmd "VAR='|'; echo \$VAR" "pipe in variable"
+test_cmd "VAR='&'; echo \$VAR" "ampersand in variable"
+test_cmd "VAR=';'; echo \$VAR" "semicolon in variable"
+
+echo "###################################################"
+echo "TRICKY - WHITESPACE HANDLING"
+echo "###################################################"
+
+test_cmd "echo    multiple    spaces" "multiple spaces collapsed"
+test_cmd "echo '   preserved   '" "spaces preserved in quotes"
+test_cmd "VAR='	tab	'; echo \"\$VAR\"" "tabs in variable"
+test_cmd "echo test
+echo test2" "commands on separate lines"
+test_cmd "echo test \\
+continued" "backslash line continuation"
+test_cmd "	echo indented" "leading tab ignored"
+test_cmd "   echo spaces" "leading spaces ignored"
+test_cmd "echo trailing   " "trailing spaces"
+
+echo "###################################################"
+echo "TRICKY - EXIT STATUS PROPAGATION"
+echo "###################################################"
+
+test_cmd "false; echo \$?" "false status"
+test_cmd "true; echo \$?" "true status"
+test_cmd "( exit 42 ); echo \$?" "subshell exit status"
+test_cmd "{ exit 42; }; echo \$?" "block exit status"
+test_cmd "false && true; echo \$?" "AND short-circuit status"
+test_cmd "true || false; echo \$?" "OR short-circuit status"
+test_cmd "! false; echo \$?" "negation status"
+test_cmd "! true; echo \$?" "negation true status"
+test_cmd "false | true; echo \$?" "pipeline last status"
+test_cmd "if false; then :; fi; echo \$?" "if condition status"
+
+echo "###################################################"
+echo "TRICKY - DOT COMMAND (.) EDGE CASES"
+echo "###################################################"
+
+test_cmd "echo 'echo sourced' > /tmp/source_test.sh; . /tmp/source_test.sh" "source basic"
+test_cmd "echo 'VAR=sourced' > /tmp/source_var.sh; . /tmp/source_var.sh; echo \$VAR" "source sets variable"
+test_cmd "echo 'return 5' > /tmp/source_ret.sh; . /tmp/source_ret.sh; echo \$?" "source return status"
+test_cmd "VAR=outer; echo 'VAR=inner' > /tmp/source_mod.sh; . /tmp/source_mod.sh; echo \$VAR" "source modifies variable"
+test_cmd "f() { echo 'echo in source' > /tmp/source_func.sh; . /tmp/source_func.sh; }; f" "source in function"
+
+echo "###################################################"
+echo "TRICKY - MIXED COMPLEX SCENARIOS"
+echo "###################################################"
+
+test_cmd "VAR=\$(echo a b c); for x in \$VAR; do echo \$x; done" "for loop with expanded var"
+test_cmd "if [ -z '' ]; then echo empty; fi" "test empty string"
+test_cmd "case \$(echo test) in test) echo ok;; esac" "case with command sub"
+test_cmd "{ VAR=1; { VAR=2; echo \$VAR; }; echo \$VAR; }" "nested blocks"
+test_cmd "echo \$(echo \$(echo nested))" "double nested command sub"
+
+echo "###################################################"
+echo "CLEANUP"
+echo "###################################################"
+
+rm -rf /tmp/globtest /tmp/test_* /tmp/source_*.sh 2>/dev/null
+
 
 #----------------- CLEANUP -----------------#
 
