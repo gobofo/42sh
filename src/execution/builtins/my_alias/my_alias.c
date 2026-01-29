@@ -20,7 +20,8 @@ static int is_valid_alias(char *str)
 	{
 		return 0;
 	}
-
+    if(strchr(str,'\n')!=NULL || strchr(str,'\t')!=NULL || strchr(str,' ')!=NULL )
+      return 0;
 	return 1;
 }
 
@@ -46,9 +47,10 @@ int my_alias(char **command)
 
 		command++;
 
+		size_t key_len = strchr(actual,'=') - actual;
 		// We try to find an equal sign to know if we are doing a definition or
 		// just a simple print
-		if(strchr(actual,'=') == NULL)
+		if(strchr(actual,'=') == NULL || key_len ==0)
 		{
 			// No equal was found, so we try to retrieve a value for the alias
 			char* value = hash_map_get(env->alias, actual);
@@ -68,7 +70,6 @@ int my_alias(char **command)
 		}
 
 		// We compute the key len from the equal we found to the start
-		size_t key_len = strchr(actual,'=') - actual;
 
 		// We need to expand the value of the key
 		char *key_raw = strndup(actual, key_len);
