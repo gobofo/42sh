@@ -20,7 +20,7 @@ struct env *init_env(int argc, char **argv)
     // Creates the hash_map to store the variables
     env->variables = hash_map_init(64);
     env->functions = hash_map_init(64);
-	env->alias = hash_map_init(64);
+    env->alias = hash_map_init(64);
 
     // When the shell is launched no command as been launched so the last exit
     // code is 0
@@ -43,7 +43,7 @@ struct env *init_env(int argc, char **argv)
         {
             // Skip the -c
             i += 2;
-			env->argc--;
+            env->argc--;
         }
         // Case we give a script
         else
@@ -59,14 +59,14 @@ struct env *init_env(int argc, char **argv)
             env->argv[env->argc] = argv[i];
             i++;
         }
-		if(env->argc<0)
-			env->argc = 0;
+        if (env->argc < 0)
+            env->argc = 0;
     }
 
     char *oldpwd = getenv("OLDPWD");
     char *pwd = getenv("PWD");
     char *ifs = getenv("IFS");
-	char *home = getenv("HOME");
+    char *home = getenv("HOME");
 
     if (!ifs)
         ifs = " \t\n";
@@ -78,7 +78,7 @@ struct env *init_env(int argc, char **argv)
     hash_map_insert(env->variables, "PWD", strdup(pwd ? pwd : "."), free);
     hash_map_insert(env->variables, "IFS", strdup(ifs), free);
 
-	if (home)
+    if (home)
         hash_map_insert(env->variables, "HOME", strdup(home), free);
 
     struct export *export_variables = create_export();

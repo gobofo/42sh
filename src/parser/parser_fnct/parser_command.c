@@ -7,10 +7,10 @@
 
 struct AST *command(struct lexer **lexer)
 {
-	get_alias_token(*lexer);
+    get_alias_token(*lexer);
 
-	if (get_current_token(*lexer) == NULL)
-		return NULL;
+    if (get_current_token(*lexer) == NULL)
+        return NULL;
 
     struct AST *ast = NULL;
 
@@ -80,12 +80,12 @@ err:
     return NULL;
 }
 
-//this fnct is here to handle the case 1 and 2
-//of shell command
+// this fnct is here to handle the case 1 and 2
+// of shell command
 //'{' compound_list '}' and '(' compound_list ')'
 
-static struct AST *handle_subshell(struct lexer **lexer){
-
+static struct AST *handle_subshell(struct lexer **lexer)
+{
     bool is_paren = get_current_type(*lexer) == L_PAREN;
 
     *lexer = eat(*lexer);
@@ -127,7 +127,6 @@ static struct AST *handle_subshell(struct lexer **lexer){
 err:
     destroy_AST(ast);
     return NULL;
-
 }
 
 //(10) shell_c
@@ -181,7 +180,6 @@ struct AST *shell_command(struct lexer **lexer)
     { // cas 1 et 2
 
         return handle_subshell(lexer);
-
     }
     else
     {
@@ -189,14 +187,13 @@ struct AST *shell_command(struct lexer **lexer)
     }
 }
 
+// This function is here to handle all the prefix in the
+// simple_command function
+// it return 0 if it didn't find any prefix
+// and 1 if it find 1 or more prefix
 
-//This function is here to handle all the prefix in the
-//simple_command function
-//it return 0 if it didn't find any prefix
-//and 1 if it find 1 or more prefix
-
-static int eat_prefix(struct lexer **lexer, struct AST *ast){
-
+static int eat_prefix(struct lexer **lexer, struct AST *ast)
+{
     int pref = 0;
 
     while (get_current_token(*lexer)
@@ -214,17 +211,16 @@ static int eat_prefix(struct lexer **lexer, struct AST *ast){
     }
 
     return pref;
-
 }
 
-//this function's goal is respect the rule 2 of simple_command
-//in fact, it eat the first Word or subshell
-//and after it eat all the element
-//if there is an issue it return -1
-//else it return 0
+// this function's goal is respect the rule 2 of simple_command
+// in fact, it eat the first Word or subshell
+// and after it eat all the element
+// if there is an issue it return -1
+// else it return 0
 
-static int eat_word_and_element(struct lexer **lexer, struct AST *ast){
-
+static int eat_word_and_element(struct lexer **lexer, struct AST *ast)
+{
     struct AST *child;
 
     if (!is_valid_word(*lexer))
@@ -247,11 +243,10 @@ static int eat_word_and_element(struct lexer **lexer, struct AST *ast){
 
     *lexer = eat(*lexer);
 
-    while (
-        get_current_token(*lexer)
-        && (first_element(get_current_token(*lexer))
-            || is_valid_word(*lexer))) // first de element ou un valid word
-                                           // car element peut etre just word
+    while (get_current_token(*lexer)
+           && (first_element(get_current_token(*lexer))
+               || is_valid_word(*lexer))) // first de element ou un valid word
+                                          // car element peut etre just word
     {
         struct AST *child_el = element(lexer);
         if (child_el == NULL) // remonte l'err
@@ -261,7 +256,6 @@ static int eat_word_and_element(struct lexer **lexer, struct AST *ast){
     }
 
     return 0;
-
 }
 
 //(18) simple_command =
@@ -274,7 +268,8 @@ struct AST *simple_command(struct lexer **lexer)
 
     int pref = eat_prefix(lexer, ast);
 
-    if (pref == -1){
+    if (pref == -1)
+    {
         goto err;
     }
 
@@ -287,11 +282,10 @@ struct AST *simple_command(struct lexer **lexer)
     if (pref == 0
         || (get_current_token(*lexer) && is_valid_word(*lexer))) // regle 2
     {
-
-        if (eat_word_and_element(lexer, ast) == -1){ //mange le word | subshell puis {element}
+        if (eat_word_and_element(lexer, ast) == -1)
+        { // mange le word | subshell puis {element}
             goto err;
         }
-
     }
 
     if (!follow_simple_command(get_current_token(

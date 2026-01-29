@@ -1,6 +1,6 @@
 #include "expansion.h"
 
-//extern struct env *env;
+// extern struct env *env;
 
 // ####################
 // #   WORDS STRUCT   #
@@ -26,89 +26,91 @@ static void add_word(struct expanded_words *words, char *word)
     words->words[words->count] = NULL;
 }
 
-//#####################
-//#   IFS SPLITTING   #
-//#####################
+// #####################
+// #   IFS SPLITTING   #
+// #####################
 
 void split_fields(struct expansion_context *context, char *str)
 {
-	char *ifs = hash_map_get(env->variables, "IFS");
-	if (ifs == NULL)
-		ifs = " \t\n";
+    char *ifs = hash_map_get(env->variables, "IFS");
+    if (ifs == NULL)
+        ifs = " \t\n";
 
-	if (ifs[0] == '\0')
-	{
-		fputs(str, context->stream);
-		return;
-	}
+    if (ifs[0] == '\0')
+    {
+        fputs(str, context->stream);
+        return;
+    }
 
-	char *cur = str;
+    char *cur = str;
 
-	// We ignore whitespaces at the start
-	while (*cur && is_ifs_white_space(*cur, ifs))
-		cur++;
+    // We ignore whitespaces at the start
+    while (*cur && is_ifs_white_space(*cur, ifs))
+        cur++;
 
-	while (*cur && is_ifs(*cur, ifs) && !is_ifs_white_space(*cur, ifs))
-	{
-		// Create an empty word for each leading non-whitespace delimiter
-		fclose(context->stream);
-		add_word(context->words, strdup(""));
-		free(*(context->buffer));
-		*(context->buffer) = NULL;
-		*(context->size) = 0;
-		context->stream = open_memstream(context->buffer, context->size);
-		cur++;
-	}
+    while (*cur && is_ifs(*cur, ifs) && !is_ifs_white_space(*cur, ifs))
+    {
+        // Create an empty word for each leading non-whitespace delimiter
+        fclose(context->stream);
+        add_word(context->words, strdup(""));
+        free(*(context->buffer));
+        *(context->buffer) = NULL;
+        *(context->size) = 0;
+        context->stream = open_memstream(context->buffer, context->size);
+        cur++;
+    }
 
-	while (*cur)
-	{
-		// We put in the stream the values that are not a delim defined in IFS
-		while (*cur && is_ifs(*cur, ifs) == 0)
-		{
-			fputc(*cur, context->stream);
-			cur++;
-		}
-		
-		if (*cur != '\0')
-		{
-			// We find a delim so we create a new word
-			fclose(context->stream);
+    while (*cur)
+    {
+        // We put in the stream the values that are not a delim defined in IFS
+        while (*cur && is_ifs(*cur, ifs) == 0)
+        {
+            fputc(*cur, context->stream);
+            cur++;
+        }
 
-			add_word(context->words, strdup(*(context->buffer)));
+        if (*cur != '\0')
+        {
+            // We find a delim so we create a new word
+            fclose(context->stream);
 
-			free(*(context->buffer));
-			*(context->buffer) = NULL;
-			*(context->size) = 0;
+            add_word(context->words, strdup(*(context->buffer)));
 
-			context->stream = open_memstream(context->buffer, context->size);
+            free(*(context->buffer));
+            *(context->buffer) = NULL;
+            *(context->size) = 0;
 
-			if (is_ifs_white_space(*cur, ifs) == 1)
-			{
-				// Whitespaces delim words no matter how many of them are present
-				while (*cur && is_ifs_white_space(*cur, ifs))
-					cur++;
+            context->stream = open_memstream(context->buffer, context->size);
 
-				// We find a delim that is not a whitespace
-				if (*cur && is_ifs(*cur, ifs) && is_ifs_white_space(*cur, ifs) == 0)
-				{
-					// Skip the delim
-					cur++;
+            if (is_ifs_white_space(*cur, ifs) == 1)
+            {
+                // Whitespaces delim words no matter how many of them are
+                // present
+                while (*cur && is_ifs_white_space(*cur, ifs))
+                    cur++;
 
-					// We skip all following whitespaces
-					while (*cur && is_ifs_white_space(*cur, ifs))
-						cur++;
-				}
-			}
-			// The delim is not a whitespace
-			else
-			{
-				cur++;
+                // We find a delim that is not a whitespace
+                if (*cur && is_ifs(*cur, ifs)
+                    && is_ifs_white_space(*cur, ifs) == 0)
+                {
+                    // Skip the delim
+                    cur++;
 
-				while (*cur && is_ifs_white_space(*cur, ifs))
-					cur++;
-			}
-		}
-	}
+                    // We skip all following whitespaces
+                    while (*cur && is_ifs_white_space(*cur, ifs))
+                        cur++;
+                }
+            }
+            // The delim is not a whitespace
+            else
+            {
+                cur++;
+
+                while (*cur && is_ifs_white_space(*cur, ifs))
+                    cur++;
+            }
+        }
+    }
 }
 
 // ################
@@ -123,22 +125,23 @@ void split_fields(struct expansion_context *context, char *str)
  * @param list_sub		The list of words to expand as a single one
  */
 
-//static void expand_subshell(struct expansion_context *context, char **list_sub)
+// static void expand_subshell(struct expansion_context *context, char
+// **list_sub)
 //{
-//    int i = 0;
+//     int i = 0;
 //
-//    while (list_sub[i] != NULL)
-//    {
-//        fputs(list_sub[i], context->stream);
+//     while (list_sub[i] != NULL)
+//     {
+//         fputs(list_sub[i], context->stream);
 //
-//        free(list_sub[i]);
+//         free(list_sub[i]);
 //
-//        if (list_sub[i + 1] != NULL)
-//            fputc(' ', context->stream);
+//         if (list_sub[i + 1] != NULL)
+//             fputc(' ', context->stream);
 //
-//        i++;
-//    }
-//}
+//         i++;
+//     }
+// }
 
 /**
  * @brief 			Expands the subshells and commands substitution
@@ -181,7 +184,7 @@ static void handle_subshell(struct expansion_context *context, char *str,
 
     char *output = expand_command_substitution(sub_buffer);
 
-	if (output != NULL)
+    if (output != NULL)
     {
         size_t len = strlen(output);
         while (len > 0 && output[len - 1] == '\n')
@@ -190,18 +193,18 @@ static void handle_subshell(struct expansion_context *context, char *str,
             len--;
         }
     }
-	
-	if (context->quoted == 1 || context->is_assign == 1)
-		fputs(output, context->stream);
-	else
-		split_fields(context, output);
 
-//    char **list_sub = separate_white_space(output);
+    if (context->quoted == 1 || context->is_assign == 1)
+        fputs(output, context->stream);
+    else
+        split_fields(context, output);
 
- //   expand_subshell(context, list_sub);
+    //    char **list_sub = separate_white_space(output);
+
+    //   expand_subshell(context, list_sub);
 
     free(sub_buffer);
-//    free(list_sub);
+    //    free(list_sub);
     free(output);
 }
 
@@ -386,13 +389,13 @@ static void expand_variable(struct expansion_context *context, char *str,
         char *var_value = hash_map_get(env->variables, var_name);
 
         if (var_value)
-		{
-			if (context->quoted == 1 || context->is_assign == 1)
-				fputs(var_value, context->stream);
-			else
-				split_fields(context, var_value);
-    	}
-	}
+        {
+            if (context->quoted == 1 || context->is_assign == 1)
+                fputs(var_value, context->stream);
+            else
+                split_fields(context, var_value);
+        }
+    }
 
     free(var_name);
 }
@@ -440,8 +443,8 @@ static void handle_double_quotes(struct expansion_context *context, char *str,
         fclose(context->stream);
         free(buffer);
     }
-	
-	context->quoted = 0;
+
+    context->quoted = 0;
 
     if (str[*i] == '"')
         (*i)++;
@@ -476,8 +479,8 @@ char **expand(char *str, int is_assign)
 
     FILE *stream = open_memstream(&buffer, &size);
 
-    struct expansion_context context = { stream, 0, is_assign,
-		&buffer, &size, &words };
+    struct expansion_context context = { stream,  0,     is_assign,
+                                         &buffer, &size, &words };
 
     size_t i = 0;
 

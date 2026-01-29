@@ -20,9 +20,7 @@ bool first_shell_command(struct token *token)
     enum types type = token->type;
     return first_rule_if(token) || first_rule_while(token)
         || first_rule_until(token) || first_rule_for(token)
-        || first_rule_case(token)
-        || type == L_BRACE
-        || type == L_PAREN;
+        || first_rule_case(token) || type == L_BRACE || type == L_PAREN;
 }
 
 bool first_simple_command(struct token *token)

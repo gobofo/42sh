@@ -37,13 +37,13 @@ int my_unset(char **command)
 
     if (!(f_flag || v_flag) || v_flag)
         for (int i = 0; command[i]; i++)
-		{
+        {
             bool removed = hash_map_remove(env->variables, command[i], free);
-			if(!removed && !v_flag)
-				hash_map_remove(env->functions, command[i], destroy_AST_void);
-		}
+            if (!removed && !v_flag)
+                hash_map_remove(env->functions, command[i], destroy_AST_void);
+        }
 
-    else if(f_flag)
+    else if (f_flag)
         for (int i = 0; command[i]; i++)
             hash_map_remove(env->functions, command[i], destroy_AST_void);
 

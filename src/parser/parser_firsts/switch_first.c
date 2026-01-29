@@ -1,7 +1,8 @@
 #include "switch_first.h"
 
-bool first_rule_case(struct token *token){
-  return token && token->type == CASE;
+bool first_rule_case(struct token *token)
+{
+    return token && token->type == CASE;
 }
 
 bool first_case_item(struct token *token)

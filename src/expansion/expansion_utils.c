@@ -8,18 +8,18 @@ int is_special_char(char c)
 
 int is_ifs(char c, char *ifs)
 {
-	for (int i = 0; ifs[i] != '\0'; i++)
-	{
-		if (c == ifs[i])
-			return 1;
-	}
+    for (int i = 0; ifs[i] != '\0'; i++)
+    {
+        if (c == ifs[i])
+            return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
 int is_ifs_white_space(char c, char *ifs)
 {
-	return (c == ' ' || c == '\t' || c == '\n') && is_ifs(c, ifs);
+    return (c == ' ' || c == '\t' || c == '\n') && is_ifs(c, ifs);
 }
 
 /**

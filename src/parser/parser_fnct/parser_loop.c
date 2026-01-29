@@ -120,13 +120,13 @@ err:
     return NULL;
 }
 
-//this function is here to parse the body of the for
+// this function is here to parse the body of the for
 //( [';'] | [ {'\n'} 'in' { ( WORD | SUBSHELL) } ( ';' | '\n') ] )
-//it return -1 if the parsing is bad
-//and ut return 0 if the parsing is good
+// it return -1 if the parsing is bad
+// and ut return 0 if the parsing is good
 
-static int parse_for_body(struct lexer **lexer, struct AST *ast){
-
+static int parse_for_body(struct lexer **lexer, struct AST *ast)
+{
     // Cas 1
     if (get_current_type(*lexer) == SEMICOLON)
     {
@@ -180,7 +180,6 @@ static int parse_for_body(struct lexer **lexer, struct AST *ast){
     }
 
     return 0;
-
 }
 
 //(16) rule_for = 'for' WORD ( [';']
@@ -209,7 +208,8 @@ struct AST *rule_for(struct lexer **lexer)
     if (get_current_token(*lexer) == NULL) // si ya rien c erreur
         goto err;
 
-    if (parse_for_body(lexer, ast) == -1){ //gere tous le body du for
+    if (parse_for_body(lexer, ast) == -1)
+    { // gere tous le body du for
         goto err;
     }
 

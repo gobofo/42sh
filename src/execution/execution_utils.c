@@ -11,41 +11,43 @@ extern struct env *env;
  * @param root	The AST node
  */
 
-
-char* join_tab_string(char** expanded_v){
+char *join_tab_string(char **expanded_v)
+{
     int count = 0;
     while (expanded_v[count])
         count++;
-    if(count==0)
-      return strdup("");
+    if (count == 0)
+        return strdup("");
 
     int total_len = 0;
     int i = 0;
 
     while (expanded_v[i])
     {
-      total_len += strlen(expanded_v[i]);
-      i++;
+        total_len += strlen(expanded_v[i]);
+        i++;
     }
 
     total_len += (count - 1);
     char *result = malloc(total_len + 1);
-  
-    char* ptr=result;
-    i=0;
-    while(expanded_v[i]){
-      if(i>0){
-        ptr[0]=' ';
-        ptr++;
-      }
 
-      strcpy(ptr,expanded_v[i]);
-      ptr= ptr+ strlen(expanded_v[i]);
-      free(expanded_v[i]);
-      i++;
+    char *ptr = result;
+    i = 0;
+    while (expanded_v[i])
+    {
+        if (i > 0)
+        {
+            ptr[0] = ' ';
+            ptr++;
+        }
+
+        strcpy(ptr, expanded_v[i]);
+        ptr = ptr + strlen(expanded_v[i]);
+        free(expanded_v[i]);
+        i++;
     }
     free(expanded_v);
-    ptr[0]=0;
+    ptr[0] = 0;
     return result;
 }
 
@@ -101,7 +103,7 @@ char **create_command(struct AST *root)
         {
             char **expanded_values = expand(root->children[i]->content, 0);
 
-			int word_count = 0;
+            int word_count = 0;
             for (int j = 0; expanded_values[j] != NULL; j++)
                 word_count++;
 
@@ -110,7 +112,7 @@ char **create_command(struct AST *root)
                 if (expanded_values[j][0] != '\0'
                     || strcmp(root->children[i]->content, "''") == 0
                     || strcmp(root->children[i]->content, "\"\"") == 0
-					|| word_count > 1)
+                    || word_count > 1)
                 {
                     command = realloc(command, sizeof(char *) * (idx + 2));
                     command[idx++] = expanded_values[j];
@@ -163,6 +165,3 @@ int create_function(struct AST *root)
                     destroy_AST_void);
     return 0;
 }
-
-
-

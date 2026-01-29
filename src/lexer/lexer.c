@@ -10,39 +10,39 @@ extern struct env *env;
 
 struct lexer *init_lexer(FILE *input)
 {
-	struct lexer *lexer = malloc(sizeof(struct lexer));
-	if (!lexer)
-		return NULL;
+    struct lexer *lexer = malloc(sizeof(struct lexer));
+    if (!lexer)
+        return NULL;
 
-	struct input_stack *base_input = init_input_stack(input); 
-	if (input == NULL)
-	{
-		free(lexer);
-		return NULL;
-	}
+    struct input_stack *base_input = init_input_stack(input);
+    if (input == NULL)
+    {
+        free(lexer);
+        return NULL;
+    }
 
-	lexer->is_first = 0;
-	lexer->stack = base_input;
-	lexer->next = NULL;
-	lexer->current = NULL;
+    lexer->is_first = 0;
+    lexer->stack = base_input;
+    lexer->next = NULL;
+    lexer->current = NULL;
 
-	get_token(lexer);
+    get_token(lexer);
 
-	return lexer;
+    return lexer;
 }
 
 void free_lexer(struct lexer *lexer)
 {
-	if (!lexer)
-		return;
+    if (!lexer)
+        return;
 
-	free(lexer->stack);
+    free(lexer->stack);
 
-	if (lexer->current != NULL)
-		free_token(lexer->current);
+    if (lexer->current != NULL)
+        free_token(lexer->current);
 
-	if (lexer->next != NULL)
-		free_token(lexer->next);
+    if (lexer->next != NULL)
+        free_token(lexer->next);
 
     free(lexer);
 }
@@ -60,66 +60,66 @@ void free_lexer(struct lexer *lexer)
  */
 
 struct lexer *get_token(struct lexer *lexer)
-{	
-	struct token *tok = NULL;
+{
+    struct token *tok = NULL;
 
-	// We look if a look ahead token was read
-	// If yes we use it as our current token
-	// Else we return the token just read in the input
+    // We look if a look ahead token was read
+    // If yes we use it as our current token
+    // Else we return the token just read in the input
     if (lexer->next == NULL)
-	{
+    {
         tok = read_input(lexer);
-	}
-	else
+    }
+    else
     {
         tok = lexer->next;
         lexer->next = NULL;
     }
 
-	// We read all our current stream and the stack is still not empty after
-	if (tok == NULL && lexer->stack->next != NULL)
-	{
-		pop_input_stack(&(lexer->stack));
-		return get_token(lexer);
-	}
-	
-	lexer->current = tok;
+    // We read all our current stream and the stack is still not empty after
+    if (tok == NULL && lexer->stack->next != NULL)
+    {
+        pop_input_stack(&(lexer->stack));
+        return get_token(lexer);
+    }
+
+    lexer->current = tok;
     return lexer;
 }
 
 struct lexer *get_alias_token(struct lexer *lexer)
 {
-	if (lexer->current == NULL)
-		return lexer;
+    if (lexer->current == NULL)
+        return lexer;
 
-	char *value = hash_map_get(env->alias, lexer->current->content);
-	if (value == NULL)
-		return lexer;
+    char *value = hash_map_get(env->alias, lexer->current->content);
+    if (value == NULL)
+        return lexer;
 
-	// We want to avoid getting in a recursion loop of aliases
-	// So if we find an alias containing this alias already we dont expand
-	// again this same alias
+    // We want to avoid getting in a recursion loop of aliases
+    // So if we find an alias containing this alias already we dont expand
+    // again this same alias
 
-	for (struct input_stack *s = lexer->stack; s != NULL; s = s->next)
-	{
-		if(s->alias_name &&
-				strcmp(s->alias_name, lexer->current->content) == 0)
-			return lexer;
-	}
+    for (struct input_stack *s = lexer->stack; s != NULL; s = s->next)
+    {
+        if (s->alias_name
+            && strcmp(s->alias_name, lexer->current->content) == 0)
+            return lexer;
+    }
 
-	FILE *alias_file = fmemopen(value, strlen(value), "r");
-	if (alias_file != NULL)
-	{
-		push_input_stack(&(lexer->stack), alias_file, lexer->current->content);
+    FILE *alias_file = fmemopen(value, strlen(value), "r");
+    if (alias_file != NULL)
+    {
+        push_input_stack(&(lexer->stack), alias_file, lexer->current->content);
 
-		free_token(lexer->current);
+        free_token(lexer->current);
 
-		get_token(lexer);
+        get_token(lexer);
 
-		return get_alias_token(lexer);
-	}
+        return get_alias_token(lexer);
+    }
 
-	return lexer;
+    return lexer;
 }
 
 /**
@@ -130,10 +130,10 @@ struct lexer *get_alias_token(struct lexer *lexer)
 
 void next_token(struct lexer **lexer)
 {
-	if ((*lexer)->next != NULL)
-		free_token((*lexer)->next);
+    if ((*lexer)->next != NULL)
+        free_token((*lexer)->next);
 
-	(*lexer)->next = read_input(*lexer);
+    (*lexer)->next = read_input(*lexer);
 }
 
 // ##############
@@ -161,11 +161,11 @@ static struct token *flush_stream(struct lexer *lexer)
     struct token *new_token = create_token(lexer->buffer);
 
     if (!new_token)
-	{
+    {
         free(lexer->buffer);
-		
-		lexer->buffer = NULL;
-	}
+
+        lexer->buffer = NULL;
+    }
 
     return new_token;
 }
@@ -218,7 +218,8 @@ static void handle_quotes(struct lexer *lexer)
 
     // While we not find the corresponding closing quote we add each char
     // between the quotes in the stream
-    while ((lexer->c = fgetc(lexer->stack->file)) != EOF && lexer->c != open_quote)
+    while ((lexer->c = fgetc(lexer->stack->file)) != EOF
+           && lexer->c != open_quote)
     {
         // In double quotes, some characters can be escaped with the \ so when
         // one is found we have to take a particular action
@@ -255,48 +256,48 @@ static void handle_quotes(struct lexer *lexer)
 
 static void handle_escape(struct lexer *lexer)
 {
-	fputc(lexer->c, lexer->stream);
-	lexer->c = fgetc(lexer->stack->file);
-	fputc(lexer->c, lexer->stream);
+    fputc(lexer->c, lexer->stream);
+    lexer->c = fgetc(lexer->stack->file);
+    fputc(lexer->c, lexer->stream);
 }
 
 static struct token *handle_ifs(struct lexer *lexer)
 {
-	fflush(lexer->stream);
+    fflush(lexer->stream);
 
-	if (lexer->size == 0)
-		return NULL;
+    if (lexer->size == 0)
+        return NULL;
 
-	return flush_stream(lexer);
+    return flush_stream(lexer);
 }
 
 static struct token *handle_special_token(struct lexer *lexer)
 {
-	// Sync the stream
-	fflush(lexer->stream);
+    // Sync the stream
+    fflush(lexer->stream);
 
-	if (lexer->size > 0 && lexer->c != '!')
-		return empty_stream(lexer);
+    if (lexer->size > 0 && lexer->c != '!')
+        return empty_stream(lexer);
 
-	// If we were already reading a token, then we need to save
-	// the delim, return the current token, then read again the
-	// delim So once the token is processed we put back the delim in
-	// the file stream. This way it can be read again.
-	fputc(lexer->c, lexer->stream);
+    // If we were already reading a token, then we need to save
+    // the delim, return the current token, then read again the
+    // delim So once the token is processed we put back the delim in
+    // the file stream. This way it can be read again.
+    fputc(lexer->c, lexer->stream);
 
-	if(lexer->c == ';')
-	{
-		// We take the next char to see if we find another ;
-		int next = fgetc(lexer->stack->file);
+    if (lexer->c == ';')
+    {
+        // We take the next char to see if we find another ;
+        int next = fgetc(lexer->stack->file);
 
-		// We find it so we create a token D_SEMICOLON
-		if(next == ';')
-			fputc(next, lexer->stream);
-		else
-			ungetc(next, lexer->stack->file); 
-	}
+        // We find it so we create a token D_SEMICOLON
+        if (next == ';')
+            fputc(next, lexer->stream);
+        else
+            ungetc(next, lexer->stack->file);
+    }
 
-	return flush_stream(lexer);
+    return flush_stream(lexer);
 }
 
 /**
@@ -319,8 +320,8 @@ static void handle_comments(struct lexer *lexer)
 
     if (lexer->size == 0)
     {
-        while ((lexer->c = fgetc(lexer->stack->file)) != EOF &&
-				lexer->c != '\n')
+        while ((lexer->c = fgetc(lexer->stack->file)) != EOF
+               && lexer->c != '\n')
             ;
     }
 
@@ -347,55 +348,55 @@ static void handle_comments(struct lexer *lexer)
 
 static struct token *handle_redir(struct lexer *lexer)
 {
-	if (is_redir_c(lexer->c) && lexer->size > 0)
-		return empty_stream(lexer);
+    if (is_redir_c(lexer->c) && lexer->size > 0)
+        return empty_stream(lexer);
 
     char buff[4] = { 0 };
 
     buff[0] = lexer->c;
 
-	int next = fgetc(lexer->stack->file);
+    int next = fgetc(lexer->stack->file);
 
-	if (next != EOF)
-	{
-		buff[1] = next;
+    if (next != EOF)
+    {
+        buff[1] = next;
 
-		// We have both characters that can make part of a redir.
-		// Lets check if we can add a last char to out redir.
-		if (is_redir_c(buff[1]))
-		{
-			// Get the 3rd char
-			int third = fgetc(lexer->stack->file);
-			
-			if (third != EOF)
-			{
-				buff[2] = third; 
+        // We have both characters that can make part of a redir.
+        // Lets check if we can add a last char to out redir.
+        if (is_redir_c(buff[1]))
+        {
+            // Get the 3rd char
+            int third = fgetc(lexer->stack->file);
 
-				// We have a redir
-				if (is_redir(buff))
-				{
-					fprintf(lexer->stream, "%s", buff);
-					return flush_stream(lexer);
-				}
+            if (third != EOF)
+            {
+                buff[2] = third;
 
-				// Else we put back the third char
-				ungetc(buff[2], lexer->stack->file);
-			}
+                // We have a redir
+                if (is_redir(buff))
+                {
+                    fprintf(lexer->stream, "%s", buff);
+                    return flush_stream(lexer);
+                }
 
-			buff[2] = '\0';
+                // Else we put back the third char
+                ungetc(buff[2], lexer->stack->file);
+            }
 
-			// We know our 2 chars are chars that can be found in a REDIR but we
-			// dont know if tgt they form a REDIR
-			if (is_redir(buff))
-			{
-				fprintf(lexer->stream, "%s", buff);
-				return flush_stream(lexer);
-			}
-		}
+            buff[2] = '\0';
 
-		// We could not create a 3 or 2 char redir so we try for a single char
-		ungetc(buff[1], lexer->stack->file);
-	}
+            // We know our 2 chars are chars that can be found in a REDIR but we
+            // dont know if tgt they form a REDIR
+            if (is_redir(buff))
+            {
+                fprintf(lexer->stream, "%s", buff);
+                return flush_stream(lexer);
+            }
+        }
+
+        // We could not create a 3 or 2 char redir so we try for a single char
+        ungetc(buff[1], lexer->stack->file);
+    }
 
     buff[1] = '\0';
 
@@ -410,130 +411,131 @@ static struct token *handle_redir(struct lexer *lexer)
 
 static void command_sub_helper(struct lexer *lexer)
 {
-	int nesting = 0;
-	int back_quote = 0;
+    int nesting = 0;
+    int back_quote = 0;
 
-	if (lexer->c == '(')
-		nesting++;
-	else
-		back_quote++;
+    if (lexer->c == '(')
+        nesting++;
+    else
+        back_quote++;
 
-	if (lexer->c == '(')
-		fputc(lexer->c, lexer->stream);
-	else
-		fputs("$(", lexer->stream);
+    if (lexer->c == '(')
+        fputc(lexer->c, lexer->stream);
+    else
+        fputs("$(", lexer->stream);
 
-	while ((back_quote > 0 || nesting > 0) &&
-			(lexer->c = fgetc(lexer->stack->file)) != EOF)
-	{
-		if (lexer->c == '(')
-			nesting++;
-		if (lexer->c == ')')
-			nesting--;
+    while ((back_quote > 0 || nesting > 0)
+           && (lexer->c = fgetc(lexer->stack->file)) != EOF)
+    {
+        if (lexer->c == '(')
+            nesting++;
+        if (lexer->c == ')')
+            nesting--;
 
-		if (lexer->c == '\\')
-		{
-			lexer->c = fgetc(lexer->stack->file);
+        if (lexer->c == '\\')
+        {
+            lexer->c = fgetc(lexer->stack->file);
 
-			if (lexer->c != '`')
-				fputc('\\', lexer->stream);
+            if (lexer->c != '`')
+                fputc('\\', lexer->stream);
 
-			fputc(lexer->c, lexer->stream);
+            fputc(lexer->c, lexer->stream);
 
-			continue;
-		}
+            continue;
+        }
 
-		if (back_quote == 1 && lexer->c == '`')
-		{
-			fputc(')', lexer->stream);
-			break;
-		}
+        if (back_quote == 1 && lexer->c == '`')
+        {
+            fputc(')', lexer->stream);
+            break;
+        }
 
-		fputc(lexer->c, lexer->stream);
-	}
+        fputc(lexer->c, lexer->stream);
+    }
 }
 
 static struct token *handle_command_block(struct lexer *lexer)
 {
-	fflush(lexer->stream);
+    fflush(lexer->stream);
 
-	if (lexer->c == '{' && lexer->size > 0
-			&& lexer->buffer[lexer->size - 1] == '$')
-	{
-		lexer->in_var = 1;
-		fputc(lexer->c, lexer->stream);
+    if (lexer->c == '{' && lexer->size > 0
+        && lexer->buffer[lexer->size - 1] == '$')
+    {
+        lexer->in_var = 1;
+        fputc(lexer->c, lexer->stream);
 
-		return NULL;
-	}
+        return NULL;
+    }
 
-	if (lexer->c == '}' && lexer->in_var)
-	{
-		lexer->in_var = 0;
-		fputc(lexer->c, lexer->stream);
+    if (lexer->c == '}' && lexer->in_var)
+    {
+        lexer->in_var = 0;
+        fputc(lexer->c, lexer->stream);
 
-		return NULL;
-	}
+        return NULL;
+    }
 
-	if (lexer->size > 0)
-		return empty_stream(lexer);
+    if (lexer->size > 0)
+        return empty_stream(lexer);
 
-	fputc(lexer->c, lexer->stream);
+    fputc(lexer->c, lexer->stream);
 
-	return flush_stream(lexer);
+    return flush_stream(lexer);
 }
 
 static struct token *handle_command_sub(struct lexer *lexer)
 {
-	fflush(lexer->stream);
+    fflush(lexer->stream);
 
-	if ((lexer->c == '(' && lexer->size > 0 &&
-				lexer->buffer[lexer->size - 1] == '$') || lexer->c == '`')
-	{
-		command_sub_helper(lexer);
-		return NULL;
-	}
+    if ((lexer->c == '(' && lexer->size > 0
+         && lexer->buffer[lexer->size - 1] == '$')
+        || lexer->c == '`')
+    {
+        command_sub_helper(lexer);
+        return NULL;
+    }
 
-	if (lexer->size > 0)
-		return empty_stream(lexer);
+    if (lexer->size > 0)
+        return empty_stream(lexer);
 
-	fputc(lexer->c, lexer->stream);
+    fputc(lexer->c, lexer->stream);
 
-	return flush_stream(lexer);
+    return flush_stream(lexer);
 }
 
 static struct token *handle_operators(struct lexer *lexer)
 {
-	fflush(lexer->stream);
+    fflush(lexer->stream);
 
-	if (lexer->size > 0)
-		return empty_stream(lexer);
+    if (lexer->size > 0)
+        return empty_stream(lexer);
 
-	fputc(lexer->c, lexer->stream);
+    fputc(lexer->c, lexer->stream);
 
-	int next_c = fgetc(lexer->stack->file);
-	if (next_c == EOF)
-		return NULL;
+    int next_c = fgetc(lexer->stack->file);
+    if (next_c == EOF)
+        return NULL;
 
-	// A double is found
-	if (next_c == lexer->c)
-	{
-		fputc(next_c, lexer->stream);
+    // A double is found
+    if (next_c == lexer->c)
+    {
+        fputc(next_c, lexer->stream);
 
-		return flush_stream(lexer);
-	}
-	// No double is found and we are in a pipe case
-	else if (lexer->c == '|')
-	{
-		// Put back the next character since it is part of a different
-		// token than the pipe
-		ungetc(next_c, lexer->stack->file);
+        return flush_stream(lexer);
+    }
+    // No double is found and we are in a pipe case
+    else if (lexer->c == '|')
+    {
+        // Put back the next character since it is part of a different
+        // token than the pipe
+        ungetc(next_c, lexer->stack->file);
 
-		return flush_stream(lexer);
-	}
+        return flush_stream(lexer);
+    }
 
-	ungetc(next_c, lexer->stack->file);
+    ungetc(next_c, lexer->stack->file);
 
-	return NULL;
+    return NULL;
 }
 
 // #####################
@@ -568,47 +570,48 @@ struct token *read_input(struct lexer *lexer)
     {
         if (lexer->c == '\\')
         {
-			int next = fgetc(lexer->stack->file);
-			if (next == '\n')
-				continue;
-			else if (next != EOF)
-			{
-				ungetc(next, lexer->stack->file);
-				handle_escape(lexer);
-				continue;
-			}
-		}
+            int next = fgetc(lexer->stack->file);
+            if (next == '\n')
+                continue;
+            else if (next != EOF)
+            {
+                ungetc(next, lexer->stack->file);
+                handle_escape(lexer);
+                continue;
+            }
+        }
 
         // A whitespace marks the end of the token
         if (lexer->c == ' ' || lexer->c == '\t')
         {
-			struct token *tok = handle_ifs(lexer);
-			if (tok == NULL)
-				continue;
-			
-			return tok;
+            struct token *tok = handle_ifs(lexer);
+            if (tok == NULL)
+                continue;
+
+            return tok;
         }
         fflush(lexer->stream);
         // Same as before but those charcacters need to be safed as tokens
-        if (lexer->c == ';' || lexer->c == '\n' || (lexer->c == '!' && lexer->size==0))
-			return handle_special_token(lexer);
+        if (lexer->c == ';' || lexer->c == '\n'
+            || (lexer->c == '!' && lexer->size == 0))
+            return handle_special_token(lexer);
 
         if (lexer->c == '(' || lexer->c == ')' || lexer->c == '`')
         {
-			struct token *tok = handle_command_sub(lexer);
-			if (tok == NULL)
-				continue;
+            struct token *tok = handle_command_sub(lexer);
+            if (tok == NULL)
+                continue;
 
-			return tok;
+            return tok;
         }
 
         if (lexer->c == '{' || lexer->c == '}')
         {
-			struct token *tok = handle_command_block(lexer);
-			if (tok == NULL)
-				continue;
+            struct token *tok = handle_command_block(lexer);
+            if (tok == NULL)
+                continue;
 
-			return tok;
+            return tok;
         }
 
         // Those two characters are considered as operators if they are doubled
@@ -617,9 +620,9 @@ struct token *read_input(struct lexer *lexer)
         // is also the same character.
         if (lexer->c == '|' || lexer->c == '&')
         {
-			struct token *tok = handle_operators(lexer);
-			if (tok != NULL)
-				return tok;
+            struct token *tok = handle_operators(lexer);
+            if (tok != NULL)
+                return tok;
 
             continue;
         }
@@ -637,14 +640,15 @@ struct token *read_input(struct lexer *lexer)
 
         fflush(lexer->stream);
 
-        if (('0' <= lexer->c && lexer->c <= '9' && lexer->size == 0) || lexer->c == '<' || lexer->c == '>')
+        if (('0' <= lexer->c && lexer->c <= '9' && lexer->size == 0)
+            || lexer->c == '<' || lexer->c == '>')
         {
             // If we find a character potentially identifying a redirection, we
             // read the next characters (until 3 read since the max size of a
             // redir is 3).
             // If we found a valid redirection then we return the token found,
             // else we keep going.
-			struct token *token = handle_redir(lexer);
+            struct token *token = handle_redir(lexer);
 
             if (token)
                 return token;

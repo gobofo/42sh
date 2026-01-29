@@ -206,28 +206,28 @@ int my_cd(char **command)
     // Since the subject does not require to handle the -L and -P flags, cd
     // must have exactly one single argument
     // To remove when HOME var is added
-	char *target = NULL;
+    char *target = NULL;
 
     if (command == NULL || command[0] == NULL)
     {
-		target = hash_map_get(env->variables, "HOME");	
+        target = hash_map_get(env->variables, "HOME");
 
-		if (target == NULL)
-		{
-			fprintf(stderr, "Error: HOME not set\n");
-			return 1;
-		}
+        if (target == NULL)
+        {
+            fprintf(stderr, "Error: HOME not set\n");
+            return 1;
+        }
     }
-	else
-	{
-		if (command[1] != NULL)
-		{
-			fprintf(stderr, "Error: cd: too many arguments\n");
-			return 2;
-		}
+    else
+    {
+        if (command[1] != NULL)
+        {
+            fprintf(stderr, "Error: cd: too many arguments\n");
+            return 2;
+        }
 
-		target = command[0];
-	}
+        target = command[0];
+    }
 
     if (strcmp(target, "-") == 0)
         return invert_paths();

@@ -46,7 +46,6 @@ void free_command(char **command)
     free(command);
 }
 
-
 /**
  * Exécute une commande simple
  * Cherche d'abord dans les builtins, puis les fonctions, puis exécute en
@@ -92,7 +91,7 @@ static int execute_cmd(char **command)
 
 clean_up:
 
-	free_command(command);
+    free_command(command);
 
     env->last_exit_code = status;
 
@@ -488,7 +487,7 @@ static int execute_pipeline(struct AST *root)
                 free(tab_pid);
                 fprintf(stderr, "Error: pipe\n");
                 return 1;
-			}
+            }
         }
 
         int intput_pipe = -1;
@@ -594,58 +593,65 @@ static int execute_function(struct AST *root, char **command)
     return status;
 }
 
-static int execute_case_item(struct AST *root,char* word,int * find){
-  int i=0;
-  int status=0;
-  while(i<root->count_children-1){
-    bool quoted=false;
-    char* patt=root->children[i]->content;
-    if(patt[0]=='"' && patt[strlen(patt)-1]=='"'){
-      quoted=true;
+static int execute_case_item(struct AST *root, char *word, int *find)
+{
+    int i = 0;
+    int status = 0;
+    while (i < root->count_children - 1)
+    {
+        bool quoted = false;
+        char *patt = root->children[i]->content;
+        if (patt[0] == '"' && patt[strlen(patt) - 1] == '"')
+        {
+            quoted = true;
+        }
+        char **word_extend = expand(root->children[i]->content, 0);
+
+        char *word_extend_join = join_tab_string(word_extend);
+
+        if ((!quoted && fnmatch(word_extend_join, word, 0) == 0)
+            || (quoted && strcmp(word_extend_join, word) == 0))
+        {
+            *find = 1;
+            status = execute_node(root->children[root->count_children - 1]);
+            free(word_extend_join);
+            break;
+        }
+        free(word_extend_join);
+        i++;
     }
-    char** word_extend=expand(root->children[i]->content,0);
+    return status;
+}
 
-    char * word_extend_join= join_tab_string(word_extend);
+static int execute_case_clause(struct AST *root, char *word)
+{
+    int find = 0;
+    int i = 0;
+    int status = 0;
 
-    if((!quoted &&fnmatch(word_extend_join,word,0)==0) || (quoted && strcmp(word_extend_join,word)==0)){
-      *find=1;
-      status=execute_node(root->children[root->count_children-1]);
-      free(word_extend_join);
-      break;
+    while (find == 0 && i < root->count_children)
+    {
+        status = execute_case_item(root->children[i], word, &find);
+        i++;
     }
-    free(word_extend_join);
-    i++;
-  }
-  return status;
+    return status;
 }
 
-static int execute_case_clause(struct AST *root,char* word){
-  int find=0;
-  int i=0;
-  int status=0;
+static int execute_case(struct AST *root)
+{
+    if (root->count_children == 0)
+    {
+        return 0;
+    }
+    char **word_extend = expand(root->content, 0);
 
-  while(find==0 && i<root->count_children){
-    status =execute_case_item(root->children[i],word,&find);
-    i++;
-  }
-  return  status;
+    char *word_join = join_tab_string(word_extend);
+
+    int status = execute_case_clause(root->children[0], word_join);
+
+    free(word_join);
+    return status;
 }
-
-static int execute_case(struct AST *root){
-
-  if(root->count_children==0){
-    return 0;
-  }
-  char **word_extend=expand(root->content,0);
-
-  char* word_join=join_tab_string(word_extend);
-
-  int status =execute_case_clause(root->children[0],word_join);
-
-  free(word_join);
-  return status;
-}
-
 
 // ###################
 // #   LOOKUP TABLES #
@@ -668,8 +674,8 @@ struct builtin builtins_table[] = { { "true", my_true },
                                     { "export", my_export },
                                     { "return", my_return },
                                     { ".", my_dot },
-									{ "alias", my_alias },
-									{ "unalias", my_unalias },
+                                    { "alias", my_alias },
+                                    { "unalias", my_unalias },
                                     { NULL, NULL } };
 
 // Helps to reference each type of node to its corresponding func

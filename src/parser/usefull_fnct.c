@@ -13,8 +13,9 @@ bool is_valid_word(struct lexer *lexer)
 
     enum types type = lexer->current->type;
 
-    return type != NEWLINE && type != AND && type != OR && type != SEMICOLON && type !=D_SEMICOLON
-        && type != PIPE && type != REDIR && type != L_PAREN && type != R_PAREN;
+    return type != NEWLINE && type != AND && type != OR && type != SEMICOLON
+        && type != D_SEMICOLON && type != PIPE && type != REDIR
+        && type != L_PAREN && type != R_PAREN;
 }
 
 // free le token actuelle et renvoi le suivant
@@ -45,7 +46,7 @@ struct token *get_current_token(struct lexer *lexer)
 
 enum types get_current_type(struct lexer *lexer)
 {
-	return lexer->current->type;
+    return lexer->current->type;
 }
 
 // return le content du current token
