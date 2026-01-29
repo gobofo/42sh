@@ -8,10 +8,6 @@ static int execute_function(struct AST *root, char **command);
 
 struct builtin builtins_table[];
 
-// #############
-// #   UTILS   #
-// #############
-
 // ####################
 // #   REDIRECTIONS   #
 // ####################
@@ -281,7 +277,7 @@ static char **create_for_args(struct AST *root)
 
     for (int i = 1; i < root->count_children - 1; i++)
     {
-        char **expanded_values = expand(root->children[i]->content);
+        char **expanded_values = expand(root->children[i]->content, 0);
         if (expanded_values == NULL)
             continue;
 
@@ -334,7 +330,7 @@ static int execute_for(struct AST *root)
 
     if (root->count_children == 2)
     {
-        args = expand("\"$@\"");
+        args = expand("\"$@\"", 0);
     }
     else
         args = create_for_args(root);
@@ -671,6 +667,7 @@ struct builtin builtins_table[] = { { "true", my_true },
                                     { "return", my_return },
                                     { ".", my_dot },
 									{ "alias", my_alias },
+									{ "unalias", my_unalias },
                                     { NULL, NULL } };
 
 // Helps to reference each type of node to its corresponding func

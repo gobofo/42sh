@@ -72,7 +72,7 @@ int my_alias(char **command)
 
 		// We need to expand the value of the key
 		char *key_raw = strndup(actual, key_len);
-		char **expanded_key = expand(key_raw);
+		char **expanded_key = expand(key_raw, 1);
 		free(key_raw);
 
 		if (expanded_key == NULL || expanded_key[0] == NULL)
@@ -129,7 +129,7 @@ int my_alias(char **command)
 			}
 
 			char *value = strndup(actual, value_len);
-			char** expanded_value = expand(value);
+			char** expanded_value = expand(value, 1);
 
 			free(value);
 
@@ -145,5 +145,37 @@ int my_alias(char **command)
 		free(key);
 	}
 
+	return status;
+}
+
+
+
+int my_unalias(char **command)
+{
+
+	if(!*command)
+	{
+		fprintf(stderr, "Error: unalias : no argument given");
+		return 2;
+	}
+
+	int status = 0;
+	for(; *command; command++)
+	{
+		if(strcmp("-a", *command) == 0)
+		{
+			hash_map_free(env->alias, free);
+			env->alias = hash_map_init(64);
+		}
+		else
+		{
+			bool removed = hash_map_remove(env->alias, *command, free);
+			if(!removed)
+			{
+				fprintf(stderr, "Error: unalias : no alias named %s\n", *command);
+				status = 1;
+			}
+		}
+	}
 	return status;
 }
