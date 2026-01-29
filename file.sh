@@ -1,10 +1,8 @@
-#!/bin/sh
-case abc in
-ab?)
-  echo abc
+case a in
+a)
+  echo "Fichier texte"
   ;;
-
-x | y)
-  echo xy
+b)
+  echo "Autre"
   ;;
 esac
