@@ -3,6 +3,7 @@
 
 #define _POSIX_C_SOURCE 200809L
 
+#include <fnmatch.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>

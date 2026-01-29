@@ -75,7 +75,6 @@ struct AST *case_clause(struct lexer **lexer){
         goto err;
 
     }
-
     ast = add_children(ast, child); // premier child
 
 
@@ -95,6 +94,7 @@ struct AST *case_clause(struct lexer **lexer){
         }
 
         if (!first_case_item(get_current_token(*lexer))){
+            printf("coucoucocucoucocu");
             goto err;
         }
 
@@ -107,7 +107,10 @@ struct AST *case_clause(struct lexer **lexer){
         ast = add_children(ast, children);
 
     }
-
+    eat_newlines(lexer);
+    if (follow_case_clause(get_current_token(*lexer))){ //fin de la grammaire
+      return ast;
+    }
 err:
     destroy_AST(ast);
     return NULL;
