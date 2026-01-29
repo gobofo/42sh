@@ -859,6 +859,481 @@ start_if
 echo yes
 fi" "partial grammar expansion"
 
+echo "###################################################"
+echo "ALIAS - EXPANSION & VARIABLES"
+echo "###################################################"
+
+test_cmd "x=hello; alias greet='echo \$x'
+greet" "alias with variable reference"
+
+test_cmd "alias show='echo \$PWD'
+show" "alias with environment variable"
+
+test_cmd "alias multi='echo one; echo two'
+multi" "alias with multiple commands"
+
+test_cmd "alias cmd='echo'
+x=test; cmd \$x" "alias with argument expansion"
+
+test_cmd "alias e='echo'
+e 'hello world'" "alias with quoted argument"
+
+echo "###################################################"
+echo "ALIAS - QUOTING"
+echo "###################################################"
+
+test_cmd "alias quote=\"echo 'hello'\"
+quote" "alias with single quotes inside double"
+
+test_cmd "alias dquote='echo \"test\"'
+dquote" "alias with double quotes inside single"
+
+test_cmd "alias mixed='echo \"hello\" world'
+mixed" "alias with mixed quotes"
+
+test_cmd "alias empty=''
+empty" "alias with empty value"
+
+test_cmd "alias spaces='   echo   test   '
+spaces" "alias with leading/trailing spaces"
+
+echo "###################################################"
+echo "ALIAS - PRINTING & LISTING"
+echo "###################################################"
+
+test_cmd "alias test_alias='echo test'
+alias test_alias" "print single alias"
+
+test_cmd "alias a='echo a'
+alias b='echo b'
+alias a; alias b" "print multiple aliases"
+
+test_error "alias nonexistent" "print nonexistent alias"
+
+test_cmd "alias x='test'
+alias x='new'
+alias x" "verify alias redefinition"
+
+echo "###################################################"
+echo "ALIAS - WITH REDIRECTIONS"
+echo "###################################################"
+
+test_cmd "alias redir='echo test > /tmp/alias_test'
+redir; cat /tmp/alias_test; rm /tmp/alias_test" "alias with output redirect"
+
+test_cmd "echo content > /tmp/alias_in
+alias read_file='cat < /tmp/alias_in'
+read_file; rm /tmp/alias_in" "alias with input redirect"
+
+test_cmd "alias append='echo line >> /tmp/alias_append'
+append; append; cat /tmp/alias_append; rm /tmp/alias_append" "alias with append redirect"
+
+echo "###################################################"
+echo "ALIAS - WITH COMMAND SUBSTITUTION"
+echo "###################################################"
+
+test_cmd "alias sub='echo \$(echo nested)'
+sub" "alias with command substitution"
+
+test_cmd "alias date_cmd='echo \$(date +%Y)'
+date_cmd" "alias with command sub and args"
+
+test_cmd "alias multi_sub='echo \$(echo one) \$(echo two)'
+multi_sub" "alias with multiple command subs"
+
+echo "###################################################"
+echo "ALIAS - COMPLEX CHAINING"
+echo "###################################################"
+
+test_cmd "alias a='echo a'
+alias b='a | cat'
+b" "alias piping to another alias"
+
+test_cmd "alias cmd='echo test'
+alias full='cmd && echo ok'
+full" "alias with AND after alias"
+
+test_cmd "alias t='true'
+alias f='false'
+t && echo yes || echo no" "alias in conditional"
+
+test_cmd "alias e='echo'
+alias a='e'
+alias b='a'
+alias c='b'
+c works" "four level nesting"
+
+echo "###################################################"
+echo "ALIAS - WITH LOOPS"
+echo "###################################################"
+
+test_cmd "alias printer='echo'
+for i in a b c; do printer \$i; done" "alias in for loop"
+
+test_cmd "alias test_true='true'
+while test_true; do echo once; break; done" "alias in while condition"
+
+test_cmd "alias counter='echo item'
+for i in 1 2 3; do counter; done" "alias in loop body"
+
+echo "###################################################"
+echo "ALIAS - WITH CONDITIONALS"
+echo "###################################################"
+
+test_cmd "alias check='true'
+if check; then echo yes; fi" "alias in if condition"
+
+test_cmd "alias printer='echo success'
+if true; then printer; fi" "alias in if body"
+
+test_cmd "alias fail='false'
+if fail; then echo no; else echo yes; fi" "alias false in if"
+
+echo "###################################################"
+echo "ALIAS - ARGUMENT HANDLING"
+echo "###################################################"
+
+test_cmd "alias e='echo'
+e one two three" "alias with multiple arguments"
+
+test_cmd "alias greet='echo hello'
+greet world" "alias followed by argument"
+
+test_cmd "alias cmd='echo start'
+cmd middle end" "alias with appended arguments"
+
+test_cmd "alias show='echo'
+x=test; show \$x \$x" "alias with duplicate variable args"
+
+echo "###################################################"
+echo "ALIAS - SPECIAL CHARACTERS"
+echo "###################################################"
+
+test_cmd "alias star='echo *'
+star" "alias with asterisk"
+
+test_cmd "alias question='echo ?'
+question" "alias with question mark"
+
+test_cmd "alias dollar='echo \$\$'
+dollar" "alias with dollar sign"
+
+test_cmd "alias at='echo @'
+at" "alias with at sign"
+
+echo "###################################################"
+echo "ALIAS - RECURSION PREVENTION"
+echo "###################################################"
+
+test_cmd "alias echo='echo ALIASED'
+echo test 2>/dev/null || echo ok" "direct self-recursion"
+
+test_cmd "alias a='b'
+alias b='c'
+alias c='a'
+a 2>/dev/null || echo protected" "circular alias chain"
+
+test_cmd "alias cmd='cmd arg'
+cmd 2>/dev/null || echo prevented" "self-reference with args"
+
+echo "###################################################"
+echo "ALIAS - ERROR CASES"
+echo "###################################################"
+
+test_error "alias" "alias with no arguments should show all"
+
+test_error "alias =value" "alias with no name"
+
+test_error "alias 123='test'" "alias with numeric name"
+
+test_error "alias 'invalid name'='test'" "alias with spaces in name"
+
+test_error "alias |='test'" "alias with pipe character name"
+
+test_error "alias ;='test'" "alias with semicolon name"
+
+echo "###################################################"
+echo "ALIAS - WORD SPLITTING"
+echo "###################################################"
+
+test_cmd "IFS=:; alias test='echo a:b:c'
+test" "alias with custom IFS"
+
+test_cmd "alias sp='echo a  b  c'
+sp" "alias with multiple spaces"
+
+test_cmd "alias tab='echo a	b	c'
+tab" "alias with tabs"
+
+echo "###################################################"
+echo "ALIAS - WITH FUNCTIONS"
+echo "###################################################"
+
+test_cmd "myfunc() { echo func; }
+alias f='myfunc'
+f" "alias to function"
+
+test_cmd "alias a='echo alias'
+func() { a; }
+func" "alias used in function"
+
+test_cmd "func() { alias local='echo test'; }
+func; local 2>/dev/null || echo ok" "alias defined in function"
+
+echo "###################################################"
+echo "ALIAS - EDGE CASES"
+echo "###################################################"
+
+test_cmd "alias nl='echo
+echo'
+nl" "alias with newline"
+
+test_cmd "alias long='echo aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+long" "alias with very long value"
+
+test_cmd "alias a1='echo a'; alias a2='echo b'; alias a3='echo c'
+a1; a2; a3" "multiple aliases in sequence"
+
+test_cmd "alias x='echo 1' y='echo 2' z='echo 3'
+x; y; z" "multiple alias definitions"
+
+test_cmd "alias same='test'
+alias same='test'
+alias same" "redefine with same value"
+
+echo "###################################################"
+echo "ALIAS - UNALIAS"
+echo "###################################################"
+
+test_cmd "alias test_unalias='echo test'
+unalias test_unalias
+test_unalias 2>/dev/null || echo removed" "unalias basic"
+
+test_cmd "alias a='echo a'
+alias b='echo b'
+unalias a b
+a 2>/dev/null || echo ok" "unalias multiple"
+
+test_error "unalias nonexistent" "unalias nonexistent"
+
+test_cmd "alias test='echo'
+unalias test
+alias test='new value'
+test" "redefine after unalias"
+
+test_cmd "alias x='y'
+alias y='echo test'
+unalias y
+x 2>/dev/null || echo chain broken" "unalias breaks chain"
+
+echo "###################################################"
+echo "ALIAS - INTERACTION WITH BUILTINS"
+echo "###################################################"
+
+test_cmd "alias cd='echo fake cd'
+cd /tmp 2>/dev/null || echo aliased" "alias overriding builtin"
+
+test_cmd "alias export='echo fake export'
+export 2>/dev/null; echo ok" "alias for export"
+
+test_cmd "alias exit='echo not exiting'
+exit; echo still here" "alias for exit (safe)"
+
+echo "###################################################"
+echo "ALIAS - WHITESPACE HANDLING"
+echo "###################################################"
+
+test_cmd "alias trimmed='  echo test  '
+trimmed" "alias with space trimming"
+
+test_cmd "alias tabs='		echo	test		'
+tabs" "alias with tabs"
+
+test_cmd "alias mixed='  	echo  	test  	'
+mixed" "alias with mixed whitespace"
+
+echo "###################################################"
+echo "ALIAS - COMBINATION TESTS"
+echo "###################################################"
+
+test_cmd "alias e='echo'
+x=hello; e \$x > /tmp/alias_combo; cat /tmp/alias_combo; rm /tmp/alias_combo" "alias with var and redirect"
+
+test_cmd "alias cmd='echo test'
+alias wrapper='cmd | cat'
+wrapper" "alias wrapping alias with pipe"
+
+test_cmd "alias a='echo a'
+alias b='echo b'
+a && b || echo fail" "multiple aliases with operators"
+
+test_cmd "alias begin='if true; then'
+begin echo nested; fi" "alias starting control structure"
+
+echo "###################################################"
+echo "IFS - DEFAULT IFS BEHAVIOR"
+echo "###################################################"
+
+# Default IFS is space, tab, and newline
+test_cmd "x='a b c'; echo \$x" "default IFS variable expansion"
+test_cmd "x='a	b	c'; echo \$x" "default IFS with tabs"
+test_cmd "x='a
+b
+c'; echo \$x" "default IFS with newlines"
+test_cmd "echo \$(echo 'a b c')" "default IFS command substitution"
+test_cmd "x=\$(echo 'hello world'); echo \$x" "default IFS assign from command sub"
+
+echo "###################################################"
+echo "IFS - CUSTOM IFS VALUES"
+echo "###################################################"
+
+# Using colon as IFS
+test_cmd "IFS=:; x='a:b:c'; echo \$x" "IFS colon separator"
+test_cmd "IFS=:; echo \$(echo 'a:b:c')" "IFS colon command sub"
+test_cmd "IFS=,; x='one,two,three'; echo \$x" "IFS comma separator"
+test_cmd "IFS=/; x='usr/bin/ls'; echo \$x" "IFS slash separator"
+test_cmd "IFS=.; x='file.txt.bak'; echo \$x" "IFS dot separator"
+
+echo "###################################################"
+echo "IFS - EMPTY IFS (NO SPLITTING)"
+echo "###################################################"
+
+# Empty IFS means no field splitting at all
+test_cmd "IFS=; x='a b c'; echo \$x" "empty IFS preserves spaces"
+test_cmd "IFS=''; x='hello world'; echo \$x" "empty IFS quoted preserves"
+test_cmd "IFS=; echo \$(echo 'a b c')" "empty IFS command sub no split"
+test_cmd "IFS=''; x=\$(echo 'one two three'); echo \$x" "empty IFS assign preserves"
+
+echo "###################################################"
+echo "IFS - WHITESPACE VS NON-WHITESPACE DELIMITERS"
+echo "###################################################"
+
+# Whitespace IFS chars (space, tab, newline) behave differently
+test_cmd "IFS=' '; x='a  b  c'; echo \$x" "IFS space multiple delimiters"
+test_cmd "IFS=':'; x='a::b::c'; echo \$x" "IFS colon multiple delimiters"
+test_cmd "IFS=' '; x='  a  b  '; echo \$x" "IFS space leading trailing"
+test_cmd "IFS=':'; x='::a::b::'; echo \$x" "IFS colon leading trailing"
+
+echo "###################################################"
+echo "IFS - LEADING AND TRAILING DELIMITERS"
+echo "###################################################"
+
+test_cmd "x='  hello  '; echo \$x" "default IFS trim whitespace"
+test_cmd "x='	hello	'; echo \$x" "default IFS trim tabs"
+test_cmd "IFS=:; x=':hello:'; echo \$x" "IFS colon preserve empty fields"
+test_cmd "IFS=,; x=',a,b,'; echo \$x" "IFS comma empty fields"
+test_cmd "x='
+hello
+'; echo \$x" "default IFS trim newlines"
+
+echo "###################################################"
+echo "IFS - MIXED WHITESPACE AND NON-WHITESPACE"
+echo "###################################################"
+
+test_cmd "IFS=' :'; x='a:b c:d'; echo \$x" "IFS mixed space colon"
+test_cmd "IFS=': '; x='a: b :c'; echo \$x" "IFS mixed colon space order"
+test_cmd "IFS=' ,'; x='a,b c,d'; echo \$x" "IFS mixed space comma"
+test_cmd "IFS='	:'; x='a:b	c:d'; echo \$x" "IFS mixed tab colon"
+
+echo "###################################################"
+echo "IFS - COMMAND SUBSTITUTION BEHAVIOR"
+echo "###################################################"
+
+# Command substitution strips trailing newlines, then applies IFS
+test_cmd "echo \$(echo a; echo b)" "command sub multiline default IFS"
+test_cmd "echo \$(echo 'a b c')" "command sub spaces default IFS"
+test_cmd "IFS=:; echo \$(echo 'a:b:c')" "command sub custom IFS"
+test_cmd "x=\$(echo 'multiple words'); echo \$x" "assign from command sub"
+test_cmd "x=\$(echo a; echo b); echo \$x" "assign multiline command sub"
+
+echo "###################################################"
+echo "IFS - LOOPS WITH IFS"
+echo "###################################################"
+
+test_cmd "IFS=:; for i in a:b:c; do echo \$i; done" "for loop with IFS colon"
+test_cmd "IFS=,; for i in x,y,z; do echo \$i; done" "for loop with IFS comma"
+test_cmd "for i in \$(echo 'a:b:c'); do echo \$i; done" "for loop command sub default IFS"
+test_cmd "IFS=:; for i in \$(echo 'a:b:c'); do echo \$i; done" "for loop command sub custom IFS"
+
+echo "###################################################"
+echo "IFS - QUOTED CONTEXTS (NO SPLITTING)"
+echo "###################################################"
+
+# IFS should not split in quoted contexts
+test_cmd "x='a b c'; echo \"\$x\"" "quoted variable no split"
+test_cmd "IFS=:; x='a:b:c'; echo \"\$x\"" "quoted variable custom IFS no split"
+test_cmd "echo \"\$(echo 'a b c')\"" "quoted command sub no split"
+test_cmd "IFS=:; echo \"\$(echo 'a:b:c')\"" "quoted command sub custom IFS no split"
+test_cmd "x='hello world'; echo \"test \$x end\"" "quoted mixed content no split"
+
+echo "###################################################"
+echo "IFS - VARIABLE ASSIGNMENTS (NO SPLITTING)"
+echo "###################################################"
+
+# Variable assignments should not perform field splitting
+test_cmd "x=\$(echo 'one two three'); echo \$x" "assign command sub no split"
+test_cmd "IFS=:; x=\$(echo 'a:b:c'); echo \$x" "assign command sub custom IFS no split"
+test_cmd "y='hello world'; x=\$y; echo \$x" "assign from variable no split"
+test_cmd "IFS=:; y='a:b:c'; x=\$y; echo \$x" "assign from variable custom IFS no split"
+
+echo "###################################################"
+echo "IFS - SPECIAL IFS CHARACTERS"
+echo "###################################################"
+
+test_cmd "IFS='|'; x='a|b|c'; echo \$x" "IFS pipe character"
+test_cmd "IFS='&'; x='a&b&c'; echo \$x" "IFS ampersand character"
+test_cmd "IFS=';'; x='a;b;c'; echo \$x" "IFS semicolon character"
+test_cmd "IFS='*'; x='a*b*c'; echo \$x" "IFS asterisk character"
+
+echo "###################################################"
+echo "IFS - MULTIPLE CONSECUTIVE DELIMITERS"
+echo "###################################################"
+
+test_cmd "x='a    b    c'; echo \$x" "multiple spaces collapse"
+test_cmd "x='a		b		c'; echo \$x" "multiple tabs collapse"
+test_cmd "IFS=:; x='a:::b:::c'; echo \$x" "multiple colons create empty fields"
+test_cmd "IFS=,; x='a,,,b,,,c'; echo \$x" "multiple commas create empty fields"
+
+echo "###################################################"
+echo "IFS - COMPLEX SCENARIOS"
+echo "###################################################"
+
+test_cmd "IFS=:; x='a:b c:d'; echo \$x" "IFS colon with spaces"
+test_cmd "IFS=' :'; x='a: b :c  :d'; echo \$x" "complex mixed IFS"
+test_cmd "x=\$(printf 'a\tb\nc'); echo \$x" "command sub with tab and newline"
+test_cmd "IFS=:; for i in \$(echo 'x:y:z'); do echo \$i; done" "for loop complex IFS"
+test_cmd "IFS=,; x=''; echo \"empty:\$x\"" "empty variable with custom IFS"
+
+echo "###################################################"
+echo "IFS - IFS RESTORATION"
+echo "###################################################"
+
+test_cmd "IFS=:; (IFS=' '; x='a b'; echo \$x); x='a:b'; echo \$x" "IFS subshell local"
+test_cmd "OLD_IFS=\$IFS; IFS=:; x='a:b'; IFS=\$OLD_IFS; echo \$x" "IFS restore manual"
+
+echo "###################################################"
+echo "IFS - EDGE CASES"
+echo "###################################################"
+
+test_cmd "IFS=; x=''; echo \"result:\$x\"" "empty IFS empty variable"
+test_cmd "x='   '; echo \"result:\$x\"" "variable only whitespace"
+test_cmd "IFS=:; x=':'; echo \"result:\$x\"" "variable only IFS char"
+test_cmd "IFS=' '; x='a	b'; echo \$x" "IFS space but tab in value"
+test_cmd "IFS='
+'; x='a
+b
+c'; echo \$x" "IFS newline separator"
+
+test_cmd "x=\$(printf 'line1\nline2\nline3'); echo \$x" "command sub with newlines"
+
+echo "###################################################"
+echo "IFS - UNSET IFS (DEFAULT BEHAVIOR)"
+echo "###################################################"
+
+test_cmd "unset IFS; x='a b c'; echo \$x" "unset IFS uses default"
+test_cmd "unset IFS; echo \$(echo 'a b c')" "unset IFS command sub default"
+test_cmd "IFS=:; unset IFS; x='a:b'; echo \$x" "unset IFS after custom"
+
 #----------------- SYNTAX ERRORS -----------------#
 
 echo "###################################################"
