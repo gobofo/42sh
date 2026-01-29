@@ -7,6 +7,8 @@
 #include "../../../environment/environment.h"
 #include "../../../hash_map/hash_map.h"
 
+extern struct env *env;
+
 int my_unset(char **command);
 
 #endif /* ! MY_UNSET_H */

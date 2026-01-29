@@ -8,6 +8,8 @@
 #include "../../../environment/environment.h"
 #include "../../../expansion/expansion.h"
 
+extern struct env *env;
+
 int my_alias(char **command);
 int my_unalias(char **command);
 

@@ -6,6 +6,8 @@
 
 #include "../../../environment/environment.h"
 
+extern struct env *env;
+
 int my_true(char **command);
 int my_false(char **command);
 int my_return(char **command);

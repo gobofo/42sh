@@ -1,7 +1,5 @@
 #include "operators.h"
 
-extern struct env *env;
-
 int my_true(char **command)
 {
     (void)command;

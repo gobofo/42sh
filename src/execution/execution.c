@@ -1,7 +1,5 @@
 #include "execution.h"
 
-extern struct env *env;
-
 static int execute_cmd(char **command);
 static int execute_node(struct AST *root);
 static int execute_function(struct AST *root, char **command);

@@ -1,9 +1,5 @@
 #include "my_continue.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-extern struct env *env;
-
 /**
  * Exécute la commande builtin 'continue' pour passer à l'itération suivante de
  * boucles. Accepte un argument optionnel n pour continuer n niveaux de boucles

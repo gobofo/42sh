@@ -35,6 +35,8 @@
 #include "builtins/operators/operators.h"
 #include "builtins/my_alias/my_alias.h"
 
+extern struct env *env;
+
 struct builtin
 {
 	char *name;

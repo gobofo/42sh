@@ -1,6 +1,5 @@
 #include "my_alias.h"
 
-extern struct env *env;
 
 /**
  * @brief		Checks that the alias name is valid

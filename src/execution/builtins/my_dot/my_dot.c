@@ -1,9 +1,5 @@
 #include "my_dot.h"
 
-#include <string.h>
-
-extern struct env *env;
-
 /**
  * Exécute la commande builtin '.' (dot) pour sourcer un fichier script.
  * Sauvegarde et remplace temporairement argv/argc avec les arguments fournis.

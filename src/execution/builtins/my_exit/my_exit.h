@@ -6,6 +6,8 @@
 
 #include "../../../environment/environment.h"
 
+extern struct env *env;
+
 int my_exit(char **command);
 
 #endif /* ! MY_EXIT_H */

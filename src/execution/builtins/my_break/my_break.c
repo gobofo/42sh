@@ -1,9 +1,5 @@
 #include "my_break.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-extern struct env *env;
-
 /**
  * Exécute la commande builtin 'break' pour sortir de boucles imbriquées.
  * Accepte un argument optionnel n pour sortir de n niveaux de boucles.

@@ -1,7 +1,5 @@
 #include "my_unset.h"
 
-extern struct env *env;
-
 /**
  * Exécute la commande builtin 'unset' pour supprimer des variables ou
  * fonctions. Accepte les flags -v (variables, par défaut) et -f (fonctions)

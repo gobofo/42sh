@@ -1,7 +1,5 @@
 #include "my_export.h"
 
-extern struct env *env;
-
 /**
  * Exécute la commande builtin 'export' pour exporter des variables
  * d'environnement. Accepte plusieurs arguments au format VAR=valeur ou VAR pour

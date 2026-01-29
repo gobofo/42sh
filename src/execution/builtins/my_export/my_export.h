@@ -10,6 +10,8 @@
 #include "../../../environment/environment.h"
 #include "../../../lexer/lexer_utils.h"
 
+extern struct env *env;
+
 int my_export(char **command);
 
 #endif /* ! MY_EXPORT_H */

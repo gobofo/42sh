@@ -1,7 +1,5 @@
 #include "my_cd.h"
 
-extern struct env *env;
-
 /**
  * @brief			Creates the absolute path from a path
  *

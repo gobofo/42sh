@@ -1,7 +1,5 @@
 #include "my_exit.h"
 
-extern struct env *env;
-
 int my_atoi(char *str, int *is_valid)
 {
     int res = 0;
