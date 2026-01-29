@@ -1,9 +1,5 @@
-#!/bin/sh
-case word in
-a | b | c)
-  echo abc
-  ;;
-x | y)
-  echo xy
-  ;;
+x='first'
+case "$x" in
+first) echo 'one' ;;
+second) echo 'two' 
 esac
