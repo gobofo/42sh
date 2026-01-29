@@ -11,6 +11,44 @@ extern struct env *env;
  * @param root	The AST node
  */
 
+
+char* join_tab_string(char** expanded_v){
+    int count = 0;
+    while (expanded_v[count])
+        count++;
+    if(count==0)
+      return strdup("");
+
+    int total_len = 0;
+    int i = 0;
+
+    while (expanded_v[i])
+    {
+      total_len += strlen(expanded_v[i]);
+      i++;
+    }
+
+    total_len += (count - 1);
+    char *result = malloc(total_len + 1);
+  
+    char* ptr=result;
+    i=0;
+    while(expanded_v[i]){
+      if(i>0){
+        ptr[0]=' ';
+        ptr++;
+      }
+
+      strcpy(ptr,expanded_v[i]);
+      ptr= ptr+ strlen(expanded_v[i]);
+      free(expanded_v[i]);
+      i++;
+    }
+    free(expanded_v);
+    ptr[0]=0;
+    return result;
+}
+
 int variable_assignation(struct AST *root)
 {
     char *key = strtok(root->content, "=");
@@ -125,3 +163,6 @@ int create_function(struct AST *root)
                     destroy_AST_void);
     return 0;
 }
+
+
+
