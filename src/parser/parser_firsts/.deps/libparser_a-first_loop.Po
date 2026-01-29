@@ -1,0 +1,17 @@
+parser_firsts/libparser_a-first_loop.o: parser_firsts/first_loop.c \
+ /usr/include/stdc-predef.h parser_firsts/first_loop.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdbool.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stddef.h \
+ parser_firsts/../../token.h parser_firsts/first_command.h \
+ parser_firsts/first_condition.h parser_firsts/first_sequence.h \
+ parser_firsts/first_token.h parser_firsts/switch_first.h
+/usr/include/stdc-predef.h:
+parser_firsts/first_loop.h:
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdbool.h:
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stddef.h:
+parser_firsts/../../token.h:
+parser_firsts/first_command.h:
+parser_firsts/first_condition.h:
+parser_firsts/first_sequence.h:
+parser_firsts/first_token.h:
+parser_firsts/switch_first.h:

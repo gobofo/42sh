@@ -1,0 +1,270 @@
+builtins/my_dot/libexecution_a-my_dot.o: builtins/my_dot/my_dot.c \
+ /usr/include/stdc-predef.h builtins/my_dot/my_dot.h /usr/include/stdio.h \
+ /usr/include/bits/libc-header-start.h /usr/include/features.h \
+ /usr/include/features-time64.h /usr/include/bits/wordsize.h \
+ /usr/include/bits/timesize.h /usr/include/sys/cdefs.h \
+ /usr/include/bits/long-double.h /usr/include/gnu/stubs.h \
+ /usr/include/gnu/stubs-64.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stddef.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdarg.h \
+ /usr/include/bits/types.h /usr/include/bits/typesizes.h \
+ /usr/include/bits/time64.h /usr/include/bits/types/__fpos_t.h \
+ /usr/include/bits/types/__mbstate_t.h \
+ /usr/include/bits/types/__fpos64_t.h /usr/include/bits/types/__FILE.h \
+ /usr/include/bits/types/FILE.h /usr/include/bits/types/struct_FILE.h \
+ /usr/include/bits/stdio_lim.h /usr/include/bits/floatn.h \
+ /usr/include/bits/floatn-common.h /usr/include/stdlib.h \
+ /usr/include/bits/stdlib-float.h builtins/my_dot/../../../launch_shell.h \
+ /usr/include/time.h /usr/include/bits/time.h \
+ /usr/include/bits/types/clock_t.h /usr/include/bits/types/time_t.h \
+ /usr/include/bits/types/struct_tm.h builtins/my_dot/../../../ast/ast.h \
+ /usr/include/string.h builtins/my_dot/../../../environment/environment.h \
+ builtins/my_dot/../../../environment/../hash_map/hash_map.h \
+ /usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdbool.h \
+ builtins/my_dot/../../../execution/execution.h /usr/include/fnmatch.h \
+ /usr/include/fcntl.h /usr/include/bits/fcntl.h \
+ /usr/include/bits/fcntl-linux.h \
+ builtins/my_dot/../../../execution/../ast/ast.h \
+ builtins/my_dot/../../../execution/../environment/environment.h \
+ builtins/my_dot/../../../execution/../expansion/expansion.h \
+ /usr/include/ctype.h /usr/include/bits/endian.h \
+ /usr/include/bits/endianness.h /usr/include/unistd.h \
+ /usr/include/bits/posix_opt.h /usr/include/bits/confname.h \
+ /usr/include/bits/unistd_ext.h \
+ builtins/my_dot/../../../execution/../expansion/command_sub.h \
+ /usr/include/sys/wait.h /usr/include/bits/waitflags.h \
+ /usr/include/bits/waitstatus.h \
+ builtins/my_dot/../../../execution/../expansion/../launch_shell.h \
+ builtins/my_dot/../../../execution/../expansion/../environment/environment.h \
+ builtins/my_dot/../../../execution/../expansion/expansion_utils.h \
+ builtins/my_dot/../../../execution/../hash_map/hash_map.h \
+ builtins/my_dot/../../../execution/../parser/parser.h \
+ builtins/my_dot/../../../execution/../parser/../ast/ast.h \
+ builtins/my_dot/../../../execution/../parser/../lexer/lexer.h \
+ /usr/include/regex.h /usr/include/sys/types.h \
+ /usr/include/bits/types/clockid_t.h /usr/include/bits/types/timer_t.h \
+ /usr/include/bits/stdint-intn.h \
+ builtins/my_dot/../../../execution/../parser/../lexer/lexer_utils.h \
+ builtins/my_dot/../../../execution/../parser/../lexer/../token.h \
+ builtins/my_dot/../../../execution/../parser/../lexer/input_stack.h \
+ builtins/my_dot/../../../execution/../parser/../lexer/../environment/environment.h \
+ builtins/my_dot/../../../execution/../parser/../lexer/../hash_map/hash_map.h \
+ builtins/my_dot/../../../execution/../parser/../token.h \
+ builtins/my_dot/../../../execution/../parser/print_parser.h \
+ builtins/my_dot/../../../execution/../parser/usefull_fnct.h \
+ builtins/my_dot/../../../execution/../parser/../launch_shell.h \
+ builtins/my_dot/../../../execution/../parser/parser_firsts/first_command.h \
+ builtins/my_dot/../../../execution/../parser/parser_firsts/../../token.h \
+ builtins/my_dot/../../../execution/../parser/parser_firsts/first_condition.h \
+ builtins/my_dot/../../../execution/../parser/parser_firsts/first_command.h \
+ builtins/my_dot/../../../execution/../parser/parser_firsts/first_loop.h \
+ builtins/my_dot/../../../execution/../parser/parser_firsts/first_sequence.h \
+ builtins/my_dot/../../../execution/../parser/parser_firsts/first_token.h \
+ builtins/my_dot/../../../execution/../parser/parser_firsts/switch_first.h \
+ builtins/my_dot/../../../execution/../parser/parser_firsts/first_condition.h \
+ builtins/my_dot/../../../execution/../parser/parser_firsts/first_loop.h \
+ builtins/my_dot/../../../execution/../parser/parser_firsts/first_sequence.h \
+ builtins/my_dot/../../../execution/../parser/parser_firsts/first_token.h \
+ builtins/my_dot/../../../execution/../parser/parser_firsts/switch_first.h \
+ builtins/my_dot/../../../execution/../parser/parser_follows/follow_command.h \
+ builtins/my_dot/../../../execution/../parser/parser_follows/../../token.h \
+ builtins/my_dot/../../../execution/../parser/parser_follows/follow_token.h \
+ builtins/my_dot/../../../execution/../parser/parser_follows/follow_command.h \
+ builtins/my_dot/../../../execution/../parser/parser_follows/follow_condition.h \
+ builtins/my_dot/../../../execution/../parser/parser_follows/follow_loop.h \
+ builtins/my_dot/../../../execution/../parser/parser_follows/follow_sequence.h \
+ builtins/my_dot/../../../execution/../parser/parser_follows/switch_follow.h \
+ builtins/my_dot/../../../execution/../parser/parser_follows/../parser_firsts/first_token.h \
+ builtins/my_dot/../../../execution/../parser/parser_follows/follow_condition.h \
+ builtins/my_dot/../../../execution/../parser/parser_follows/follow_loop.h \
+ builtins/my_dot/../../../execution/../parser/parser_follows/follow_sequence.h \
+ builtins/my_dot/../../../execution/../parser/parser_follows/follow_token.h \
+ builtins/my_dot/../../../execution/../parser/parser_follows/switch_follow.h \
+ builtins/my_dot/../../../execution/../lexer/lexer_utils.h \
+ builtins/my_dot/../../../execution/../launch_shell.h \
+ builtins/my_dot/../../../execution/execution_utils.h \
+ builtins/my_dot/../../../execution/execute_command/execute_command.h \
+ /usr/include/err.h /usr/include/errno.h /usr/include/bits/errno.h \
+ /usr/include/linux/errno.h /usr/include/asm/errno.h \
+ /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
+ builtins/my_dot/../../../execution/builtins/my_break/my_break.h \
+ builtins/my_dot/../../../execution/builtins/my_break/../../../environment/environment.h \
+ builtins/my_dot/../../../execution/builtins/my_cd/my_cd.h \
+ builtins/my_dot/../../../execution/builtins/my_cd/../../../environment/environment.h \
+ builtins/my_dot/../../../execution/builtins/my_cd/../../../hash_map/hash_map.h \
+ builtins/my_dot/../../../execution/builtins/my_continue/my_continue.h \
+ builtins/my_dot/../../../execution/builtins/my_continue/../../../environment/environment.h \
+ builtins/my_dot/../../../execution/builtins/my_echo/my_echo.h \
+ builtins/my_dot/../../../execution/builtins/my_exit/my_exit.h \
+ builtins/my_dot/../../../execution/builtins/my_exit/../../../environment/environment.h \
+ builtins/my_dot/../../../execution/builtins/my_redir/my_redir.h \
+ builtins/my_dot/../../../execution/builtins/my_redir/../../../ast/ast.h \
+ builtins/my_dot/../../../execution/builtins/my_redir/../../../environment/environment.h \
+ builtins/my_dot/../../../execution/builtins/my_redir/../../../expansion/expansion.h \
+ builtins/my_dot/../../../execution/builtins/my_unset/my_unset.h \
+ builtins/my_dot/../../../execution/builtins/my_unset/../../../ast/ast.h \
+ builtins/my_dot/../../../execution/builtins/my_unset/../../../environment/environment.h \
+ builtins/my_dot/../../../execution/builtins/my_unset/../../../hash_map/hash_map.h \
+ builtins/my_dot/../../../execution/builtins/my_export/my_export.h \
+ builtins/my_dot/../../../execution/builtins/my_export/../../../environment/environment.h \
+ builtins/my_dot/../../../execution/builtins/my_export/../../../lexer/lexer_utils.h \
+ builtins/my_dot/../../../execution/builtins/my_dot/my_dot.h \
+ builtins/my_dot/../../../execution/builtins/operators/operators.h \
+ builtins/my_dot/../../../execution/builtins/operators/../../../environment/environment.h \
+ builtins/my_dot/../../../execution/builtins/my_alias/my_alias.h \
+ builtins/my_dot/../../../execution/builtins/my_alias/../../../environment/environment.h \
+ builtins/my_dot/../../../execution/builtins/my_alias/../../../expansion/expansion.h \
+ builtins/my_dot/../../../io_backend/input.h \
+ builtins/my_dot/../../../lexer/lexer.h \
+ builtins/my_dot/../../../parser/parser.h \
+ builtins/my_dot/../../../token.h \
+ builtins/my_dot/../../../environment/environment.h
+/usr/include/stdc-predef.h:
+builtins/my_dot/my_dot.h:
+/usr/include/stdio.h:
+/usr/include/bits/libc-header-start.h:
+/usr/include/features.h:
+/usr/include/features-time64.h:
+/usr/include/bits/wordsize.h:
+/usr/include/bits/timesize.h:
+/usr/include/sys/cdefs.h:
+/usr/include/bits/long-double.h:
+/usr/include/gnu/stubs.h:
+/usr/include/gnu/stubs-64.h:
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stddef.h:
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdarg.h:
+/usr/include/bits/types.h:
+/usr/include/bits/typesizes.h:
+/usr/include/bits/time64.h:
+/usr/include/bits/types/__fpos_t.h:
+/usr/include/bits/types/__mbstate_t.h:
+/usr/include/bits/types/__fpos64_t.h:
+/usr/include/bits/types/__FILE.h:
+/usr/include/bits/types/FILE.h:
+/usr/include/bits/types/struct_FILE.h:
+/usr/include/bits/stdio_lim.h:
+/usr/include/bits/floatn.h:
+/usr/include/bits/floatn-common.h:
+/usr/include/stdlib.h:
+/usr/include/bits/stdlib-float.h:
+builtins/my_dot/../../../launch_shell.h:
+/usr/include/time.h:
+/usr/include/bits/time.h:
+/usr/include/bits/types/clock_t.h:
+/usr/include/bits/types/time_t.h:
+/usr/include/bits/types/struct_tm.h:
+builtins/my_dot/../../../ast/ast.h:
+/usr/include/string.h:
+builtins/my_dot/../../../environment/environment.h:
+builtins/my_dot/../../../environment/../hash_map/hash_map.h:
+/usr/lib/gcc/x86_64-pc-linux-gnu/15.2.1/include/stdbool.h:
+builtins/my_dot/../../../execution/execution.h:
+/usr/include/fnmatch.h:
+/usr/include/fcntl.h:
+/usr/include/bits/fcntl.h:
+/usr/include/bits/fcntl-linux.h:
+builtins/my_dot/../../../execution/../ast/ast.h:
+builtins/my_dot/../../../execution/../environment/environment.h:
+builtins/my_dot/../../../execution/../expansion/expansion.h:
+/usr/include/ctype.h:
+/usr/include/bits/endian.h:
+/usr/include/bits/endianness.h:
+/usr/include/unistd.h:
+/usr/include/bits/posix_opt.h:
+/usr/include/bits/confname.h:
+/usr/include/bits/unistd_ext.h:
+builtins/my_dot/../../../execution/../expansion/command_sub.h:
+/usr/include/sys/wait.h:
+/usr/include/bits/waitflags.h:
+/usr/include/bits/waitstatus.h:
+builtins/my_dot/../../../execution/../expansion/../launch_shell.h:
+builtins/my_dot/../../../execution/../expansion/../environment/environment.h:
+builtins/my_dot/../../../execution/../expansion/expansion_utils.h:
+builtins/my_dot/../../../execution/../hash_map/hash_map.h:
+builtins/my_dot/../../../execution/../parser/parser.h:
+builtins/my_dot/../../../execution/../parser/../ast/ast.h:
+builtins/my_dot/../../../execution/../parser/../lexer/lexer.h:
+/usr/include/regex.h:
+/usr/include/sys/types.h:
+/usr/include/bits/types/clockid_t.h:
+/usr/include/bits/types/timer_t.h:
+/usr/include/bits/stdint-intn.h:
+builtins/my_dot/../../../execution/../parser/../lexer/lexer_utils.h:
+builtins/my_dot/../../../execution/../parser/../lexer/../token.h:
+builtins/my_dot/../../../execution/../parser/../lexer/input_stack.h:
+builtins/my_dot/../../../execution/../parser/../lexer/../environment/environment.h:
+builtins/my_dot/../../../execution/../parser/../lexer/../hash_map/hash_map.h:
+builtins/my_dot/../../../execution/../parser/../token.h:
+builtins/my_dot/../../../execution/../parser/print_parser.h:
+builtins/my_dot/../../../execution/../parser/usefull_fnct.h:
+builtins/my_dot/../../../execution/../parser/../launch_shell.h:
+builtins/my_dot/../../../execution/../parser/parser_firsts/first_command.h:
+builtins/my_dot/../../../execution/../parser/parser_firsts/../../token.h:
+builtins/my_dot/../../../execution/../parser/parser_firsts/first_condition.h:
+builtins/my_dot/../../../execution/../parser/parser_firsts/first_command.h:
+builtins/my_dot/../../../execution/../parser/parser_firsts/first_loop.h:
+builtins/my_dot/../../../execution/../parser/parser_firsts/first_sequence.h:
+builtins/my_dot/../../../execution/../parser/parser_firsts/first_token.h:
+builtins/my_dot/../../../execution/../parser/parser_firsts/switch_first.h:
+builtins/my_dot/../../../execution/../parser/parser_firsts/first_condition.h:
+builtins/my_dot/../../../execution/../parser/parser_firsts/first_loop.h:
+builtins/my_dot/../../../execution/../parser/parser_firsts/first_sequence.h:
+builtins/my_dot/../../../execution/../parser/parser_firsts/first_token.h:
+builtins/my_dot/../../../execution/../parser/parser_firsts/switch_first.h:
+builtins/my_dot/../../../execution/../parser/parser_follows/follow_command.h:
+builtins/my_dot/../../../execution/../parser/parser_follows/../../token.h:
+builtins/my_dot/../../../execution/../parser/parser_follows/follow_token.h:
+builtins/my_dot/../../../execution/../parser/parser_follows/follow_command.h:
+builtins/my_dot/../../../execution/../parser/parser_follows/follow_condition.h:
+builtins/my_dot/../../../execution/../parser/parser_follows/follow_loop.h:
+builtins/my_dot/../../../execution/../parser/parser_follows/follow_sequence.h:
+builtins/my_dot/../../../execution/../parser/parser_follows/switch_follow.h:
+builtins/my_dot/../../../execution/../parser/parser_follows/../parser_firsts/first_token.h:
+builtins/my_dot/../../../execution/../parser/parser_follows/follow_condition.h:
+builtins/my_dot/../../../execution/../parser/parser_follows/follow_loop.h:
+builtins/my_dot/../../../execution/../parser/parser_follows/follow_sequence.h:
+builtins/my_dot/../../../execution/../parser/parser_follows/follow_token.h:
+builtins/my_dot/../../../execution/../parser/parser_follows/switch_follow.h:
+builtins/my_dot/../../../execution/../lexer/lexer_utils.h:
+builtins/my_dot/../../../execution/../launch_shell.h:
+builtins/my_dot/../../../execution/execution_utils.h:
+builtins/my_dot/../../../execution/execute_command/execute_command.h:
+/usr/include/err.h:
+/usr/include/errno.h:
+/usr/include/bits/errno.h:
+/usr/include/linux/errno.h:
+/usr/include/asm/errno.h:
+/usr/include/asm-generic/errno.h:
+/usr/include/asm-generic/errno-base.h:
+builtins/my_dot/../../../execution/builtins/my_break/my_break.h:
+builtins/my_dot/../../../execution/builtins/my_break/../../../environment/environment.h:
+builtins/my_dot/../../../execution/builtins/my_cd/my_cd.h:
+builtins/my_dot/../../../execution/builtins/my_cd/../../../environment/environment.h:
+builtins/my_dot/../../../execution/builtins/my_cd/../../../hash_map/hash_map.h:
+builtins/my_dot/../../../execution/builtins/my_continue/my_continue.h:
+builtins/my_dot/../../../execution/builtins/my_continue/../../../environment/environment.h:
+builtins/my_dot/../../../execution/builtins/my_echo/my_echo.h:
+builtins/my_dot/../../../execution/builtins/my_exit/my_exit.h:
+builtins/my_dot/../../../execution/builtins/my_exit/../../../environment/environment.h:
+builtins/my_dot/../../../execution/builtins/my_redir/my_redir.h:
+builtins/my_dot/../../../execution/builtins/my_redir/../../../ast/ast.h:
+builtins/my_dot/../../../execution/builtins/my_redir/../../../environment/environment.h:
+builtins/my_dot/../../../execution/builtins/my_redir/../../../expansion/expansion.h:
+builtins/my_dot/../../../execution/builtins/my_unset/my_unset.h:
+builtins/my_dot/../../../execution/builtins/my_unset/../../../ast/ast.h:
+builtins/my_dot/../../../execution/builtins/my_unset/../../../environment/environment.h:
+builtins/my_dot/../../../execution/builtins/my_unset/../../../hash_map/hash_map.h:
+builtins/my_dot/../../../execution/builtins/my_export/my_export.h:
+builtins/my_dot/../../../execution/builtins/my_export/../../../environment/environment.h:
+builtins/my_dot/../../../execution/builtins/my_export/../../../lexer/lexer_utils.h:
+builtins/my_dot/../../../execution/builtins/my_dot/my_dot.h:
+builtins/my_dot/../../../execution/builtins/operators/operators.h:
+builtins/my_dot/../../../execution/builtins/operators/../../../environment/environment.h:
+builtins/my_dot/../../../execution/builtins/my_alias/my_alias.h:
+builtins/my_dot/../../../execution/builtins/my_alias/../../../environment/environment.h:
+builtins/my_dot/../../../execution/builtins/my_alias/../../../expansion/expansion.h:
+builtins/my_dot/../../../io_backend/input.h:
+builtins/my_dot/../../../lexer/lexer.h:
+builtins/my_dot/../../../parser/parser.h:
+builtins/my_dot/../../../token.h:
+builtins/my_dot/../../../environment/environment.h:
