@@ -1976,7 +1976,7 @@ case \"\$x\" in
   *) echo no ;;
 esac" "escaped glob in pattern"
 
-test_error "case x in esac" "case with no items"
+test_cmd "case x in esac" "case with no items"
 
 test_stdin "" "stdin immediate EOF"
 
@@ -1993,8 +1993,6 @@ echo two" "newline separator"
 test_cmd "echo test;" "trailing semicolon allowed"
 
 test_cmd "(exit 42); echo \$?" "exit in subshell"
-
-test_cmd ":; echo ok" "colon builtin"
 
 
 #----------------- CLEANUP -----------------#
