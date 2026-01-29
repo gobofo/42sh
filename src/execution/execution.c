@@ -596,6 +596,55 @@ static int execute_function(struct AST *root, char **command)
     return status;
 }
 
+static int execute_case_item(struct AST *root,char* word,int * find){
+  int i=0;
+  int status=0;
+  while(i<root->count_children-1){
+
+    char** word_extend=expand(root->children[i]->content);
+
+    char * word_extend_join= join_tab_string(word_extend);
+
+    if(fnmatch(word_extend_join,word,0)==0){
+      *find=1;
+      status=execute_node(root->children[root->count_children-1]);
+      free(word_extend_join);
+      break;
+    }
+    free(word_extend_join);
+    i++;
+  }
+  return status;
+}
+
+static int execute_case_clause(struct AST *root,char* word){
+  int find=0;
+  int i=0;
+  int status=0;
+
+  while(find==0 && i<root->count_children){
+    status =execute_case_item(root->children[i],word,&find);
+    i++;
+  }
+  return  status;
+}
+
+static int execute_case(struct AST *root){
+
+  if(root->count_children==0){
+    return 0;
+  }
+  char **word_extend=expand(root->content);
+
+  char* word_join=join_tab_string(word_extend);
+
+  int status =execute_case_clause(root->children[0],word_join);
+
+  free(word_join);
+  return status;
+}
+
+
 // ###################
 // #   LOOKUP TABLES #
 // ###################
@@ -634,7 +683,8 @@ int (*execute_node_table[])(struct AST *) = {
     [AST_OR] = execute_or,
     [AST_PIPELINE] = execute_pipeline,
     [AST_SUB] = execute_subshell,
-    [AST_FUNC] = create_function
+    [AST_FUNC] = create_function,
+    [AST_CASE] = execute_case
 };
 
 // ####################
