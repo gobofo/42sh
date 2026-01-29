@@ -408,8 +408,8 @@ struct token *read_input(FILE *file)
         {
             // Sync the stream
             fflush(stream);
-
-
+            
+            
             if (size > 0 && c!='!')
                 return empty_stream(file, &stream, &buffer, c);
 
@@ -420,6 +420,9 @@ struct token *read_input(FILE *file)
 
             fputc(c, stream);
 
+            if(size>0 && c=='!'){
+              continue;
+            }
             if(c==';'){
 
               int next = fgetc(file); // regarde le next pour savoir si c est un ;
