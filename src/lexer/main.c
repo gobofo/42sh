@@ -1,6 +1,8 @@
 #include "lexer.h"
 #include "lexer_utils.h"
 #include "../token.h"
+#include "../environment/environment.h"
+
 
 /**
  * Fichier de test pour le lexer.

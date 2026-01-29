@@ -609,7 +609,7 @@ static int execute_case_item(struct AST *root,char* word,int * find){
 
     char * word_extend_join= join_tab_string(word_extend);
 
-    if(fnmatch(word_extend_join,word,0)){
+    if(fnmatch(word_extend_join,word,0)==0){
       *find=1;
       status=execute_node(root->children[root->count_children-1]);
       free(word_extend_join);
