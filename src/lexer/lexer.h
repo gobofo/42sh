@@ -19,6 +19,7 @@
 
 struct lexer
 {
+	int is_first;
 	int in_var;
 
 	char c;
@@ -38,6 +39,7 @@ struct lexer *init_lexer(FILE *input);
 void free_lexer(struct lexer *lexer);
 
 struct lexer *get_token(struct lexer *lexer);
+struct lexer *get_alias_token(struct lexer *lexer);
 void next_token(struct lexer **lexer);
 
 struct token *read_input(struct lexer *lexer);

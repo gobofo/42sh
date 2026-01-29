@@ -7,9 +7,15 @@
 
 struct AST *command(struct lexer **lexer)
 {
+	get_alias_token(*lexer);
+
+	if (get_current_token(*lexer) == NULL)
+		return NULL;
+
     struct AST *ast = NULL;
 
     int _redir = 0;
+
     if (first_shell_command(get_current_token(*lexer))) // cas de shell command
     {
         _redir = 1; // pour la suite pour evite de mettre un while pour chaque
