@@ -1926,6 +1926,77 @@ test_stdin "echo -n no_newline" "stdin no newline"
 test_stdin "echo 'quote test'" "stdin quotes"
 test_stdin "func() { echo inside; }; func" "stdin function"
 
+####################################################
+
+
+test_cmd "IFS=''; x='a b c'; for i in \$x; do echo \$i; done" "IFS empty disables splitting"
+test_cmd "unset IFS; x='a b c'; for i in \$x; do echo \$i; done" "IFS unset restores default splitting"
+test_cmd "IFS=:; for i in :a:b:c:; do echo \"[\$i]\"; done" "IFS leading and trailing empty fields"
+test_cmd "IFS=' \n'; x='a b\nc'; for i in \$x; do echo \$i; done" "IFS space and newline combined"
+
+test_cmd "x=world; echo 'hello \$x'" "single quotes prevent expansion"
+test_cmd "x=world; echo \"hello \$x\"" "double quotes allow expansion"
+test_cmd "echo \"'single inside double'\"" "single quotes inside double"
+test_cmd "echo '\"double inside single\"'" "double quotes inside single"
+test_cmd "x=''; echo \"\$x\"" "empty quoted variable"
+test_cmd "echo '' ''" "multiple empty arguments"
+
+test_cmd "echo test > /tmp/r1 2>/tmp/r2; cat /tmp/r1; rm /tmp/r1 /tmp/r2" "stdout redirection only"
+test_cmd "echo test > /tmp/r1 > /tmp/r2; cat /tmp/r2; rm /tmp/r1 /tmp/r2" "last redirection wins"
+test_cmd "f=/tmp/redir_var; echo hi > \"\$f\"; cat \$f; rm \$f" "redirect using variable"
+
+test_cmd "false | true; echo \$?" "pipeline exit status last command"
+test_cmd "true | false; echo \$?" "pipeline exit status false"
+test_error "echo test | | cat" "double pipe syntax error"
+
+test_cmd "if echo hi && true; then echo ok; fi" "if compound condition"
+
+test_cmd "f() { false; }; f; echo \$?" "function return status"
+test_cmd "x=global; f() { x=local; }; f; echo \$x" "function modifies global variable"
+test_cmd "f() { echo hi; }; (f)" "function in subshell"
+
+test_cmd "x=1; { x=2; }; echo \$x" "brace group affects parent"
+test_cmd "x=1; ( x=2 ); echo \$x" "subshell does not affect parent"
+
+test_cmd "echo hello \\
+# comment
+world" "line continuation ignores comment line"
+
+test_cmd "echo hello # ignored" "inline comment ignored"
+
+test_cmd "x=abc
+case \"\$x\" in
+  a*) echo first ;;
+  ab*) echo second ;;
+esac" "case first match wins"
+
+test_cmd "x='a*b'
+case \"\$x\" in
+  a\\*b) echo literal ;;
+  *) echo no ;;
+esac" "escaped glob in pattern"
+
+test_error "case x in esac" "case with no items"
+
+test_stdin "" "stdin immediate EOF"
+
+test_stdin "
+
+
+
+
+echo ok" "stdin leading blank lines"
+
+test_cmd "echo one
+echo two" "newline separator"
+
+test_cmd "echo test;" "trailing semicolon allowed"
+
+test_cmd "(exit 42); echo \$?" "exit in subshell"
+
+test_cmd ":; echo ok" "colon builtin"
+
+
 #----------------- CLEANUP -----------------#
 
 rm -rf /tmp/42sh_* /tmp/*_42sh* 2>/dev/null
