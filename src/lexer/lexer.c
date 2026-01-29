@@ -568,9 +568,16 @@ struct token *read_input(struct lexer *lexer)
     {
         if (lexer->c == '\\')
         {
-			handle_escape(lexer);
-            continue;
-        }
+			int next = fgetc(lexer->stack->file);
+			if (next == '\n')
+				continue;
+			else if (next != EOF)
+			{
+				ungetc(next, lexer->stack->file);
+				handle_escape(lexer);
+				continue;
+			}
+		}
 
         // A whitespace marks the end of the token
         if (lexer->c == ' ' || lexer->c == '\t')

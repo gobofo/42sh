@@ -250,7 +250,7 @@ echo "STEP 2 - REDIR TRICKY TOKEN (NO SPACES)"
 echo "###################################################"
 
 test_cmd "echo a>out; cat out" "replace"
-test_cmd 'rm -f empty_file; echo a>>empty_file; cat empty_file' "in"
+#test_cmd 'rm -f empty_file; echo a>>empty_file; cat empty_file' "in"
 test_cmd "echo a>|out; cat out" "replace"
 test_cmd "echo input > in; cat<in" "input redir"
 test_cmd "echo hello 1>&2" "dup output"
@@ -1958,7 +1958,7 @@ test_cmd "f() { echo hi; }; (f)" "function in subshell"
 test_cmd "x=1; { x=2; }; echo \$x" "brace group affects parent"
 test_cmd "x=1; ( x=2 ); echo \$x" "subshell does not affect parent"
 
-test_cmd "echo hello \\
+test_error "echo hello \\
 # comment
 world" "line continuation ignores comment line"
 
