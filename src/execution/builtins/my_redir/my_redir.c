@@ -23,7 +23,22 @@ int do_redir(struct AST *root, struct AST **redir);
 static int general_redir(struct AST *root, struct AST **redir, int fd,
                          int flags)
 {
-    int fd_file = open(redir[0]->children[1]->content, flags, 0644);
+	char *raw_filename = redir[0]->children[1]->content;	
+	char **expand_name = expand(raw_filename, 0);
+
+	if (!expand_name || !expand_name[0])
+	{
+		fprintf(stderr, "Error: not a valid file to redirect\n");
+        return 1;
+	}
+
+	char *filename = expand_name[0];
+
+    int fd_file = open(filename, flags, 0644);
+
+	for (int i = 0; expand_name[i]; i++)
+		free(expand_name[i]);
+	free(expand_name);
 
     int fd_save = dup(fd);
 

@@ -10,6 +10,7 @@
 
 #include "../../../ast/ast.h"
 #include "../../../environment/environment.h"
+#include "../../../expansion/expansion.h"
 
 struct redir
 {
