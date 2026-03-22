@@ -1,6 +1,6 @@
 # 42sh
 
-A POSIX-compliant shell written in C99 from scratch. Implements lexing, parsing, AST construction and execution — no use of `system()` or `popen()`.
+A POSIX-compliant shell written in C99 from scratch. Implements lexing, parsing, AST construction and execution - no use of `system()` or `popen()`.
 
 ## What it does
 
@@ -23,23 +23,23 @@ A POSIX-compliant shell written in C99 from scratch. Implements lexing, parsing,
 
 ```
 src/
-├── lexer/              # Tokenization
-│   ├── lexer.c         # Token recognition and production
-│   ├── lexer_utils.c   # Character classification helpers
-│   └── input_stack.c   # Input source management
-├── parser/             # LL(1) parser → AST
-│   ├── parser_firsts/  # FIRST sets for each grammar rule
-│   ├── parser_follows/ # FOLLOW sets for each grammar rule
-│   └── parser_fnct/    # Grammar rule implementations
-├── ast/                # AST node definitions and utilities
-├── execution/          # AST evaluation
-│   ├── execution.c     # Node dispatch
-│   ├── execute_command/ # Fork + exec
-│   └── builtins/       # Built-in commands
-├── expansion/          # Variable and command substitution
-├── environment/        # Shell variables and environment
-├── hash_map/           # Hash map for variables and aliases
-└── io_backend/         # Input handling (interactive / file)
+|-- lexer/              # Tokenization
+|   |-- lexer.c         # Token recognition and production
+|   |-- lexer_utils.c   # Character classification helpers
+|   `-- input_stack.c   # Input source management
+|-- parser/             # LL(1) parser -> AST
+|   |-- parser_firsts/  # FIRST sets for each grammar rule
+|   |-- parser_follows/ # FOLLOW sets for each grammar rule
+|   `-- parser_fnct/    # Grammar rule implementations
+|-- ast/                # AST node definitions and utilities
+|-- execution/          # AST evaluation
+|   |-- execution.c     # Node dispatch
+|   |-- execute_command/ # Fork + exec
+|   `-- builtins/       # Built-in commands
+|-- expansion/          # Variable and command substitution
+|-- environment/        # Shell variables and environment
+|-- hash_map/           # Hash map for variables and aliases
+`-- io_backend/         # Input handling (interactive / file)
 ```
 
 ## Build
@@ -61,6 +61,6 @@ make check
 
 ## Team
 
-Baptiste Mathieu · Yann Fernandez Puig · Yann Sarthou · Lenny Taurines
+Baptiste Mathieu - Yann Fernandez Puig - Yann Sarthou - Lenny Taurines
 
-EPITA — Systems programming (ING1)
+EPITA - Systems programming (ING1)
