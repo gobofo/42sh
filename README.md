@@ -1,4 +1,4 @@
-# 42sh
+# 42sh 
 
 A POSIX-compliant shell written in C99 from scratch. Implements lexing, parsing, AST construction and execution - no use of `system()` or `popen()`.
 
